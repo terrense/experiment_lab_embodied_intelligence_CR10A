@@ -1,0 +1,97 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.1
+      Plane Cell Count: 30
+      Reference Frame: world
+      Color: 110; 110; 110
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel (CR10 model - CR10A UNVERIFIED)
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Durability Policy: Transient Local
+      Alpha: 0.85
+      Visual Enabled: true
+      Collision Enabled: false
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: true
+      Show Axes: true
+      Show Arrows: false
+      Marker Scale: 0.35
+      Update Interval: 0
+      Frame Timeout: 2
+      Frames:
+        All Enabled: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: HUD + joint axes
+      Enabled: true
+      Topic:
+        Value: /ex/hud
+    - Class: rviz_default_plugins/Path
+      Name: TCP trail
+      Enabled: true
+      Topic:
+        Value: /ex/tcp_path
+      Color: 0; 200; 255
+      Line Style: Billboards
+      Line Width: 0.006
+      Pose Style: None
+    - Class: rviz_default_plugins/Pose
+      Name: TCP pose
+      Enabled: true
+      Topic:
+        Value: /ex/tcp_pose
+      Shape: Axes
+      Axes Length: 0.12
+      Axes Radius: 0.008
+    - Class: rviz_default_plugins/Pose
+      Name: Controller TCP (live only)
+      Enabled: true
+      Topic:
+        Value: /ex/dobot/tcp_controller
+      Shape: Arrow
+      Color: 255; 120; 0
+      Shaft Length: 0.12
+      Shaft Radius: 0.008
+      Head Length: 0.04
+      Head Radius: 0.02
+  Enabled: true
+  Global Options:
+    Background Color: 38; 40; 46
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/Measure
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 3.2
+      Focal Point:
+        X: 0.0
+        Y: -0.2
+        Z: 0.55
+      Pitch: 0.35
+      Yaw: 0.9
+      Target Frame: <Fixed Frame>
+Window Geometry:
+  Width: 1500
+  Height: 950
+  Displays:
+    collapsed: false

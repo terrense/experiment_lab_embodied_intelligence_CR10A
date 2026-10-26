@@ -1,0 +1,21 @@
+# Mode C: LIVE_OBSERVE - read-only feedback from a real Dobot V4 controller.
+#
+# SAFETY: keep enable_live_connection: false unless you are at the robot with
+# authorization and have completed docs/LIVE_ROBOT_CHECKLIST.md sections 1-3.
+# Even when enabled, the observer only connects to a feedback port (30004/5/6)
+# and never sends a byte (see core/readonly_socket.py).
+observer:
+  enable_live_connection: false
+  half_close_write: true        # UNVERIFIED that the controller keeps streaming after FIN
+  check_test_value: true
+  publish_rate_hz: 125.0
+  joint_names: [joint1, joint2, joint3, joint4, joint5, joint6]  # packet order -> URDF names (VERIFY)
+  base_frame: base_link
+  reconnect_backoff_s: [1.0, 2.0, 5.0]
+adapter:
+  expected_rate_hz: 125.0       # 30004; use 5.0 for 30005
+  stale_after_s: 0.1
+  lost_after_s: 1.0
+  stamp_source: receive
+  max_joint_velocity_deg_s: 225.0
+monitor: {}

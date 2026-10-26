@@ -1,0 +1,11 @@
+# Mode A: SIMULATION - no hardware, mock joint source (data is SIMULATED)
+mock:
+  rate_hz: 125.0                # mimics Dobot 30004 feedback period (8 ms)
+  home_deg: [0.0, 0.0, 90.0, 0.0, -90.0, 0.0]
+  amplitude_scale: 1.0
+adapter:
+  expected_rate_hz: 125.0
+  stale_after_s: 0.1
+  lost_after_s: 1.0
+  stamp_source: receive
+monitor: {}

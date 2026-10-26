@@ -1,0 +1,68 @@
+[integration] run=run06 ros=humble domain=42
+[integration] stage 1: SIMULATION
+[integration] OK    sim_pipeline_check (pipeline_check=PASS, expected PASS)
+        [PASS] rate        {"rate_hz": 125.38, "samples": 3112, "max_gap_ms": 11.28, "p99_gap_ms": 10.23}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 28, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[30.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 20.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 25.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 35.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 30.0, 0.0], [0.0, 0.0, 0.01, 0.0, 0.01, 45.0]]}
+        [PASS] adapter_ok  {"reports": 46, "worst_level": 0}
+[integration] bag recorded: data/bags/sim_demo_run06
+        Duration:          21.377599394s
+        Messages:          6739
+                           Topic: /joint_states_robot | Type: sensor_msgs/msg/JointState | Count: 2676 | Serialization Format: cdr
+[integration] stage 2: REPLAY
+[integration] OK    replay_pipeline_check (pipeline_check=PASS, expected PASS)
+        [PASS] rate        {"rate_hz": 125.62, "samples": 1811, "max_gap_ms": 10.7, "p99_gap_ms": 10.09}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 18, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[30.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 20.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 25.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 35.0, 0.0, 0.0], [0.01, 0.01, 0.01, 0.01, 30.0, 0.0], [0.02, 0.03, 0.02, 0.01, 0.01, 45.0]]}
+        [PASS] adapter_ok  {"reports": 26, "worst_level": 0}
+[integration] stage 3: fault=degrees (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_degrees (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 64.39, "samples": 665, "max_gap_ms": 5010.75, "p99_gap_ms": 9.94}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 27, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [29.99, 39.02, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 3: fault=dropout (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_dropout (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 89.25, "samples": 1226, "max_gap_ms": 2011.05, "p99_gap_ms": 10.29}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 19, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 3: fault=jump (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_jump (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 125.32, "samples": 1716, "max_gap_ms": 47.2, "p99_gap_ms": 10.28}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 17, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 4: LIVE_OBSERVE path against mock controller (127.0.0.1 only)
+[integration] OK    live_mock_pipeline_check (pipeline_check=PASS, expected PASS)
+        [PASS] rate        {"rate_hz": 112.9, "samples": 2258, "max_gap_ms": 18.33, "p99_gap_ms": 11.41}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 13, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[30.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 20.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 25.0, 0.01, 0.0, 0.0], [0.01, 0.01, 0.01, 35.0, 0.01, 0.01], [0.01, 0.01, 0.0, 0.01, 30.0, 0.01], [0.01, 0.01, 0.01, 0.01, 0.01, 45.0]]}
+        [PASS] adapter_ok  {"reports": 36, "worst_level": 0}
+mock controller: {'clients': 1, 'packets_sent': 2785, 'client_bytes_received': 0}
+[integration] OK    observer sent 0 bytes to the (mock) controller
+[integration] crosscheck (mock, plumbing only): {"n":2779,"pos_err_mm_mean":4.783946180794231e-14,"pos_err_mm_rms":9.202386044448955e-14,"pos_err_mm_max":4.611102534756204e-13,"rot_err_deg_mean_by_hypothesis":{"quat_xyzw":133.04049644049573,"euler_
+model id (mock): {'official_cr10': 0.0, 'official_cr10af': 41.898} n= 1319
+[integration] OK    offline model identification picks the generating model
+[integration] RESULT: ALL STAGES OK -> data/reports/run06

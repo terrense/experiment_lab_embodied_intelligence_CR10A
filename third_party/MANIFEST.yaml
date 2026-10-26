@@ -1,0 +1,18 @@
+# Pinned third-party sources. Fetch with: bash scripts/fetch_third_party.sh
+# Nothing here is built into EMBODIED-X. Reuse is limited to:
+#   * cra_description CR10 meshes + CR10 kinematic numbers -> vendored by
+#     scripts/vendor_dobot_cr10.py into ex_description (MIT, attribution kept)
+#   * RealTimeData packet layout -> re-implemented (not copied) in
+#     ex_robot_state/core/dobot_feedback.py, verified against command.h by a unit test
+dobot_6axis_ros2_v4:
+  repo: https://github.com/Dobot-Arm/DOBOT_6Axis_ROS2_V4
+  license: MIT (Copyright (c) 2026 Dobot)
+  refs:
+    main:                    ec201c40d5db63185a3593ec9c39f80fe25aa527   # -> third_party/dobot_main
+    feature/v4-optimization: 0f21e9839888f188ac06b0a9fea622d13a29a74f   # -> third_party/dobot_v4opt
+  branches_seen_2026_10_26: [main, feature/v4-optimization, jazzy, 25_6_1]
+  notes: >
+    main vs feature/v4-optimization differ only in README/README_ZH/LICENSE,
+    dobot_moveit/scripts/{send_pose_target,verify_dh}.py and a .trae folder
+    (diff -rq, 2026-10-26). Driver/description code is identical.
+  protocol_doc: "misc/Dobot TCP_IP二次开发接口文档_V4.6.5_20251015_cn.pdf"

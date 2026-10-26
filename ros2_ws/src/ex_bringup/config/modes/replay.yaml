@@ -1,0 +1,7 @@
+# Mode B: REPLAY - rosbag2 provides /joint_states_robot; everything downstream is live.
+adapter:
+  expected_rate_hz: 0.0         # unknown for arbitrary bags; disable rate warning
+  stale_after_s: 0.3
+  lost_after_s: 1.5
+  stamp_source: receive         # restamp: bag stamps are in the past, TF must be "now"
+monitor: {}

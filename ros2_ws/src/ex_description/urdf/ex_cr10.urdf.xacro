@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+  EMBODIED-X robot description: official Dobot CR10 arm + explicit frames.
+
+  Frame tree:
+    world -(mount, fixed)-> base_link -joint1..6-> Link6 -(fixed)-> flange -(tool, fixed)-> tcp
+
+  * world->base_link: mounting pose, arg mount_xyz / mount_rpy (default identity).
+    (The official file put base_link 0.03 m above "world" through dummy_link;
+    that offset has no physical meaning for us and is not reproduced.)
+  * Link6->flange: IDENTITY ASSUMPTION. Must be verified on site by comparing
+    URDF FK with the controller's ToolVectorActual (tool 0) - LIVE_ROBOT_CHECKLIST §4.
+  * flange->tcp: tool offset, arg tool_xyz / tool_rpy (default: no tool).
+
+  STATUS: arm model is the official CR10, NOT confirmed for CR10A.
+-->
+<robot name="ex_cr10" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="mount_xyz" default="0 0 0"/>
+  <xacro:arg name="mount_rpy" default="0 0 0"/>
+  <xacro:arg name="tool_xyz" default="0 0 0"/>
+  <xacro:arg name="tool_rpy" default="0 0 0"/>
+
+  <xacro:include filename="$(find ex_description)/urdf/dobot_cr10_official.xacro"/>
+
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <origin xyz="$(arg mount_xyz)" rpy="$(arg mount_rpy)"/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <xacro:dobot_cr10_official/>
+
+  <link name="flange"/>
+  <joint name="link6_to_flange" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="Link6"/>
+    <child link="flange"/>
+  </joint>
+
+  <link name="tcp"/>
+  <joint name="flange_to_tcp" type="fixed">
+    <origin xyz="$(arg tool_xyz)" rpy="$(arg tool_rpy)"/>
+    <parent link="flange"/>
+    <child link="tcp"/>
+  </joint>
+</robot>

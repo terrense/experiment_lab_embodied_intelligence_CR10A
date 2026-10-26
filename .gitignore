@@ -1,0 +1,14 @@
+# third-party sources are fetched at a pinned commit (third_party/MANIFEST.yaml)
+third_party/*/
+!third_party/MANIFEST.yaml
+# generated data (keep small curated reports only via explicit git add -f)
+data/bags/
+data/test_results/
+data/reports/*/
+*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+install/
+log/

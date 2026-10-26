@@ -1,0 +1,6 @@
+# Frame semantics used across EMBODIED-X (see docs/ARCHITECTURE.md)
+world_frame: world        # fixed lab frame; RViz fixed frame
+base_frame: base_link     # robot base (Dobot "base"/user 0 - origin UNVERIFIED vs controller)
+flange_frame: flange      # = Link6 (identity ASSUMPTION, verify on site)
+tcp_frame: tcp            # flange + tool offset (no tool by default)
+arm_joints: [joint1, joint2, joint3, joint4, joint5, joint6]

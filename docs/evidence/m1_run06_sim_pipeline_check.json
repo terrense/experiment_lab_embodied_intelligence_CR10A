@@ -1,0 +1,135 @@
+{
+  "result": "PASS",
+  "wall_time": 1793016342.3694143,
+  "duration_s": 25.0,
+  "checks": {
+    "rate": {
+      "pass": true,
+      "rate_hz": 125.38,
+      "samples": 3112,
+      "max_gap_ms": 11.28,
+      "p99_gap_ms": 10.23
+    },
+    "names": {
+      "pass": true,
+      "seen": [
+        [
+          "joint1",
+          "joint2",
+          "joint3",
+          "joint4",
+          "joint5",
+          "joint6"
+        ]
+      ],
+      "urdf": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "joint6"
+      ]
+    },
+    "single_pub": {
+      "pass": true,
+      "min": 1,
+      "max": 1
+    },
+    "tf_frames": {
+      "pass": true,
+      "checked": 9,
+      "missing": []
+    },
+    "tf_vs_fk": {
+      "pass": true,
+      "samples": 28,
+      "max_err_mm": 0.0
+    },
+    "motion": {
+      "pass": true,
+      "range_deg": [
+        60.0,
+        40.0,
+        50.0,
+        70.0,
+        60.0,
+        90.0
+      ]
+    },
+    "mapping": {
+      "pass": true,
+      "dominant_freq_index": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "amplitudes_deg": [
+        [
+          30.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          20.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          25.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          35.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          30.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.01,
+          0.0,
+          0.01,
+          45.0
+        ]
+      ]
+    },
+    "adapter_ok": {
+      "pass": true,
+      "reports": 46,
+      "worst_level": 0
+    }
+  }
+}

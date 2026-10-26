@@ -1,0 +1,111 @@
+{
+  "cr10": {
+    "joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "joint6"
+    ],
+    "limits_deg": {
+      "joint1": [
+        -359.24,
+        359.24
+      ],
+      "joint2": [
+        -359.24,
+        359.24
+      ],
+      "joint3": [
+        -163.92,
+        163.92
+      ],
+      "joint4": [
+        -359.24,
+        359.24
+      ],
+      "joint5": [
+        -359.24,
+        359.24
+      ],
+      "joint6": [
+        -359.24,
+        359.24
+      ]
+    },
+    "joint_origin_segment_lengths_mm": [
+      176.5,
+      0.0,
+      607.0,
+      599.254,
+      125.0,
+      108.4
+    ],
+    "zero_pose_flange_xyz_mm": [
+      0.004,
+      -299.4,
+      1476.5
+    ],
+    "tip_link": "Link6"
+  },
+  "cr10af": {
+    "joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "joint6"
+    ],
+    "limits_deg": {
+      "joint1": [
+        -360.0,
+        360.0
+      ],
+      "joint2": [
+        -360.0,
+        360.0
+      ],
+      "joint3": [
+        -160.0,
+        160.0
+      ],
+      "joint4": [
+        -360.0,
+        360.0
+      ],
+      "joint5": [
+        -360.0,
+        360.0
+      ],
+      "joint6": [
+        -360.0,
+        360.0
+      ]
+    },
+    "joint_origin_segment_lengths_mm": [
+      79.0,
+      141.104,
+      607.185,
+      568.05,
+      95.112,
+      87.585
+    ],
+    "zero_pose_flange_xyz_mm": [
+      0.0,
+      -257.5,
+      1476.5
+    ],
+    "tip_link": "Link6"
+  },
+  "same_q_flange_position_diff_mm": {
+    "mean": 41.9,
+    "max": 41.91,
+    "n": 500
+  },
+  "sampled_max_reach_mm": {
+    "cr10": 1499.4,
+    "cr10af": 1497.1
+  }
+}
