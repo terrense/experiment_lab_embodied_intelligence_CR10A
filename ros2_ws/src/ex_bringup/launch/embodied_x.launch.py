@@ -45,7 +45,12 @@ def _setup(ctx, *args, **kwargs):
     if mode not in MODES:
         raise RuntimeError(f"mode must be one of {MODES}, got {mode!r}")
     share = get_package_share_directory("ex_bringup")
-    mode_cfg = yaml.safe_load(Path(share, "config", "modes", f"{mode}.yaml").read_text())
+    cfg_path = Path(share, "config", "modes", f"{mode}.yaml")
+    if mode == "live_observe" and lc("live_config"):
+        # on-site session file written by scripts/live_session.sh; the committed
+        # config keeps enable_live_connection: false
+        cfg_path = Path(lc("live_config"))
+    mode_cfg = yaml.safe_load(cfg_path.read_text())
     desc = _robot_description(ctx)
     common = {"robot_description": desc}
     log_dir = Path(os.path.expanduser(lc("log_dir")))
@@ -107,6 +112,7 @@ def generate_launch_description() -> LaunchDescription:
         ("robot_ip", "192.168.5.1", "live_observe: controller IP"),
         ("feedback_port", "30004", "live_observe: 30004 (8 ms) | 30005 (200 ms) | 30006"),
         ("live_ack", "", "live_observe: must equal I_AM_ON_SITE_AND_AUTHORIZED"),
+        ("live_config", "", "live_observe: alternative mode YAML (on-site session file)"),
         ("log_dir", "~/.ros/embodied_x", "health logs / crosscheck CSV"),
         ("mount_xyz", "0 0 0", "world->base_link translation"),
         ("mount_rpy", "0 0 0", "world->base_link rotation"),
