@@ -52,9 +52,9 @@ class DobotFeedbackObserver(Node):
         p("operator_ack", "")
         p("robot_ip", "192.168.5.1")
         p("feedback_port", 30004)
-        p("half_close_write", True)
+        p("half_close_write", False)  # real CR10A closes on FIN (verified 2026-10-26)
         p("joint_names", ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"])
-        p("publish_rate_hz", 125.0)
+        p("publish_rate_hz", 0.0)
         p("check_test_value", True)
         p("base_frame", "base_link")
         p("reconnect_backoff_s", [1.0, 2.0, 5.0])
@@ -63,7 +63,8 @@ class DobotFeedbackObserver(Node):
         self.enabled = bool(gp("enable_live_connection")) and gp("operator_ack") == ACK
         self.ip, self.port = gp("robot_ip"), int(gp("feedback_port"))
         self.names = list(gp("joint_names"))
-        self.min_period = 1.0 / float(gp("publish_rate_hz"))
+        rate = float(gp("publish_rate_hz"))
+        self.min_period = 1.0 / rate if rate > 0 else 0.0  # <= 0: publish every packet
         self.base_frame = gp("base_frame")
         self.backoff = list(gp("reconnect_backoff_s"))
 
@@ -115,8 +116,10 @@ class DobotFeedbackObserver(Node):
                     if not data:
                         raise ConnectionError("peer closed connection")
                     recv_wall = time.time()
-                    pkt = self.asm.latest(data)
-                    if pkt is not None:
+                    # publish EVERY packet: TCP/NAT often delivers several 8 ms packets in one
+                    # recv(); keeping only the newest dropped ~14% of samples on the real CR10A
+                    # (cr10a_live_01: 2140 controller-timestamp gaps > 12 ms).
+                    for pkt in self.asm.feed(data):
                         self.state = "STREAMING"
                         self._on_packet(pkt, recv_wall)
             except (OSError, ConnectionError) as e:

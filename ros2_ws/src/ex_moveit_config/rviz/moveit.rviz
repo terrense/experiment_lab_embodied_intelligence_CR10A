@@ -1,0 +1,81 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: moveit_rviz_plugin/MotionPlanningFrame
+    Name: MotionPlanning
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.1
+      Plane Cell Count: 30
+      Reference Frame: world
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning (SIMULATION)
+      Enabled: true
+      Move Group Namespace: ""
+      Robot Description: robot_description
+      Planning Scene Topic: /monitored_planning_scene
+      Planning Request:
+        Planning Group: arm
+        Interactive Marker Size: 0.2
+        Query Goal State: true
+        Query Start State: false
+      Planned Path:
+        Loop Animation: false
+        Show Robot Visual: true
+        Show Trail: true
+        State Display Time: 0.05 s
+        Trajectory Topic: /display_planned_path
+      Scene Robot:
+        Robot Alpha: 0.9
+        Show Robot Visual: true
+      Scene Geometry:
+        Scene Alpha: 0.6
+        Scene Color: 220; 120; 50
+        Show Scene Geometry: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Planning lab markers
+      Enabled: true
+      Topic:
+        Value: /ex/planning_lab/markers
+    - Class: rviz_default_plugins/MarkerArray
+      Name: HUD
+      Enabled: true
+      Topic:
+        Value: /ex/hud
+    - Class: rviz_default_plugins/Path
+      Name: Executed TCP trail
+      Enabled: true
+      Topic:
+        Value: /ex/tcp_path
+      Color: 0; 200; 255
+      Line Style: Billboards
+      Line Width: 0.006
+  Enabled: true
+  Global Options:
+    Background Color: 38; 40; 46
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 3.4
+      Focal Point:
+        X: -0.3
+        Y: 0.0
+        Z: 0.55
+      Pitch: 0.45
+      Yaw: 2.6
+      Target Frame: <Fixed Frame>
+Window Geometry:
+  Width: 1600
+  Height: 1000

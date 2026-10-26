@@ -1,0 +1,16 @@
+name: shelf
+description: >-
+  Two-level open shelf in front of the robot. Start TCP in the lower compartment, goal TCP in the
+  upper one: the arm must retract, move up and re-enter. Tests long detours with tight start/goal.
+boxes:
+  - {name: table,        center: [0.0, 0.0, -0.03],   size: [2.0, 2.0, 0.04]}
+  - {name: board_low,    center: [-0.85, 0.0, 0.42],  size: [0.40, 0.90, 0.04]}
+  - {name: board_high,   center: [-0.85, 0.0, 0.87],  size: [0.40, 0.90, 0.04]}
+  - {name: side_left,    center: [-0.85, 0.47, 0.45], size: [0.40, 0.04, 0.90]}
+  - {name: side_right,   center: [-0.85, -0.47, 0.45], size: [0.40, 0.04, 0.90]}
+  - {name: back_panel,   center: [-1.07, 0.0, 0.45],  size: [0.04, 0.98, 0.90]}
+sample_queries:
+  n: 3
+  seed: 2
+  start_tcp_box: {lo: [-0.95, -0.25, 0.12], hi: [-0.75, 0.25, 0.32]}
+  goal_tcp_box:  {lo: [-0.95, -0.25, 0.55], hi: [-0.75, 0.25, 0.75]}

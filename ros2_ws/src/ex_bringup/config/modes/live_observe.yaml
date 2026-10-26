@@ -6,9 +6,9 @@
 # and never sends a byte (see core/readonly_socket.py).
 observer:
   enable_live_connection: false
-  half_close_write: true        # UNVERIFIED that the controller keeps streaming after FIN
+  half_close_write: false       # VERIFIED 2026-10-26 on the real CR10A: controller closes the connection on FIN
   check_test_value: true
-  publish_rate_hz: 125.0
+  publish_rate_hz: 0.0           # 0 = publish every packet (bursty TCP delivery; see observer)
   joint_names: [joint1, joint2, joint3, joint4, joint5, joint6]  # packet order -> URDF names (VERIFY)
   base_frame: base_link
   reconnect_backoff_s: [1.0, 2.0, 5.0]

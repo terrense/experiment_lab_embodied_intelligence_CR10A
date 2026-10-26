@@ -80,3 +80,27 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 
 ### Git
 `HEAD of main` — M1: offline robot-state pipeline + read-only CR10A live path (no hardware)
+
+---
+
+## 2026-10-26（晚）— M1 现场只读会话 + M2 起步
+
+### 现场（真实 CR10A，只读，全程未连接 29999、未发送任何字节）
+- 网络：USB 网卡接入现场 LAN；**控制柜 192.168.201.1**（DHCP 服务器和网关 192.168.201.2）；30004/30005 有数据推送，30006 没有
+- 控制器 `robot_mode` 4（DISABLED）→ 6（BACKDRIVE，操作员拖拽）；控制器时钟比主机慢 267.87 s
+- **RViz 实时同步成功**（HUD 显示 LIVE_OBSERVE，状态 VALID，修复后 123 Hz）
+- **模型判定**：官方 cr10 URDF 与控制器 TCP 吻合，误差 RMS 1.6–3.0 mm，max 5.54 mm（41357 个样本，覆盖六个关节的大范围运动）；CR10AF 约 43 mm。欧拉约定为外旋 XYZ，四元数顺序为 wxyz，Link6 = 法兰，base_link = user 0。详见 HARDWARE_COMPATIBILITY §7
+- 真机数据和截图保存在本机 `data/live/`，**未公开**
+
+### 现场发现并修复的问题（Failure Analysis）
+1. **TCP 半关闭（FIN）导致控制器断开连接**：这是事先标为 UNVERIFIED 的风险，现场确认了 → 默认改为不半关闭（另外三层只读保护保留）
+2. **约 14% 丢包**：每次 recv 只发布最新包；NAT 批量到达时会丢样本 → 改为逐包发布（大于 12 ms 的间隔从 2140 个降到 4 个）
+3. **`pkill -f` 匹配到了执行它的 shell 自身**，导致构建没有执行，旧代码以 0 作除数崩溃 → `live_session.sh stop` 改用锚定的匹配模式，并等待进程退出
+4. 第二段 bag 录制时机械臂没有动（人机协同的时机没对上）；**连续交叉校验 CSV 兜住了这段数据**。教训：在线节点逐包落盘很有必要
+5. DHCP 下发了默认网关，可能把部分外网流量路由到现场网络（见 HARDWARE_COMPATIBILITY §7.1 的处理建议）
+
+### M2（进行中，纯仿真）
+- 离线装好 MoveIt 2.5.10 和 ros2_control；新增 `ex_moveit_config`（mock_components 硬件；关节速度按 CR10A 规格设置）和 `ex_planning_lab`（3 个场景、benchmark、execute_demo、胶囊 clearance 模型）
+- 冒烟测试：move_group 正常，两个控制器 active；RRTConnect / RRTstar / PRM 规划成功；**BITstar 在 MoveIt 2.5 中没有注册**（"Unknown planner"），已移除
+- 单元测试 **80/80 通过**
+- 已知问题（下一步）：试跑时所有 clearance 都是 −0.079 m，怀疑是 base_link 胶囊与桌面重叠，待修复后再跑完整基准

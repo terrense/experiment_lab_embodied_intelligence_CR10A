@@ -1,0 +1,12 @@
+# Velocity limits = CR10A datasheet max joint speeds (J1/J2 150, J3 180, J4-6 223 deg/s;
+# docs/HARDWARE_COMPATIBILITY.md 2.3). Official cr10_moveit used 180/180/223 deg/s for J1-J3.
+# Accelerations: no datasheet value -> 2 x velocity (same ratio as the official config). SIMULATION ONLY.
+default_velocity_scaling_factor: 0.3
+default_acceleration_scaling_factor: 0.3
+joint_limits:
+  joint1: {has_velocity_limits: true, max_velocity: 2.618, has_acceleration_limits: true, max_acceleration: 5.236}
+  joint2: {has_velocity_limits: true, max_velocity: 2.618, has_acceleration_limits: true, max_acceleration: 5.236}
+  joint3: {has_velocity_limits: true, max_velocity: 3.1416, has_acceleration_limits: true, max_acceleration: 6.2832}
+  joint4: {has_velocity_limits: true, max_velocity: 3.892, has_acceleration_limits: true, max_acceleration: 7.784}
+  joint5: {has_velocity_limits: true, max_velocity: 3.892, has_acceleration_limits: true, max_acceleration: 7.784}
+  joint6: {has_velocity_limits: true, max_velocity: 3.892, has_acceleration_limits: true, max_acceleration: 7.784}

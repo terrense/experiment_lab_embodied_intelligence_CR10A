@@ -7,6 +7,7 @@
 #   bash scripts/live_session.sh observe [port]      # 3. RViz live sync (Ctrl-C to stop)
 #   bash scripts/live_session.sh record NAME [sec]   # 4. record (run while 'observe' is running)
 #   bash scripts/live_session.sh analyze NAME        # 5. offline model identification
+#   bash scripts/live_session.sh stop                # stop observe/RViz cleanly
 # env: ROBOT_IP (default 192.168.5.1)
 set -eo pipefail
 source "$(dirname "$0")/ex_env.sh"
@@ -30,7 +31,7 @@ sys.path.insert(0, "ros2_ws/src/ex_robot_state")
 from ex_robot_state.core.readonly_socket import ReadOnlyFeedbackSocket
 from ex_robot_state.core.dobot_feedback import FrameAssembler
 ip, port = sys.argv[1], int(sys.argv[2])
-s = ReadOnlyFeedbackSocket(ip, port, timeout=3.0, half_close=False)   # half-close tested later
+s = ReadOnlyFeedbackSocket(ip, port, timeout=3.0, half_close=False)   # controller closes on FIN (verified)
 s.connect(); a = FrameAssembler(); p = None; t0 = time.time()
 while p is None and time.time() - t0 < 5:
     p = a.latest(s.recv())
@@ -50,7 +51,7 @@ observe)
   PORT="${1:-30004}"
   RATE=$([ "$PORT" = 30005 ] && echo 5.0 || ([ "$PORT" = 30006 ] && echo 1.0 || echo 125.0))
   CFG=/tmp/ex_live_observe_onsite.yaml
-  python3 - "$CFG" "$RATE" "${HALF_CLOSE:-true}" <<'PY'
+  python3 - "$CFG" "$RATE" "${HALF_CLOSE:-false}" <<'PY'
 import sys, yaml
 src = yaml.safe_load(open("ros2_ws/src/ex_bringup/config/modes/live_observe.yaml"))
 src["observer"]["enable_live_connection"] = True          # session-only; committed file stays false
@@ -62,6 +63,17 @@ PY
   echo "LIVE_OBSERVE $IP:$PORT (read-only). Ctrl-C to stop."
   exec ros2 launch ex_bringup embodied_x.launch.py mode:=live_observe robot_ip:="$IP" feedback_port:="$PORT" \
        live_ack:=I_AM_ON_SITE_AND_AUTHORIZED live_config:="$CFG" ;;
+stop)
+  # anchored patterns: an unanchored `pkill -f "ros2 launch ex_bringup"` also matches the
+  # shell that runs it (its own command line contains the string) and kills itself.
+  pkill -INT -f "^/usr/bin/python3 /opt/ros/humble/bin/ros2 launch ex_bringup" || true
+  for _ in $(seq 20); do   # wait up to 10 s for a clean exit, then force
+    pgrep -f "^/home/.*/dobot_feedback_observer|^/usr/bin/python3 /opt/ros/humble/bin/ros2 launch ex_bringup" >/dev/null || break
+    sleep 0.5
+  done
+  pkill -KILL -f "^/home/.*/dobot_feedback_observer" || true
+  pkill -f "^/opt/ros/humble/lib/rviz2/rviz2" || true
+  pgrep -f "^/home/.*/dobot_feedback_observer" >/dev/null && echo "WARNING: observer still running" || echo "stopped" ;;
 record)
   exec bash scripts/record_bag.sh "${1:?name}" "${2:-120}" ;;
 analyze)

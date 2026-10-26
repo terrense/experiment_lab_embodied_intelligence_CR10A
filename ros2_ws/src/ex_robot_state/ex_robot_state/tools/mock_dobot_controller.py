@@ -109,6 +109,10 @@ class MockController:
                 conn, _ = self.srv.accept()
             except socket.timeout:
                 continue
+            except OSError:
+                if self._stop.is_set():  # socket closed by stop()
+                    return
+                raise
             self.clients += 1
             threading.Thread(target=self._serve_client, args=(conn,), daemon=True).start()
 

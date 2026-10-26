@@ -12,3 +12,6 @@ __pycache__/
 build/
 install/
 log/
+# real-robot recordings / screenshots: local only unless the owner approves publication
+data/live/
+data/live_tmp/

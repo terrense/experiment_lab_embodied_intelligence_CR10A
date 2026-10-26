@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- CR10 model + ros2_control with mock_components/GenericSystem (SIMULATION ONLY).
+     There is deliberately no hardware plugin for a real Dobot controller in this package. -->
+<robot name="ex_cr10" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find ex_description)/urdf/ex_cr10.urdf.xacro"/>
+  <xacro:property name="home" value="${[0.0, 0.0, pi/2, 0.0, -pi/2, 0.0]}"/>
+
+  <xacro:macro name="mock_joint" params="i">
+    <joint name="joint${i}">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">${home[i-1]}</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </xacro:macro>
+
+  <ros2_control name="MockCR10" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+      <param name="calculate_dynamics">true</param>
+    </hardware>
+    <xacro:mock_joint i="1"/>
+    <xacro:mock_joint i="2"/>
+    <xacro:mock_joint i="3"/>
+    <xacro:mock_joint i="4"/>
+    <xacro:mock_joint i="5"/>
+    <xacro:mock_joint i="6"/>
+  </ros2_control>
+</robot>

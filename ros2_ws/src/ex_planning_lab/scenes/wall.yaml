@@ -1,0 +1,11 @@
+name: wall
+description: >-
+  A 0.9 m high thin wall in front of the robot (the -x side is the arm's working side in this URDF).
+  Start and goal are mirror poses on either side; the direct joint-1 sweep collides, so the planner
+  must go over the wall or rotate the long way round. Tests detour finding in an open space.
+boxes:
+  - {name: table, center: [0.0, 0.0, -0.03], size: [2.0, 2.0, 0.04]}
+  - {name: wall,  center: [-0.70, 0.0, 0.45], size: [0.50, 0.04, 0.90]}
+queries:
+  - {name: sweep_60,  start_deg: [60, 10, 80, 0, -90, 0], goal_deg: [-60, 10, 80, 0, -90, 0]}
+  - {name: sweep_45,  start_deg: [45, 0, 90, 0, -90, 0],  goal_deg: [-45, 0, 90, 0, -90, 0]}
