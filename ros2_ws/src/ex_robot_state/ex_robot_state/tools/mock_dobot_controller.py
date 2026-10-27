@@ -48,18 +48,31 @@ class MockController:
         self.client_bytes = 0
         self.clients = 0
         self.packets_sent = 0
+        self.robot = None  # optional MockRobot (tools/mock_dashboard.py): stream ITS state instead
         self._stop = threading.Event()
 
     def packet(self, t: float) -> bytes:
-        q = self.motion.positions(t)
-        fields = {
-            "robot_mode": 5, "timestamp_ms": int(time.time() * 1000), "run_time_ms": int(t * 1000),
-            "q_actual_deg": [math.degrees(v) for v in q], "q_target_deg": [math.degrees(v) for v in q],
-            "qd_actual": [math.degrees(v) for v in self.motion.velocities(t)],
-            "speed_scaling": 1.0, "enable_status": 1, "tool_coordinate": 0, "user_coordinate": 0,
-        }
+        if self.robot is not None:
+            qd_deg, qdd_deg, mode, cid, err = self.robot.state()
+            q = [math.radians(v) for v in qd_deg]
+            fields = {
+                "robot_mode": mode, "timestamp_ms": int(time.time() * 1000), "run_time_ms": int(t * 1000),
+                "q_actual_deg": list(qd_deg), "q_target_deg": list(qd_deg), "qd_actual": list(qdd_deg),
+                "speed_scaling": self.robot.speed_factor / 100.0, "enable_status": int(mode in (5, 7)),
+                "error_status": err, "current_command_id": cid, "tool_coordinate": 0, "user_coordinate": 0,
+                # synthetic currents/torques so the recording path is exercised (NOT physics)
+                "i_actual": [0.01 * v for v in qdd_deg], "m_actual": [0.1 * v for v in qdd_deg],
+            }
+        else:
+            q = self.motion.positions(t)
+            fields = {
+                "robot_mode": 5, "timestamp_ms": int(time.time() * 1000), "run_time_ms": int(t * 1000),
+                "q_actual_deg": [math.degrees(v) for v in q], "q_target_deg": [math.degrees(v) for v in q],
+                "qd_actual": [math.degrees(v) for v in self.motion.velocities(t)],
+                "speed_scaling": 1.0, "enable_status": 1, "tool_coordinate": 0, "user_coordinate": 0,
+            }
         if self.model is not None:
-            T = self.model.fk(dict(zip(self.motion.names, q)), self.flange, self.base)
+            T = self.model.fk(dict(zip([f"joint{i}" for i in range(1, 7)], q)), self.flange, self.base)
             r, p, y = (math.degrees(a) for a in matrix_to_rpy(T[:3, :3]))
             fields["tool_vector_actual"] = [*(T[:3, 3] * 1000.0), r, p, y]
             qx, qy, qz, qw = matrix_to_quat(T[:3, :3])

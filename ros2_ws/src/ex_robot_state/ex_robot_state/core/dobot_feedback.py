@@ -102,6 +102,8 @@ class FeedbackPacket:
     tool_frame: Tuple[float, ...]
     motor_temperatures: Tuple[float, ...]
     auto_manual_mode: int
+    i_actual: Tuple[float, ...] = ()
+    m_actual: Tuple[float, ...] = ()
 
     @property
     def robot_mode_name(self) -> str:

@@ -64,3 +64,21 @@ REPLAY **只回放原始源话题**。如果同时回放 `/joint_states` 或 `/t
 
 - `ROS_LOCALHOST_ONLY=1`，`ROS_DOMAIN_ID=42`（`scripts/ex_env.sh`）：DDS 流量不进入实验室网络，避免别人的 ROS 节点调用我们，也避免我们调用别人。
 - 连接真机时，只需要 TCP 到控制器 IP 的 30004 端口，**不需要 DDS 出网**。
+
+## 7. 运动控制模块 `ex_dobot_motion`（2026-10-27 起，应所有者要求加入）
+
+这是本项目**唯一**能让真机运动的代码，和只读栈在代码和配置上完全隔离。目前只有一个用途：为动力学辨识录制"激励轨迹"数据（低速、小幅、关节空间运动）。
+
+| 机制 | 实现 | 测试 |
+|---|---|---|
+| 指令白名单：只允许 RequestControl / EnableRobot / DisableRobot / SpeedFactor / AccJ / MovJ / Stop / RobotMode / GetErrorID / GetAngle | `dashboard.check_command`，在写 socket 之前执行 | 16 条危险指令被拒（PowerOn、RunScript、ClearError、MovL、ServoJ、SetPayload、DO、EmergencyStop……） |
+| MovJ 只允许关节形式，必须给出 v、a，且两者 ≤ 30%；SpeedFactor、AccJ ≤ 30% | 同上 | 有 |
+| 只能执行事先校验过的计划：从**当前位姿**出发，每关节 ±8–15°（近端关节幅度更小）；每个路点以及路点之间的关节空间插值都要满足：关节限位 −10°、TCP 和腕部离安装面 ≥ 0.25 m、TCP 离 J1 轴 ≥ 0.30 m、TCP 位移 ≤ 0.35 m | `excitation.validate_plan`（使用标定模型的 FK） | 低位姿、近限位、均匀 ±15° 都会被拒 |
+| 默认演练：不加 `--execute` 时一个字节都不发 | `runner` | mock 记录到的指令为 0 条 |
+| 执行需要现场口令 `--confirm I_AM_AT_THE_ROBOT_WITH_ESTOP` | `runner` | 没有口令时拒绝，发出 0 条指令 |
+| 前提条件：无报警、无碰撞，只能从下使能或使能空闲状态开始（拖拽中拒绝） | `runner` | — |
+| 每个 8 ms 反馈包都做检查：报警 / 碰撞 / 异常模式 / TCP 越界（+2 cm）/ 关节越界（+2°）→ Stop + DisableRobot；Ctrl-C 同样处理 | `runner` | 注入控制器报警 → Stop + DisableRobot，退出码 6 |
+| 指令分批下发：最多领先 6 条，中止时不会留下长队列 | `runner` | 有 |
+| 结束后回到起点并下使能；完整记录每个反馈包和每条指令往返 | `runner` | 有 |
+
+**残余风险**：模型与真机 FK 的偏差（标定后 < 0.01 mm，但没有外部测量）；控制器自身的碰撞检测等级不在本脚本的控制范围内（以示教器上的设置为准，现场清单要求确认）；物理急停是最后一道防线。

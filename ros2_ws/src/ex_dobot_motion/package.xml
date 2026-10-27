@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ex_dobot_motion</name>
+  <version>0.1.0</version>
+  <description>EMBODIED-X: the ONLY package that can command the real Dobot CR10A (Dashboard 29999). Whitelisted commands, joint-space MovJ only, capped speed/acceleration, validated excitation plans, dry-run by default, on-site confirmation required. Used for read-heavy dynamics-identification recordings.</description>
+  <maintainer email="slamshenxin@gmail.com">embodied-x</maintainer>
+  <license>MIT</license>
+  <exec_depend>ex_robot_state</exec_depend>
+  <exec_depend>ex_description</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

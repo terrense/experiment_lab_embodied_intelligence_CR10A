@@ -11,7 +11,9 @@ reproducibility matter more than polish. Mixed Chinese/English explanations are 
 2. Milestone 1 is **read-only**: no code may open Dobot port 29999 (or 30003) or send bytes to a
    controller. Keep `test_readonly_socket.py` passing; never weaken the port allowlist.
 3. Do not launch official `dobot_bringup_v4` (opens 29999, exposes ~130 unauthenticated services).
-4. Motion-capable code, when it exists, is disabled by default and needs separate review.
+4. Motion-capable code lives ONLY in `ex_dobot_motion` (whitelist, caps, validated plans, dry-run default).
+   Never run it with `--execute` unless the owner confirms in the current conversation that they are AT
+   the robot with the e-stop in reach. Never widen the whitelist or caps without the owner's explicit OK.
 5. Never fabricate results. Anything not run is "UNVERIFIED". Mock/simulated data is labelled as such.
 
 ## Environment
