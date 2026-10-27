@@ -30,8 +30,9 @@ reproducibility matter more than polish. Mixed Chinese/English explanations are 
 - Remote: `origin` = https://github.com/terrense/experiment_lab_embodied_intelligence_CR10A (**public**).
 - After every verified step (tests run, docs updated): commit and `git push origin main`. Never leave
   finished work only on the local disk. A repo-local proxy (`http.https://github.com/.proxy`) is set.
-- Public repo: no credentials, no details of the owner's other projects, no unreviewed live-robot
-  recordings/photos (bags and run reports are gitignored; curated evidence goes to `docs/evidence/`).
+- Public repo: no credentials, no details of the owner's other projects. The owner approved publishing
+  real-robot data (2026-10-27); still curate it: raw bags stay out of git (size), curated evidence goes to
+  `docs/evidence/`, screenshots are cropped to the app window.
 
 ## Engineering conventions
 - ROS-free logic in `ex_robot_state/core/` with unit tests; nodes are thin wrappers.

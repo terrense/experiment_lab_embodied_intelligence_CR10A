@@ -48,4 +48,6 @@ The residual changes with pose (1.6 mm → 4.4 mm), so it comes from geometric p
 3. Log every packet. Down-sampling belongs in visualization, not in data capture.
 4. Write down unverified assumptions *before* going on site. Each one became a 30-second check.
 
-*Raw on-site recordings and screenshots are kept private (lab policy). All figures in this repository use simulated data unless stated otherwise.*
+![live](../assets/m1_live/cr10a_live_rviz_sync.png)
+
+*Real-robot data published with the owner's consent: per-packet cross-check logs in `docs/evidence/m1_live/` (gzip CSV: controller timestamp, q1..q6 [deg], URDF FK xyz, controller TCP xyz, error [mm]). Raw rosbags (~30 MB) are not in git.*
