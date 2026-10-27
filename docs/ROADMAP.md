@@ -7,7 +7,7 @@
 - [x] 校验 adapter、HUD、TCP 轨迹、TF 完整性、自动化验收、故障注入
 - [x] 官方驱动审计；1440B 协议三方核验；CR10 / CR10AF 模型对比；离线模型辨识工具
 - [x] **现场**：只读连接、RViz 实时同步、模型判定（官方 cr10 几何，1.6–5.5 mm；欧拉 = 外旋 XYZ，四元数 = wxyz）
-- [ ] 运动学标定：用现场数据辨识 DH 修正量，把 FK 残差从约 3 mm 降下来（作为 M3 的前置）
+- [x] 运动学对齐：从现场数据辨识出控制器的标定模型，跨会话误差 0.002–0.011 mm（`docs/CALIBRATION.md`），launch 默认 `calibrated:=true`
 - [ ] 真机与 RViz 并排录屏；量化端到端显示延迟（拍屏方式）
 - [x] Case Study #1：`portfolio/case_study_m1_cr10a_readonly_twin.md`
 

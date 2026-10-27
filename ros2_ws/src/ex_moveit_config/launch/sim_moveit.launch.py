@@ -27,7 +27,7 @@ def generate_launch_description() -> LaunchDescription:
     share = get_package_share_directory("ex_moveit_config")
     mc = (
         MoveItConfigsBuilder("ex_cr10", package_name="ex_moveit_config")
-        .robot_description(file_path="urdf/ex_cr10_moveit.urdf.xacro")
+        .robot_description(file_path="urdf/ex_cr10_moveit.urdf.xacro", mappings={"calibrated": "true"})
         .robot_description_semantic(file_path="config/ex_cr10.srdf")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .joint_limits(file_path="config/joint_limits.yaml")

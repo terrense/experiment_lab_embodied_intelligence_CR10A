@@ -1,26 +1,28 @@
 <?xml version="1.0"?>
 <!--
-  EMBODIED-X robot description: official Dobot CR10 arm + explicit frames.
+  EMBODIED-X robot description: Dobot CR10(A) arm + explicit frames.
 
   Frame tree:
     world -(mount, fixed)-> base_link -joint1..6-> Link6 -(fixed)-> flange -(tool, fixed)-> tcp
 
   * world->base_link: mounting pose, arg mount_xyz / mount_rpy (default identity).
-    (The official file put base_link 0.03 m above "world" through dummy_link;
-    that offset has no physical meaning for us and is not reproduced.)
-  * Link6->flange: IDENTITY ASSUMPTION. Must be verified on site by comparing
-    URDF FK with the controller's ToolVectorActual (tool 0) - LIVE_ROBOT_CHECKLIST §4.
+  * base_link == controller user 0, Link6->flange == controller tool 0 (VERIFIED on site 2026-10-26).
   * flange->tcp: tool offset, arg tool_xyz / tool_rpy (default: no tool).
-
-  STATUS: arm model is the official CR10, NOT confirmed for CR10A.
+  * arg calibrated:
+      false (default) official cr10 geometry (MIT, Dobot); FK vs the real CR10A controller 1.6-5.5 mm
+      true            joint origins re-identified from on-site data (evaluation/kinematic_calibration.py):
+                      reproduces the controller's own TCP to ~0.01 mm (cross-session). This aligns with
+                      the controller's calibrated model; it is not an external metrology result.
 -->
 <robot name="ex_cr10" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="mount_xyz" default="0 0 0"/>
   <xacro:arg name="mount_rpy" default="0 0 0"/>
   <xacro:arg name="tool_xyz" default="0 0 0"/>
   <xacro:arg name="tool_rpy" default="0 0 0"/>
+  <xacro:arg name="calibrated" default="false"/>
 
   <xacro:include filename="$(find ex_description)/urdf/dobot_cr10_official.xacro"/>
+  <xacro:include filename="$(find ex_description)/urdf/dobot_cr10_calibrated.xacro"/>
 
   <link name="world"/>
   <joint name="world_to_base" type="fixed">
@@ -29,11 +31,21 @@
     <child link="base_link"/>
   </joint>
 
-  <xacro:dobot_cr10_official/>
+  <xacro:if value="$(arg calibrated)">
+    <xacro:dobot_cr10_calibrated/>
+  </xacro:if>
+  <xacro:unless value="$(arg calibrated)">
+    <xacro:dobot_cr10_official/>
+  </xacro:unless>
 
   <link name="flange"/>
   <joint name="link6_to_flange" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:if value="$(arg calibrated)">
+      <origin xyz="${cal_flange_xyz}" rpy="${cal_flange_rpy}"/>
+    </xacro:if>
+    <xacro:unless value="$(arg calibrated)">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:unless>
     <parent link="Link6"/>
     <child link="flange"/>
   </joint>

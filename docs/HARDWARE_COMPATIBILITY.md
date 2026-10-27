@@ -8,7 +8,7 @@
 | # | 问题 | 结论 | 状态 |
 |---|---|---|---|
 | 1 | CR10A 属于哪个产品族、该用哪个官方仓库 | CRA 系列，对应 V4 协议 → `DOBOT_6Axis_ROS2_V4`（官方描述原文是 "Demo of CRA/E6"） | EVIDENCE |
-| 2 | 官方 `cr10` URDF 的几何能否用于 CR10A | **可以。** 真机 16055 个样本：URDF FK 与控制器 TCP 的误差 RMS 1.61 mm、max 2.85 mm；CR10AF 模型为 43.2 mm（§7） | **VERIFIED（真机）**，J5/J6 的运动覆盖尚不足 |
+| 2 | 官方 `cr10` URDF 的几何能否用于 CR10A | **可以。** 真机 16055 个样本：URDF FK 与控制器 TCP 的误差 RMS 1.61 mm、max 2.85 mm；CR10AF 模型为 43.2 mm（§7） | **VERIFIED（真机）**。另外从现场数据辨识出了控制器的标定模型（`calibrated:=true`，误差 < 0.01 mm，见 `docs/CALIBRATION.md`） |
 | 3 | 能否把 CR10、CR10AF、CR10A 当成同一款机器人 | **不能**。CR10 与 CR10AF 的 URDF 在相同关节角下法兰点恒差 **41.9 mm**，J3 限位也不同 | VERIFIED（针对 URDF 文件） |
 | 4 | 关节限位 | CR10A 规格：J1/2/4/5/6 ±360°，J3 ±160°（零售商数据表）；V4 仓库的 cr10 URDF 写的是 J3 ±163.9° → 我们改用 ±160° 覆盖 | EVIDENCE |
 | 5 | 关节命名和顺序 | `QActual[0..5]` → joint1..6；在 J2/J3/J4 大范围运动下 FK 残差始终 < 3 mm（任何映射或符号错误都会产生厘米到分米级误差） | **VERIFIED（真机）**，J1/J5/J6 只覆盖了静态位姿 |

@@ -36,7 +36,7 @@ def _robot_description(ctx) -> str:
     path = os.path.join(get_package_share_directory("ex_description"), "urdf", "ex_cr10.urdf.xacro")
     return xacro.process_file(path, mappings={
         "mount_xyz": lc("mount_xyz"), "mount_rpy": lc("mount_rpy"),
-        "tool_xyz": lc("tool_xyz"), "tool_rpy": lc("tool_rpy")}).toxml()
+        "tool_xyz": lc("tool_xyz"), "tool_rpy": lc("tool_rpy"), "calibrated": lc("calibrated")}).toxml()
 
 
 def _setup(ctx, *args, **kwargs):
@@ -118,6 +118,7 @@ def generate_launch_description() -> LaunchDescription:
         ("mount_rpy", "0 0 0", "world->base_link rotation"),
         ("tool_xyz", "0 0 0", "flange->tcp translation"),
         ("tool_rpy", "0 0 0", "flange->tcp rotation"),
+        ("calibrated", "true", "use the on-site identified CR10A model (matches the controller TCP); false = official cr10"),
     ]
     return LaunchDescription([DeclareLaunchArgument(n, default_value=d, description=h) for n, d, h in args]
                              + [OpaqueFunction(function=_setup)])

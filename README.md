@@ -29,6 +29,7 @@ valid state and the HUD turns red with the reason.*
 | LIVE_OBSERVE against the **real CR10A** | ✅ 2026-10-26 on site, read-only ([results](docs/HARDWARE_COMPATIBILITY.md#7-现场只读连接结果2026-10-26)) |
 | CR10A kinematic model | ✅ official `cr10` geometry: FK vs controller 1.6–3.0 mm RMS, 5.5 mm max over 41k real samples |
 | M2 MoveIt planning lab (sim) | ✅ 400-plan OMPL benchmark ([report](docs/M2_PLANNING_LAB.md)) |
+| CR10A kinematic alignment | ✅ controller model recovered from on-site data: held-out 0.002–0.011 mm ([details](docs/CALIBRATION.md)) |
 
 ## Quick start (Windows 11 + WSL2)
 
