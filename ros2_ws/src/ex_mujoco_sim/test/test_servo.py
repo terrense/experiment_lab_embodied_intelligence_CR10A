@@ -17,7 +17,7 @@ def test_gains_formula():
 
 
 def test_interpolator_extrapolates_and_caps():
-    it = CommandInterpolator(1, max_horizon=0.02)
+    it = CommandInterpolator(1, max_horizon=0.02, vel_filter_tau=0.0)
     it.update(0.00, [0.0])
     it.update(0.01, [0.1])  # 10 rad/s
     q, v = it.reference(0.015)
@@ -50,3 +50,31 @@ def test_closed_loop_unit_inertia_tracks_ramp():
         if t > 1.0:
             errs.append(abs(0.5 * t - q))
     assert max(errs) < 2e-3
+
+
+def test_velocity_uses_sender_stamps_under_arrival_jitter():
+    """10 ms command stream at 1 rad/s whose ARRIVAL times jitter 4-16 ms (as measured over ROS):
+    with sender stamps the velocity estimate stays at 1 rad/s; with arrival times it would not."""
+    rng = np.random.default_rng(0)
+    with_stamps = CommandInterpolator(1, vel_filter_tau=0.0)
+    arrival_only = CommandInterpolator(1, vel_filter_tau=0.0)
+    t_arr, est_s, est_a = 0.0, [], []
+    for k in range(200):
+        t_src = 0.01 * k
+        t_arr = max(t_arr + 0.001, t_src + rng.uniform(0.0, 0.006))
+        q = [1.0 * t_src]
+        with_stamps.update(t_arr, q, t_src=t_src)
+        arrival_only.update(t_arr, q)
+        if k > 2:
+            est_s.append(with_stamps.v[0])
+            est_a.append(arrival_only.v[0])
+    assert np.allclose(est_s, 1.0, atol=1e-9)
+    assert max(abs(np.array(est_a) - 1.0)) > 0.3  # the bug this guards against
+
+
+def test_velocity_filter_smooths_steps():
+    it = CommandInterpolator(1, vel_filter_tau=0.02)
+    for k in range(3):
+        it.update(0.01 * k, [0.0], t_src=0.01 * k)
+    it.update(0.03, [0.01], t_src=0.03)  # sudden 1 rad/s
+    assert 0.0 < it.v[0] < 1.0

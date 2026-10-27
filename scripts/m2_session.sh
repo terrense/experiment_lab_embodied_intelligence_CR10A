@@ -22,7 +22,16 @@ stop() {
 }
 
 # --no-daemon: the ros2 daemon caches discovery and reports just-killed nodes for a while
-count_move_group() { timeout 20 ros2 node list --no-daemon 2>/dev/null | grep -c '^/move_group$' || true; }
+# and a one-shot --no-daemon discovery can return before move_group is seen (observed: "found 0"),
+# so give it a longer spin window and retry.
+count_move_group() {
+  local n=0
+  for _ in 1 2 3; do
+    n=$(timeout 20 ros2 node list --no-daemon --spin-time 3 2>/dev/null | grep -c '^/move_group$' || true)
+    [ "$n" -ge 1 ] && break
+  done
+  echo "$n"
+}
 
 case "${1:-}" in
 start)

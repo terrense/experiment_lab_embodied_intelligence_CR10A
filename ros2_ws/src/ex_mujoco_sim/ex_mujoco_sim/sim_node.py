@@ -114,8 +114,9 @@ class MujocoSim(Node):
     def _on_cmd(self, msg: JointState) -> None:
         d = dict(zip(msg.name, msg.position))
         if all(n in d for n in JOINTS):
+            stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
             with self._lock:
-                self._pending = [d[n] for n in JOINTS]
+                self._pending = ([d[n] for n in JOINTS], stamp if stamp > 0 else None)
 
     def _run(self) -> None:
         # a dead physics thread must not leave a "healthy-looking" node behind
@@ -147,7 +148,7 @@ class MujocoSim(Node):
             with self._lock:
                 cmd, self._pending = self._pending, None
             if cmd is not None:
-                self.interp.update(self.d.time, cmd)
+                self.interp.update(self.d.time, cmd[0], t_src=cmd[1])
             q = self.d.qpos[self.qadr].copy()
             dq = self.d.qvel[self.dadr].copy()
             if self.interp.has_command():

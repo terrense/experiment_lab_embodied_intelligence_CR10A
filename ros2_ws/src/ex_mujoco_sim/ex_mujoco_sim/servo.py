@@ -34,22 +34,36 @@ def gains_from_inertia(m_eff: Sequence[float], bandwidth_hz: float, zeta: float)
 
 
 class CommandInterpolator:
-    """First-order hold on irregular set-points, extrapolation capped at `max_horizon` s."""
+    """First-order hold on set-points, extrapolation capped at `max_horizon` s.
 
-    def __init__(self, n: int, max_horizon: float = 0.02) -> None:
+    Velocity feed-forward is differenced on the SENDER timestamps when available: arrival
+    times jitter 3.9-16 ms for a 10 ms command stream over ROS (measured 2026-10-27, sender
+    stamps 8.9-11 ms), and differencing arrival times inflated the velocity estimate up to
+    ~2.5x -> kd torque spikes -> divergence near torque limits. The estimate is additionally
+    low-pass filtered (first order, `vel_filter_tau` s)."""
+
+    def __init__(self, n: int, max_horizon: float = 0.02, vel_filter_tau: float = 0.02) -> None:
         self.n = n
         self.max_horizon = max_horizon
+        self.tau = vel_filter_tau
         self.t_last: Optional[float] = None
+        self.src_last: Optional[float] = None
         self.q_last = np.zeros(n)
         self.v = np.zeros(n)
 
-    def update(self, t: float, q: Sequence[float]) -> None:
+    def update(self, t: float, q: Sequence[float], t_src: Optional[float] = None) -> None:
         q = np.asarray(q, float)
-        if self.t_last is not None and t > self.t_last:
-            self.v = (q - self.q_last) / (t - self.t_last)
-        else:
+        ref_prev = self.src_last if (t_src is not None and self.src_last is not None) else self.t_last
+        ref_now = t_src if (t_src is not None and self.src_last is not None) else t
+        if self.t_last is not None and ref_prev is not None and ref_now > ref_prev:
+            dt = ref_now - ref_prev
+            v_raw = (q - self.q_last) / dt
+            a = dt / (self.tau + dt) if self.tau > 0 else 1.0
+            self.v = self.v + a * (v_raw - self.v)
+        elif self.t_last is None:
             self.v = np.zeros(self.n)
         self.t_last, self.q_last = t, q
+        self.src_last = t_src
 
     def has_command(self) -> bool:
         return self.t_last is not None

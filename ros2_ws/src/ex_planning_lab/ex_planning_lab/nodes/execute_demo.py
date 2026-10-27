@@ -44,6 +44,14 @@ class ExecuteDemo(Benchmark):
         p("scene", "wall")
         p("query", "sweep_60")
         p("planner", "RRTConnect")
+        p("save_trajectory", "")   # write the measured move here (JSON) for paired experiments
+        p("load_trajectory", "")   # replay a saved trajectory instead of planning
+        p("speed_scale", 1.0)      # re-time: t/s, dq*s, ddq*s^2
+        p("tag", "")
+        self.last_exec_code = None
+        self.mj_sat = None
+        from diagnostic_msgs.msg import DiagnosticArray
+        self.create_subscription(DiagnosticArray, "/diagnostics", self._on_diag, 20)
         self.exec_cli = ActionClient(self, ExecuteTrajectory, "/execute_trajectory")
         if not self.exec_cli.wait_for_server(timeout_sec=20.0):
             raise RuntimeError("/execute_trajectory not available")
@@ -51,6 +59,37 @@ class ExecuteDemo(Benchmark):
         self.recording = False
         self.create_subscription(JointState, "/joint_states", self._on_js, 100)
         self.last_q = None
+
+    def _on_diag(self, msg) -> None:
+        for st in msg.status:
+            if st.name == "ex/mujoco_sim":
+                for kv in st.values:
+                    if kv.key == "torque_saturation_steps":
+                        self.mj_sat = json.loads(kv.value)
+
+    @staticmethod
+    def traj_to_json(traj) -> dict:
+        pts = []
+        for p in traj.points:
+            idx = [traj.joint_names.index(n) for n in JOINTS]
+            pts.append({"t": p.time_from_start.sec + p.time_from_start.nanosec * 1e-9,
+                        "q": [p.positions[i] for i in idx],
+                        "dq": [p.velocities[i] for i in idx] if p.velocities else [0.0] * 6,
+                        "ddq": [p.accelerations[i] for i in idx] if p.accelerations else [0.0] * 6})
+        return {"joint_names": JOINTS, "points": pts}
+
+    @staticmethod
+    def json_to_traj(d: dict, speed: float):
+        from builtin_interfaces.msg import Duration
+        from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+        jt = JointTrajectory(joint_names=list(d["joint_names"]))
+        for p in d["points"]:
+            t = p["t"] / speed
+            pt = JointTrajectoryPoint(positions=p["q"], velocities=[v * speed for v in p["dq"]],
+                                      accelerations=[a * speed * speed for a in p["ddq"]])
+            pt.time_from_start = Duration(sec=int(t), nanosec=int(round((t - int(t)) * 1e9)))
+            jt.points.append(pt)
+        return jt
 
     def _on_js(self, m: JointState) -> None:
         if set(JOINTS) <= set(m.name):
@@ -70,7 +109,8 @@ class ExecuteDemo(Benchmark):
         r = gh.get_result_async()
         rclpy.spin_until_future_complete(self, r, timeout_sec=120)
         self.t_accept = t_accept
-        return r.result() is not None and r.result().result.error_code.val == 1
+        self.last_exec_code = r.result().result.error_code.val if r.result() is not None else None
+        return self.last_exec_code == 1
 
     def _plan_traj(self, planner, start, goal):
         """Like Benchmark.plan but returns the JointTrajectory message for execution."""
@@ -110,10 +150,15 @@ class ExecuteDemo(Benchmark):
         scene = Scene.from_yaml(Path(get_package_share_directory("ex_planning_lab")) / "scenes" / f"{gp('scene')}.yaml")
         all_names = [b.name for b in scene.boxes]
         self.apply_scene(scene, [])
-        q = [x for x in self.build_queries(scene) if x["name"] == gp("query")]
-        if not q:
-            raise RuntimeError(f"query {gp('query')} not found in scene {scene.name}")
-        q = q[0]
+        loaded = json.loads(Path(gp("load_trajectory")).read_text()) if gp("load_trajectory") else None
+        if loaded is None:
+            q = [x for x in self.build_queries(scene) if x["name"] == gp("query")]
+            if not q:
+                raise RuntimeError(f"query {gp('query')} not found in scene {scene.name}")
+            q = q[0]
+        else:
+            q = {"name": loaded.get("query", "loaded"), "start": np.array(loaded["points"][0]["q"]),
+                 "goal": np.array(loaded["points"][-1]["q"])}
         while self.last_q is None:
             rclpy.spin_once(self, timeout_sec=0.1)
 
@@ -132,10 +177,21 @@ class ExecuteDemo(Benchmark):
         if not self.valid(self.last_q):
             raise RuntimeError("robot is in collision at the query start after re-adding obstacles")
 
-        # 2. the measured move
-        code, traj = self._plan_traj(gp("planner"), self.last_q, q["goal"])
-        if code != 1:
-            raise RuntimeError(f"planning failed (code {code})")
+        # 2. the measured move (planned now, or a saved trajectory re-timed by speed_scale)
+        speed = float(gp("speed_scale"))
+        if loaded is None:
+            code, traj = self._plan_traj(gp("planner"), self.last_q, q["goal"])
+            if code != 1:
+                raise RuntimeError(f"planning failed (code {code})")
+            if gp("save_trajectory"):
+                d = self.traj_to_json(traj)
+                d.update({"scene": scene.name, "query": q["name"], "planner": gp("planner")})
+                Path(gp("save_trajectory")).write_text(json.dumps(d))
+            if speed != 1.0:
+                traj = self.json_to_traj(self.traj_to_json(traj), speed)
+        else:
+            traj = self.json_to_traj(loaded, speed)
+        sat0 = list(self.mj_sat) if self.mj_sat else None
         t_plan = np.array([p.time_from_start.sec + p.time_from_start.nanosec * 1e-9 for p in traj.points])
         Q_plan = np.array([[p.positions[traj.joint_names.index(n)] for n in JOINTS] for p in traj.points])
         P_plan = np.array([self.fk_tcp(x) for x in Q_plan])
@@ -149,7 +205,7 @@ class ExecuteDemo(Benchmark):
             rclpy.spin_once(self, timeout_sec=0.02)
         self.recording = False
         if not ok:
-            raise RuntimeError("execution failed")
+            self.get_logger().warn(f"execution did not succeed (MoveIt error code {self.last_exec_code})")
 
         t_exec = np.array([s[0] for s in self.samples]) - self.t_accept
         Q_exec = np.array([s[1] for s in self.samples])
@@ -160,8 +216,16 @@ class ExecuteDemo(Benchmark):
         arr.markers.append(self._marker(P_exec, 1, ColorRGBA(r=0.1, g=0.8, b=1.0, a=0.95), "executed_tcp"))
         self.marker_pub.publish(arr)
         goal_err = np.abs(Q_exec[-1] - q["goal"])
+        m = (t_exec - d >= t_plan[0]) & (t_exec - d <= t_plan[-1])
+        Qp_al = np.stack([np.interp(t_exec[m] - d, t_plan, Q_plan[:, j]) for j in range(6)], axis=1)
+        tcp_err = np.linalg.norm(np.array([self.fk_tcp(x) for x in Qp_al]) - P_exec[m], axis=1) * 1000
+        sat = (np.array(self.mj_sat) - np.array(sat0)).tolist() if (self.mj_sat and sat0) else None
         rep = {
-            "scene": scene.name, "query": q["name"], "planner": gp("planner"), "plant": self._plant(),
+            "tag": gp("tag"), "scene": scene.name, "query": q["name"], "planner": gp("planner"), "plant": self._plant(),
+            "speed_scale": speed, "loaded_trajectory": bool(loaded), "execution_ok": bool(ok),
+            "moveit_error_code": self.last_exec_code, "torque_saturation_steps_during_move": sat,
+            "tcp_tracking_rms_mm": float(np.sqrt((tcp_err ** 2).mean())) if len(tcp_err) else None,
+            "tcp_tracking_max_mm": float(tcp_err.max()) if len(tcp_err) else None,
             "planned_duration_s": float(t_plan[-1]), "exec_samples": int(len(Q_exec)),
             "joint_states_rate_hz": float((len(t_exec) - 1) / (t_exec[-1] - t_exec[0])) if len(t_exec) > 1 else None,
             "estimated_start_latency_s": d,
