@@ -51,7 +51,8 @@ class MujocoSim(Node):
         p("states_topic", "/mujoco/joint_states")
         p("bandwidth_hz", 8.0)
         p("damping_ratio", 0.9)
-        p("payload_kg", 0.0)
+        p("payload_kg", 0.0)              # TRUE payload on the physical (simulated) arm
+        p("payload_configured_kg", -1.0)  # what the controller believes (SetPayload); <0: same as true
         p("publish_rate_hz", 500.0)
         p("viewer", False)
         p("initial_positions", [0.0, 0.0, math.pi / 2, 0.0, -math.pi / 2, 0.0])
@@ -66,17 +67,26 @@ class MujocoSim(Node):
         self.m = mujoco.MjModel.from_xml_string(mjcf)
         self.d = mujoco.MjData(self.m)
         self.payload = float(gp("payload_kg"))
-        if self.payload > 0:  # point mass at the flange body origin
-            b = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_BODY, "flange")
-            self.m.body_mass[b] += self.payload
-            self.m.body_inertia[b] += 1e-4 * self.payload
+        cfg = float(gp("payload_configured_kg"))
+        self.payload_cfg = self.payload if cfg < 0 else cfg
+        # controller's internal model: same arm, CONFIGURED payload. Gains and the gravity/Coriolis
+        # feed-forward come from it, so a wrong SetPayload shows up as a model error.
+        self.mc = mujoco.MjModel.from_xml_string(mjcf)
+        self.dc = mujoco.MjData(self.mc)
+        b = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_BODY, "flange")
+        for model, mass in ((self.m, self.payload), (self.mc, self.payload_cfg)):
+            if mass > 0:  # point mass at the flange body origin
+                model.body_mass[b] += mass
+                model.body_inertia[b] += 1e-4 * mass
         self.qadr = [self.m.jnt_qposadr[mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_JOINT, n)] for n in JOINTS]
         self.dadr = [self.m.jnt_dofadr[mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_JOINT, n)] for n in JOINTS]
         self.d.qpos[self.qadr] = gp("initial_positions")
         mujoco.mj_forward(self.m, self.d)
+        self.dc.qpos[:] = self.d.qpos
+        mujoco.mj_forward(self.mc, self.dc)
 
-        M = np.zeros((self.m.nv, self.m.nv))
-        mujoco.mj_fullM(self.m, M, self.d.qM)
+        M = np.zeros((self.mc.nv, self.mc.nv))
+        mujoco.mj_fullM(self.mc, M, self.dc.qM)
         m_eff = np.diag(M)[self.dadr]
         self.gains = gains_from_inertia(m_eff, float(gp("bandwidth_hz")), float(gp("damping_ratio")))
         self.tau_max = np.array(dyn.torque_limit)
@@ -88,7 +98,7 @@ class MujocoSim(Node):
         self.window_lag = 0.0  # max lag since the last diagnostics publish (1 s window)
         self.get_logger().info(
             f"MuJoCo {mujoco.__version__} plant: dt {self.m.opt.timestep*1000:.1f} ms, mass {self.m.body_mass.sum():.2f} kg "
-            f"(+payload {self.payload} kg), M_eff {np.round(m_eff, 3).tolist()}, kp {np.round(self.gains.kp, 0).tolist()}")
+            f"(+payload {self.payload} kg, controller believes {self.payload_cfg} kg), M_eff {np.round(m_eff, 3).tolist()}, kp {np.round(self.gains.kp, 0).tolist()}")
 
         self.state_pub = self.create_publisher(JointState, gp("states_topic"), 10)
         self.diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
@@ -159,7 +169,12 @@ class MujocoSim(Node):
                 q_ref, dq_ref = q, np.zeros(6)  # hold position until the controller speaks
                 if step == 0:
                     self.interp.update(0.0, q)
-            bias = self.d.qfrc_bias[self.dadr]
+            # feed-forward from the CONTROLLER's model (configured payload), not the true plant
+            self.dc.qpos[:] = self.d.qpos
+            self.dc.qvel[:] = self.d.qvel
+            mujoco.mj_fwdPosition(self.mc, self.dc)
+            mujoco.mj_fwdVelocity(self.mc, self.dc)
+            bias = self.dc.qfrc_bias[self.dadr]
             tau = servo_torque(q, dq, q_ref, dq_ref, bias, self.gains, self.tau_max)
             self.saturation += (np.abs(tau) >= self.tau_max - 1e-9)
             self.d.ctrl[:] = tau
@@ -187,7 +202,8 @@ class MujocoSim(Node):
                      KeyValue(key="max_lag_ms", value=f"{self.max_lag*1000:.2f}"),
                      KeyValue(key="window_max_lag_ms", value=f"{self.window_lag*1000:.2f}"),
                      KeyValue(key="torque_saturation_steps", value=str(self.saturation.tolist())),
-                     KeyValue(key="payload_kg", value=str(self.payload))]
+                     KeyValue(key="payload_kg", value=str(self.payload)),
+                     KeyValue(key="payload_configured_kg", value=str(self.payload_cfg))]
         arr = DiagnosticArray()
         arr.header.stamp = self.get_clock().now().to_msg()
         arr.status = [st]

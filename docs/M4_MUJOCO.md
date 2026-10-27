@@ -70,3 +70,28 @@ Findings (under the stated dynamics assumptions):
 4. Even the best physics case (16 Hz, 3.4–6.6 mm) is about 2× the mock. Every planner-level clearance from M2 (median 1–2 cm) has to budget for **model error (M1, ≤ 5.5 mm before calibration) + tracking error (this study, 3–15 mm)**. Padding ≥ 2 cm is the minimum.
 
 Open issue: 7 of 60 executions (including 1 on the mock plant) aborted with MoveIt code −4 at an unexplained moment, while the other repeats of the same condition were tight. 8 dedicated repeats on the mock afterwards: 0 failures. The cause is unknown and not plant-related. Session logs are now archived (`data/sessions/`) so the next occurrence is diagnosable. Statistics use the per-condition median, and aborts are counted, not hidden.
+
+## Payload mismatch (pm02, SIMULATED data)
+Question: what happens when the payload on the arm (true) differs from the payload the controller believes (`SetPayload`)?
+Implementation: `sim_node` keeps a second MuJoCo model with the **configured** payload. The servo gains (kp = M·ω²) and the gravity/Coriolis feed-forward come from that model, and the physics run on the true one. Same trajectory as run03 (wall/sweep_60), bw 8 Hz, speed 1.0, 3 repeats. Script: `scripts/m4_payload_mismatch.sh`. Full table: `docs/evidence/m4/m4_payload_mismatch_pm02.md`.
+
+| True / configured | Result (3/3 identical) | Max TCP error | Final error | Static hold error (failed runs) |
+|---|---|---|---|---|
+| 10 / 10 kg | OK | 6.5–7.5 mm | 0.00 mm | – |
+| 10 / 8 kg | OK | 7.0–7.6 mm | **1.48 mm** | – |
+| 10 / 5 kg | **positioning failed** | – | – | 8.9–10.4 mm (J4 ≈ 1.25°) |
+| 10 / 0 kg | **positioning failed** | – | – | 41.5–42.9 mm (J4 ≈ 6.3°) |
+| 0 / 0 kg | OK | 9.2–9.6 mm | 0.03 mm | – |
+| 0 / 10 kg | **positioning failed** | – | – | 13.0–13.8 mm (J4 ≈ −1.55°, sags *upward*) |
+
+"Positioning failed" means the arm could not settle at the trajectory's start pose within the JTC goal tolerance (0.005 rad ≈ 0.29°) after 3 attempts. The static error was measured after a 2 s hold.
+
+Mechanism (checked against the logged gains): the servo here is **PD only (no integral term)**, so an uncompensated gravity torque Δτ ≈ Δm·g·r leaves a steady-state error Δq ≈ Δτ / kp(configured). Wrist J4 dominates:
+- kp_J4 = 200 / 561 / 923 N·m/rad for a configured 0 / 5 / 10 kg.
+- Back-computing the lever arm r from the measured sag gives 0.22–0.26 m in all three failing cases, so a single linear model explains them.
+- That also explains the asymmetry: "configured too light" is worse than "configured too heavy" because the light configuration also *lowers the stiffness*.
+- 2 kg under (10/8) still passes the tolerance, but leaves a permanent 1.5 mm offset.
+
+Caveats:
+- The real Dobot servo almost certainly has integral action and its own load identification, so the real arm would not sag like this. **This result belongs to the model, not the CR10A.** What carries over is the direction: a wrong `SetPayload` shows up as static offset and reduced stiffness, and "too light" is the dangerous side.
+- Verifying this on hardware needs the excitation run (`ex_dobot_motion`) plus a known mass. It has not been done (UNVERIFIED).

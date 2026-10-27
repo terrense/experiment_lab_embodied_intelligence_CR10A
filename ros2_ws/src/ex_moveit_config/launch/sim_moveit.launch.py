@@ -57,6 +57,7 @@ def _setup(ctx, *args, **kwargs):
                             parameters=[mc.robot_description,
                                         {"viewer": lc("mujoco_viewer") == "true",
                                          "payload_kg": float(lc("payload_kg")),
+                                         "payload_configured_kg": float(lc("payload_configured_kg")),
                                          "bandwidth_hz": float(lc("bandwidth_hz"))}]))
     if lc("rviz") == "true":
         actions.append(Node(package="rviz2", executable="rviz2", output="log",
@@ -71,6 +72,6 @@ def _setup(ctx, *args, **kwargs):
 
 def generate_launch_description() -> LaunchDescription:
     args = [("plant", "mock"), ("rviz", "true"), ("monitor", "true"), ("calibrated", "true"),
-            ("mujoco_viewer", "false"), ("payload_kg", "0.0"), ("bandwidth_hz", "8.0")]
+            ("mujoco_viewer", "false"), ("payload_kg", "0.0"), ("payload_configured_kg", "-1.0"), ("bandwidth_hz", "8.0")]
     return LaunchDescription([DeclareLaunchArgument(n, default_value=v) for n, v in args]
                              + [OpaqueFunction(function=_setup)])

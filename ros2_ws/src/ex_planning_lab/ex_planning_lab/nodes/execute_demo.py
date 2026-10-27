@@ -184,8 +184,16 @@ class ExecuteDemo(Benchmark):
             while time.monotonic() < t_settle:
                 rclpy.spin_once(self, timeout_sec=0.05)
         if not positioned:
+            # the controller keeps holding the last set-point: after settling, the remaining error is the
+            # STATIC deviation (e.g. gravity sag from a wrong payload model) - the informative number here
+            t_settle = time.monotonic() + 2.0
+            while time.monotonic() < t_settle:
+                rclpy.spin_once(self, timeout_sec=0.05)
+            hold_err_tcp = float(np.linalg.norm(self.fk_tcp(self.last_q) - self.fk_tcp(q["start"])) * 1000)
             rep = {"tag": gp("tag"), "scene": scene.name, "plant": self._plant(), "speed_scale": float(gp("speed_scale")),
                    "execution_ok": False, "positioning_failed": True, "moveit_error_code": self.last_exec_code,
+                   "static_hold_error_tcp_mm": hold_err_tcp,
+                   "static_hold_error_deg": np.degrees(self.last_q - q["start"]).round(4).tolist(),
                    "tcp_tracking_rms_mm": None, "tcp_tracking_max_mm": None, "tracking_rms_deg_aligned": None,
                    "estimated_start_latency_s": None, "torque_saturation_steps_during_move": None}
             (out / "execute_report.json").write_text(json.dumps(rep, indent=2))
@@ -256,6 +264,7 @@ class ExecuteDemo(Benchmark):
             "tracking_rms_deg_aligned": np.degrees(aligned["rms"]).round(4).tolist(),
             "tracking_max_deg_aligned": np.degrees(aligned["max"]).round(4).tolist(),
             "final_goal_error_deg": np.degrees(goal_err).round(4).tolist(),
+            "final_tcp_error_mm": float(np.linalg.norm(self.fk_tcp(Q_exec[-1]) - self.fk_tcp(q["goal"])) * 1000),
             "tcp_path_planned_m": cartesian_path_length(P_plan), "tcp_path_executed_m": cartesian_path_length(P_exec),
         }
         (out / "execute_report.json").write_text(json.dumps(rep, indent=2))
