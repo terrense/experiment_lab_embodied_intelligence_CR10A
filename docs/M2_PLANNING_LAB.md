@@ -6,12 +6,13 @@
 
 ```bash
 source scripts/ex_env.sh
-ros2 launch ex_moveit_config sim_moveit.launch.py            # RViz MotionPlanning + HUD
-# 另开一个终端：
-ros2 run ex_planning_lab benchmark --ros-args -p trials:=5 -p out_dir:=data/reports/planning_lab/run01
+bash scripts/m2_session.sh start true      # 先清理残留实例，启动并确认只有 1 个 move_group（true = 开 RViz）
+ros2 run ex_planning_lab benchmark --ros-args -p trials:=5 -p out_dir:=data/reports/planning_lab/run02
 python3 evaluation/plot_planning_lab.py data/reports/planning_lab/run01 --out assets/m2
 ros2 run ex_planning_lab execute_demo --ros-args -p scene:=wall -p query:=sweep_60 -p out_dir:=data/reports/planning_lab/exec_wall
+bash scripts/m2_session.sh stop
 ```
+**一定要用 `m2_session.sh` 启停。** 残留的 move_group 会以相同的服务名继续服务，并且持有不同的规划场景，导致结果无法复现（见第 6 节）。benchmark 启动时如果发现 move_group 不止 1 个，会直接拒绝运行。
 不要和 M1 的 `ex_bringup` 同时运行，否则两者都会发布 `/joint_states`。
 
 ## 2. 系统结构
@@ -76,10 +77,53 @@ clearance 的局限：
 - 排除了 `base_link` 与 `table`、`Link1` 与 `table` 这两对：它们与桌面的距离不随关节角变化。
 - MoveIt 的碰撞检查本身没有 padding，规划器会让路径紧贴障碍物，所以 clearance 中位数在几 mm 量级是正常的。
 
-## 5. 结果
+## 5. 结果（run02，2026-10-27，仿真数据）
 
-见 `docs/evidence/m2_planning_benchmark_summary.md` 和 `assets/m2/*.png`。分析写在第 6 节。
+400 次规划（3 个场景 × 8 个查询 × 10 个规划器 × 5 次），单一 move_group，用时 834 s。完整表格：`docs/evidence/m2_planning_benchmark_summary.md`。错误码只有两种：**成功 178、超时 222**。
+
+![success](../assets/m2/success_rate.png)
+![time](../assets/m2/planning_time.png)
+![clearance](../assets/m2/clearance.png)
+![window](../assets/m2/tcp_paths_window.png)
+
+| 规划器 | 总成功率 | 规划时间中位数 wall / window / shelf (s) |
+|---|---|---|
+| **RRTConnect** | **39/40** | 0.044 / 0.619 / 0.230 |
+| **SBL** | **39/40** | 0.731 / 0.970 / 1.156 |
+| EST | 23/40 | 0.128 / 0.605 / 0.903 |
+| BKPIECE | 23/40 | 0.942 / 1.760 / 1.722 |
+| KPIECE | 20/40 | 0.124 / 1.001 / 0.700 |
+| PRMstar | 14/40 | 2.03 / 2.13 / 2.12（时间预算用满） |
+| PRM | 12/40 | 0.082 / — / 1.425 |
+| RRTstar | 5/40 | — / — / 2.05（时间预算用满） |
+| RRT | 3/40 | — / — / 0.533 |
+| BiTRRT | 0/40 | — |
 
 ## 6. 分析与 Failure Analysis
 
-（基准跑完后，根据实测数据填写）
+### 6.1 规划器层面的发现（只在本实验设置下成立：关节空间目标、±1e-3 rad 容差、2 s 预算、OMPL 默认参数）
+1. **双向树占优**：RRTConnect 和 SBL 都是 39/40。目标是一个极小的关节空间区域（6 维、±1e-3 rad）时，从目标侧也长一棵树几乎是必要的。单向树 RRT / RRTstar 只能靠 goal bias 去"撞"这个区域，在 2 s 内几乎全部超时（3/40、5/40）。这不能说明"RRT 差"，只能说明**单向树 + 点目标 + 短预算**这个组合差。
+2. **狭窄通道把规划器区分开了**：window 场景中 PRM 为 0/15，PRM\* 为 1/15。均匀采样在 2 s 内很难把节点落进窗口通道；RRTConnect 和 SBL 仍有 14/15，但规划时间是 wall 场景的约 14 倍。
+3. **渐近最优规划器总是用满预算**（2.0 s），路径改善却很有限：wall 场景 PRM\* 4.84 rad vs RRTConnect 5.29 rad；shelf 场景 RRT\* 9.76 rad vs RRTConnect 10.74 rad。按"时间换质量"衡量，在这个预算下不划算。
+4. **BiTRRT 0/40**：在 MoveIt 默认参数下全部超时。原因**尚未查明**（T-RRT 的温度和代价设置可能并不适合"关节空间 + 无代价地图"的情形），留待调参实验，在此之前不下结论。
+
+### 6.2 与 M1 真机结果的联系：clearance 预算
+- 规划器会把路径贴着障碍物走：window/shelf 场景的 clearance 估计中位数只有 **1–2 cm**（RRTConnect 在 shelf 场景为 6 mm），而且它们满足"无碰撞"的前提只是**模型精确**。
+- M1 现场测得 **URDF FK 与真机相差 1.6–5.5 mm**（理论 DH 与标定 DH 的差）。所以对真机而言，6 mm 的余量几乎被模型误差吃光了。**任何真机执行前，都必须设置 `default_robot_padding`（建议 ≥ 2 cm）**，并以真机的标定误差为依据。这条约束已写进 ROADMAP。
+- wall 场景 clearance 恒为 0.109 m：最小值来自 Link2（肩部）与桌面之间，与路径基本无关。说明该指标需要区分"任务障碍"和"安装平面"，下一版会改成只对任务障碍报告。
+
+### 6.3 实验方法本身的失败（run01 作废的原因）
+| 问题 | 现象 | 根因 | 修复 |
+|---|---|---|---|
+| **多个 move_group 并存** | 同一状态的有效性时真时假；规划报 "goal state invalid"；window 场景里出现 shelf 场景的物体 | 之前运行留下的 MoveIt 实例没被杀掉（非交互 shell 的后台进程组 / 信号问题），多个实例以相同的服务名提供服务，并且持有不同的场景 | `scripts/m2_session.sh`（锚定匹配启停、`--no-daemon` 计数）；benchmark 启动时断言只有一个 move_group |
+| **ros2 daemon 缓存** | 刚杀掉的节点仍出现在 `ros2 node list` 中 | daemon 的发现缓存 | 计数用 `--no-daemon`，stop 时同时停掉 daemon |
+| **碰撞检查穿模** | 92 次 "Computed path is not valid"，OMPL 提示 "path may slightly touch invalid region" | 检查步长 = 0.005 × 状态空间最大跨度。CR10A ±360° 的限位使跨度达到 28.65 rad，相当于每 8.2° 才检查一次，足以穿过 4 cm 厚的墙 | `longest_valid_segment_fraction = 0.00035`（约 0.01 rad）。官方配置的 ±6.27 rad 限位有同样的问题 |
+| 查询贴边 | 采样得到的状态可能紧贴障碍物 | 拒绝采样只校验了"无碰撞" | 要求 mesh clearance ≥ 3 cm（run02 中最小为 3.3 cm） |
+| 胶囊过度保守 | clearance 全为负值 | 胶囊必须包住网格，Link2 的半径达到 0.15 m | 改为区间报告：胶囊下界 + 5 mm 表面采样估计 |
+
+教训：**在比较规划器之前，先验证测量装置本身**（单一服务端、检查分辨率、查询余量）。run01 的"规划器排名"几乎完全是这些实验假象造成的。
+
+### 6.4 局限
+- mock 硬件没有动力学，执行跟踪误差（`execute_demo`）不代表真机。
+- 每个查询只重复 5 次，成功率的置信区间较宽（例如 14/15 的 95% 区间约为 0.70–1.0），用来区分规划器之间的大差异足够，但不适合排列相近规划器的先后。
+- OMPL 参数全部是默认值，没有调参；时间预算只有 2 s 一档。

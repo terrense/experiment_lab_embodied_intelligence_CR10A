@@ -6,12 +6,16 @@
 - [x] SIMULATION / REPLAY / LIVE_OBSERVE（mock）三种模式，一键 launch
 - [x] 校验 adapter、HUD、TCP 轨迹、TF 完整性、自动化验收、故障注入
 - [x] 官方驱动审计；1440B 协议三方核验；CR10 / CR10AF 模型对比；离线模型辨识工具
-- [ ] **现场**：LIVE_ROBOT_CHECKLIST §1–§4（需要你在机械臂旁边完成）
-- [ ] 根据现场数据确定最终模型（法兰定义、欧拉和四元数约定）
+- [x] **现场**：只读连接、RViz 实时同步、模型判定（官方 cr10 几何，1.6–5.5 mm；欧拉 = 外旋 XYZ，四元数 = wxyz）
+- [ ] 运动学标定：用现场数据辨识 DH 修正量，把 FK 残差从约 3 mm 降下来（作为 M3 的前置）
 - [ ] 真机与 RViz 并排录屏；量化端到端显示延迟（拍屏方式）
 - [ ] Case Study #1：Read-only Digital Twin of a CR10A
 
-## M2 — MoveIt 2 规划实验室（纯仿真）
+## M2 — MoveIt 2 规划实验室（纯仿真）— 进行中
+- [x] MoveIt 配置（mock 硬件）、3 个场景、400 次规划基准（run02）、clearance 区间指标、图表
+- [ ] execute_demo：计划轨迹与执行轨迹的对比（mock，无动力学）
+- [ ] BiTRRT 调参；时间预算扫描（0.5 / 2 / 5 s）；padding 对成功率的影响
+- 真机执行前的硬约束：`default_robot_padding` ≥ 2 cm（M1 实测模型误差最大 5.5 mm，M2 路径余量中位数只有 1–2 cm）
 - 用 M1 确定的 URDF 生成 MoveIt 配置（SRDF / 碰撞矩阵），使用虚拟 `JointTrajectoryController`
 - Current / Target / Planned / Executed 四种状态同屏显示；轨迹跟踪误差分析
 - OMPL 规划器基准（RRTConnect / RRT* / PRM / BIT*…）：成功率、时间、路径长度、clearance，同一障碍场景，多随机种子

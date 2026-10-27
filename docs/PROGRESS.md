@@ -104,3 +104,14 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - 冒烟测试：move_group 正常，两个控制器 active；RRTConnect / RRTstar / PRM 规划成功；**BITstar 在 MoveIt 2.5 中没有注册**（"Unknown planner"），已移除
 - 单元测试 **80/80 通过**
 - 已知问题（下一步）：试跑时所有 clearance 都是 −0.079 m，怀疑是 base_link 胶囊与桌面重叠，待修复后再跑完整基准
+
+---
+
+## 2026-10-27 — M2 规划实验室：基准实验与方法学修复
+
+- **run01 作废**：存在多个残留的 move_group 实例，加上碰撞检查步长过粗（8.2°），导致大量假失败（92 次 path invalid、47 次 goal invalid）。详见 M2_PLANNING_LAB §6.3
+- 修复：`scripts/m2_session.sh`（保证只有一个 move_group）、benchmark 启动时断言、`longest_valid_segment_fraction` 0.005 → 0.00035、查询 clearance ≥ 3 cm、clearance 改为区间指标
+- **run02（有效）**：400 次规划，错误码只有成功和超时。RRTConnect 与 SBL 均为 39/40；单向 RRT / RRT\* 在点目标下几乎全部超时；狭窄通道（window）中 PRM 为 0/15；BiTRRT 在默认参数下为 0/40（原因待查）
+- 跨里程碑结论：规划路径的余量（1–2 cm）≤ 真机模型误差（最大 5.5 mm）的数倍 → 真机执行前必须设置 padding
+- 单元测试 84/84；图表在 `assets/m2/`（仿真数据，可以公开）
+- 另外：笔记本夜间休眠导致一次试跑的墙钟时间出现 13 小时跳变；每次规划的耗时由 MoveIt 单独报告，不受影响

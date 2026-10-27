@@ -66,6 +66,7 @@ class Benchmark(Node):
         p("velocity_scaling", 0.3)
         p("out_dir", "data/reports/planning_lab/latest")
         p("group", "arm")
+        p("min_query_clearance", 0.03)
         gp = lambda n: self.get_parameter(n).value  # noqa: E731
         self.cfg = {k: gp(k) for k in ("scenes", "planners", "trials", "planning_time", "velocity_scaling", "out_dir", "group")}
 
@@ -94,6 +95,12 @@ class Benchmark(Node):
         for c in (self.plan_cli, self.valid_cli, self.scene_cli):
             if not c.wait_for_service(timeout_sec=30.0):
                 raise RuntimeError(f"service {c.srv_name} not available - is sim_moveit.launch.py running?")
+        # Several move_group instances answer the same service names with DIFFERENT planning
+        # scenes -> non-repeatable results. Refuse to benchmark unless exactly one exists.
+        time.sleep(1.0)
+        n_mg = sum(1 for name, ns in self.get_node_names_and_namespaces() if name == "move_group")
+        if n_mg != 1:
+            raise RuntimeError(f"found {n_mg} move_group nodes; run `bash scripts/m2_session.sh start` (exactly one required)")
 
     # ------------------------------------------------------------------ utils
     def _robot_description_xml(self) -> str:
@@ -153,6 +160,12 @@ class Benchmark(Node):
         req = GetStateValidity.Request(robot_state=self._robot_state(q), group_name=self.cfg["group"])
         return bool(self._call(self.valid_cli, req).valid)
 
+    def state_clearance(self, q, scene: Scene) -> float:
+        """Mesh-surface clearance estimate of a single state (m)."""
+        _, est, _ = clearance_interval(np.array([q]), self.link_poses, self.capsules, self.points, scene.boxes,
+                                       capsule_box_distance, points_box_distance, top_k=1)
+        return est
+
     def build_queries(self, scene: Scene):
         out = []
         for q in scene.queries:
@@ -171,9 +184,11 @@ class Benchmark(Node):
                 pair = []
                 for region in (sb, gb):
                     q = None
-                    for _ in range(200):
+                    for _ in range(400):
                         cand = sample_in_tcp_region(rng, self.fk_tcp, lo, hi, region, max_tries=5000)
-                        if cand is not None and self.valid(cand):
+                        # states grazing an obstacle measure collision-checker numerics, not planners
+                        if (cand is not None and self.valid(cand)
+                                and self.state_clearance(cand, scene) >= float(self.get_parameter("min_query_clearance").value)):
                             q = cand
                             break
                     pair.append(q)
@@ -228,7 +243,9 @@ class Benchmark(Node):
                                   "goal_deg": np.degrees(q["goal"]).round(2).tolist(),
                                   "start_tcp": self.fk_tcp(q["start"]).round(3).tolist(),
                                   "goal_tcp": self.fk_tcp(q["goal"]).round(3).tolist(),
-                                  "start_valid": sv, "goal_valid": gv})
+                                  "start_valid": sv, "goal_valid": gv,
+                                  "start_clearance_m": round(self.state_clearance(q["start"], scene), 4),
+                                  "goal_clearance_m": round(self.state_clearance(q["goal"], scene), 4)})
                 if not (sv and gv):
                     self.get_logger().error(f"{sname}/{q['name']}: start valid={sv} goal valid={gv} -> skipped")
                     continue

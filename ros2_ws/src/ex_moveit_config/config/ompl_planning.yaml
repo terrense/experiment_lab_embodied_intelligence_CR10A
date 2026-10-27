@@ -22,4 +22,7 @@ arm:
   default_planner_config: RRTConnect
   planner_configs: [RRTConnect, RRT, RRTstar, BiTRRT, PRM, PRMstar, KPIECE, BKPIECE, EST, SBL]  # BITstar: not registered in MoveIt 2.5 OMPL interface ("Unknown planner")
   projection_evaluator: joints(joint1,joint2)
-  longest_valid_segment_fraction: 0.005
+  # Motion-check step = fraction x max state-space extent. With CR10A limits (+-360 deg) the extent is
+  # 28.65 rad, so the usual 0.005 meant one collision check every 0.143 rad (8.2 deg) - enough to tunnel
+  # through 4 cm walls (then rejected by the final path check). 0.00035 -> ~0.01 rad.
+  longest_valid_segment_fraction: 0.00035
