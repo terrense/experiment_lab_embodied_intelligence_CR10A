@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
-<!-- CR10 model + ros2_control with mock_components/GenericSystem (SIMULATION ONLY).
+<!-- CR10 model + ros2_control hardware for SIMULATION ONLY.
+     arg plant:
+       mock    mock_components/GenericSystem: ideal position following, no dynamics (M2)
+       mujoco  topic_based_ros2_control/TopicBasedSystem <-> ex_mujoco_sim (physics plant, M4)
      There is deliberately no hardware plugin for a real Dobot controller in this package. -->
 <robot name="ex_cr10" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="plant" default="mock"/>
   <xacro:include filename="$(find ex_description)/urdf/ex_cr10.urdf.xacro"/>
   <xacro:property name="home" value="${[0.0, 0.0, pi/2, 0.0, -pi/2, 0.0]}"/>
 
-  <xacro:macro name="mock_joint" params="i">
+  <xacro:macro name="sim_joint" params="i">
     <joint name="joint${i}">
       <command_interface name="position"/>
       <state_interface name="position"><param name="initial_value">${home[i-1]}</param></state_interface>
@@ -13,16 +17,24 @@
     </joint>
   </xacro:macro>
 
-  <ros2_control name="MockCR10" type="system">
+  <ros2_control name="SimCR10" type="system">
     <hardware>
-      <plugin>mock_components/GenericSystem</plugin>
-      <param name="calculate_dynamics">true</param>
+      <xacro:if value="${'$(arg plant)' == 'mujoco'}">
+        <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+        <param name="joint_commands_topic">/mujoco/joint_commands</param>
+        <param name="joint_states_topic">/mujoco/joint_states</param>
+        <param name="trigger_joint_command_threshold">-1</param>
+      </xacro:if>
+      <xacro:unless value="${'$(arg plant)' == 'mujoco'}">
+        <plugin>mock_components/GenericSystem</plugin>
+        <param name="calculate_dynamics">true</param>
+      </xacro:unless>
     </hardware>
-    <xacro:mock_joint i="1"/>
-    <xacro:mock_joint i="2"/>
-    <xacro:mock_joint i="3"/>
-    <xacro:mock_joint i="4"/>
-    <xacro:mock_joint i="5"/>
-    <xacro:mock_joint i="6"/>
+    <xacro:sim_joint i="1"/>
+    <xacro:sim_joint i="2"/>
+    <xacro:sim_joint i="3"/>
+    <xacro:sim_joint i="4"/>
+    <xacro:sim_joint i="5"/>
+    <xacro:sim_joint i="6"/>
   </ros2_control>
 </robot>

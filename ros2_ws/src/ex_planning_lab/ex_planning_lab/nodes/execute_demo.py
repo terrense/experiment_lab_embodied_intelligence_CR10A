@@ -90,6 +90,10 @@ class ExecuteDemo(Benchmark):
         res = self._call(self.plan_cli, req, timeout=60).motion_plan_response
         return res.error_code.val, res.trajectory.joint_trajectory
 
+    def _plant(self) -> str:
+        names = {n for n, _ in self.get_node_names_and_namespaces()}
+        return "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)" if "mujoco_sim" in names             else "mock_components/GenericSystem (no dynamics)"
+
     def _marker(self, P, mid, color, ns):
         m = Marker(type=Marker.LINE_STRIP, action=Marker.ADD, ns=ns, id=mid)
         m.header.frame_id = "world"
@@ -157,7 +161,7 @@ class ExecuteDemo(Benchmark):
         self.marker_pub.publish(arr)
         goal_err = np.abs(Q_exec[-1] - q["goal"])
         rep = {
-            "scene": scene.name, "query": q["name"], "planner": gp("planner"), "plant": "mock_components/GenericSystem (no dynamics)",
+            "scene": scene.name, "query": q["name"], "planner": gp("planner"), "plant": self._plant(),
             "planned_duration_s": float(t_plan[-1]), "exec_samples": int(len(Q_exec)),
             "joint_states_rate_hz": float((len(t_exec) - 1) / (t_exec[-1] - t_exec[0])) if len(t_exec) > 1 else None,
             "estimated_start_latency_s": d,
