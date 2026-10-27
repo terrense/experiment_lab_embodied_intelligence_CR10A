@@ -112,7 +112,7 @@ class ExecuteDemo(Benchmark):
         self.last_exec_code = r.result().result.error_code.val if r.result() is not None else None
         return self.last_exec_code == 1
 
-    def _plan_traj(self, planner, start, goal):
+    def _plan_traj(self, planner, start, goal, scaling=None):
         """Like Benchmark.plan but returns the JointTrajectory message for execution."""
         from moveit_msgs.msg import Constraints, JointConstraint
         from moveit_msgs.srv import GetMotionPlan
@@ -120,7 +120,8 @@ class ExecuteDemo(Benchmark):
         r = req.motion_plan_request
         r.group_name, r.planner_id = self.cfg["group"], planner
         r.allowed_planning_time, r.num_planning_attempts = float(self.cfg["planning_time"]), 3
-        r.max_velocity_scaling_factor = r.max_acceleration_scaling_factor = float(self.cfg["velocity_scaling"])
+        r.max_velocity_scaling_factor = r.max_acceleration_scaling_factor = float(
+            scaling if scaling is not None else self.cfg["velocity_scaling"])
         r.start_state = self._robot_state(start)
         c = Constraints()
         for n, v in zip(JOINTS, goal):
@@ -167,9 +168,26 @@ class ExecuteDemo(Benchmark):
         #    state in collision makes every plan fail (observed: invalid states [0..3]).
         table_only = Scene(scene.name, "", [b for b in scene.boxes if b.name == "table"], [])
         self.apply_scene(table_only, all_names)
-        code, traj = self._plan_traj(gp("planner"), self.last_q, q["start"])
-        if code != 1 or not self._execute(traj):
-            raise RuntimeError(f"positioning move failed (code {code})")
+        # The positioning move is not the measured quantity: retry slower if a weak plant (e.g. a
+        # 4 Hz servo) violates the JTC tolerances; if it still fails, WRITE a failure report rather
+        # than crash - silently missing runs would bias the study towards good results.
+        positioned = False
+        for scaling in (None, 0.1, 0.05):
+            code, traj = self._plan_traj(gp("planner"), self.last_q, q["start"], scaling)
+            if code == 1 and self._execute(traj):
+                positioned = True
+                break
+            t_settle = time.monotonic() + 1.5
+            while time.monotonic() < t_settle:
+                rclpy.spin_once(self, timeout_sec=0.05)
+        if not positioned:
+            rep = {"tag": gp("tag"), "scene": scene.name, "plant": self._plant(), "speed_scale": float(gp("speed_scale")),
+                   "execution_ok": False, "positioning_failed": True, "moveit_error_code": self.last_exec_code,
+                   "tcp_tracking_rms_mm": None, "tcp_tracking_max_mm": None, "tracking_rms_deg_aligned": None,
+                   "estimated_start_latency_s": None, "torque_saturation_steps_during_move": None}
+            (out / "execute_report.json").write_text(json.dumps(rep, indent=2))
+            self.get_logger().error("positioning move failed at all speeds; failure report written")
+            return
         t_end = time.monotonic() + 1.0
         while time.monotonic() < t_end:
             rclpy.spin_once(self, timeout_sec=0.05)

@@ -46,12 +46,17 @@ def main() -> None:
     for c in sorted(groups):
         g = groups[c]
         ok = [r for r in g if r["execution_ok"]]
-        tm = [r["tcp_tracking_max_mm"] for r in g]
+        measured = [r for r in g if r.get("tcp_tracking_max_mm") is not None]  # positioning failures have none
+        tm = [r["tcp_tracking_max_mm"] for r in measured] or [float("nan")]
+        npos = sum(bool(r.get("positioning_failed")) for r in g)
         sats = [r["torque_saturation_steps_during_move"] for r in g if r["torque_saturation_steps_during_move"] is not None]
         sat = np.median(np.array(sats), axis=0).astype(int).tolist() if sats else "-"
-        rows.append(f"| {c.rsplit('_s', 1)[0]} | {g[0]['speed_scale']} | {len(g)} | {len(g) - len(ok)} | "
-                    f"{np.median(tm):.2f} [{min(tm):.2f}, {max(tm):.2f}] | {np.median([r['tcp_tracking_rms_mm'] for r in g]):.2f} | "
-                    f"{np.median([r['estimated_start_latency_s'] for r in g]) * 1000:.0f} | {sat} |")
+        rms = [r["tcp_tracking_rms_mm"] for r in measured] or [float("nan")]
+        lat = [r["estimated_start_latency_s"] for r in measured] or [float("nan")]
+        rows.append(f"| {c.rsplit('_s', 1)[0]} | {g[0]['speed_scale']} | {len(g)} | {len(g) - len(ok)}"
+                    f"{f' ({npos} could not even position)' if npos else ''} | "
+                    f"{np.median(tm):.2f} [{min(tm):.2f}, {max(tm):.2f}] | {np.median(rms):.2f} | "
+                    f"{np.median(lat) * 1000:.0f} | {sat} |")
     (run / "summary.md").write_text("\n".join(rows) + "\n")
     print("\n".join(rows))
 
@@ -66,8 +71,11 @@ def main() -> None:
                 g = groups.get(f"mj_bw{bw}_pl{pl}_s{sp}")
                 if not g:
                     continue
-                tm = [r["tcp_tracking_max_mm"] for r in g]
+                tm = [r["tcp_tracking_max_mm"] for r in g if r.get("tcp_tracking_max_mm") is not None]
                 x = bw * (0.94, 1.0, 1.06)[k]  # dodge
+                if not tm:  # no measured run at all: mark at the top of the axis
+                    ax.text(x, 1.0, "x", transform=ax.get_xaxis_transform(), color=SERIES[k], ha="center", va="top", fontsize=11)
+                    continue
                 xs.append(x); med.append(np.median(tm)); lo.append(min(tm)); hi.append(max(tm))
                 nab.append(sum(not r["execution_ok"] for r in g))
             ax.vlines(xs, lo, hi, color=SERIES[k], lw=1.5, alpha=0.6)

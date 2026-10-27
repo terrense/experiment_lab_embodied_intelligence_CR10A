@@ -27,8 +27,12 @@
 - AX = XB（Tsai / Park / Daniilidis），对比 FK 轨迹与 VIO 轨迹：ATE / RPE / 时间偏移估计
 - 依赖 M1 的控制器时钟偏移统计
 
-## M4 — 仿真器分工
-- MuJoCo（本机优先）：从同一份 URDF 转换为 MJCF，验证动力学和控制器
+## M4 — 仿真器分工（MuJoCo 进行中）
+- [x] MuJoCo 被控对象接入 ros2_control（topic_based），MoveIt 及以上一行不改；MJCF 在运行时由同一份 URDF 生成
+- [x] 伺服驱动模型（基于惯量推增益、按发送端时间戳做前馈、重力补偿、力矩饱和）；JTC 容差
+- [ ] 配对跟踪实验 run02（带宽 × 负载 × 速度，每个条件重复 3 次）→ `docs/M4_MUJOCO.md`
+- [ ] 动力学参数辨识：在只读模式下录真机的 `m_actual` / `i_actual`（需要你在现场让机器人自己运行一段程序），用来修正 24.8 kg 与 40 kg 之间的质量差异和摩擦
+- [ ] RL 环境（reach / obstacle avoidance），复用同一个 MJCF
 - Gazebo（ros_gz，隔离环境）：系统级仿真
 - Isaac Lab：远程 GPU；本机 RTX 5060 Laptop **8 GB**（不是 12 GB），只做轻量实验
 

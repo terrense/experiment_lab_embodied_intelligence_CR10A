@@ -30,6 +30,7 @@ valid state and the HUD turns red with the reason.*
 | CR10A kinematic model | ✅ official `cr10` geometry: FK vs controller 1.6–3.0 mm RMS, 5.5 mm max over 41k real samples |
 | M2 MoveIt planning lab (sim) | ✅ 400-plan OMPL benchmark ([report](docs/M2_PLANNING_LAB.md)) |
 | CR10A kinematic alignment | ✅ controller model recovered from on-site data: held-out 0.002–0.011 mm ([details](docs/CALIBRATION.md)) |
+| M4 MuJoCo physics plant | 🔄 behind ros2_control, MoveIt unchanged; tracking study in progress ([details](docs/M4_MUJOCO.md)) |
 
 ## Quick start (Windows 11 + WSL2)
 
