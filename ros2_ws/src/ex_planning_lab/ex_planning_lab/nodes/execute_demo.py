@@ -104,6 +104,7 @@ class ExecuteDemo(Benchmark):
         out = Path(self.cfg["out_dir"])
         out.mkdir(parents=True, exist_ok=True)
         scene = Scene.from_yaml(Path(get_package_share_directory("ex_planning_lab")) / "scenes" / f"{gp('scene')}.yaml")
+        all_names = [b.name for b in scene.boxes]
         self.apply_scene(scene, [])
         q = [x for x in self.build_queries(scene) if x["name"] == gp("query")]
         if not q:
@@ -112,13 +113,20 @@ class ExecuteDemo(Benchmark):
         while self.last_q is None:
             rclpy.spin_once(self, timeout_sec=0.1)
 
-        # 1. positioning move
+        # 1. positioning move with the table only: the mock robot boots at 'home', which can
+        #    intersect scene obstacles (e.g. the forearm runs through the 'wall' box) - a start
+        #    state in collision makes every plan fail (observed: invalid states [0..3]).
+        table_only = Scene(scene.name, "", [b for b in scene.boxes if b.name == "table"], [])
+        self.apply_scene(table_only, all_names)
         code, traj = self._plan_traj(gp("planner"), self.last_q, q["start"])
         if code != 1 or not self._execute(traj):
             raise RuntimeError(f"positioning move failed (code {code})")
         t_end = time.monotonic() + 1.0
         while time.monotonic() < t_end:
             rclpy.spin_once(self, timeout_sec=0.05)
+        self.apply_scene(scene, ["table"])
+        if not self.valid(self.last_q):
+            raise RuntimeError("robot is in collision at the query start after re-adding obstacles")
 
         # 2. the measured move
         code, traj = self._plan_traj(gp("planner"), self.last_q, q["goal"])

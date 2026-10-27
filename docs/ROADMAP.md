@@ -9,11 +9,11 @@
 - [x] **现场**：只读连接、RViz 实时同步、模型判定（官方 cr10 几何，1.6–5.5 mm；欧拉 = 外旋 XYZ，四元数 = wxyz）
 - [ ] 运动学标定：用现场数据辨识 DH 修正量，把 FK 残差从约 3 mm 降下来（作为 M3 的前置）
 - [ ] 真机与 RViz 并排录屏；量化端到端显示延迟（拍屏方式）
-- [ ] Case Study #1：Read-only Digital Twin of a CR10A
+- [x] Case Study #1：`portfolio/case_study_m1_cr10a_readonly_twin.md`
 
 ## M2 — MoveIt 2 规划实验室（纯仿真）— 进行中
 - [x] MoveIt 配置（mock 硬件）、3 个场景、400 次规划基准（run02）、clearance 区间指标、图表
-- [ ] execute_demo：计划轨迹与执行轨迹的对比（mock，无动力学）
+- [x] execute_demo：计划轨迹与执行轨迹的对比（mock，无动力学；启动延迟 24 ms，对齐后 RMS ≤ 0.08°）
 - [ ] BiTRRT 调参；时间预算扫描（0.5 / 2 / 5 s）；padding 对成功率的影响
 - 真机执行前的硬约束：`default_robot_padding` ≥ 2 cm（M1 实测模型误差最大 5.5 mm，M2 路径余量中位数只有 1–2 cm）
 - 用 M1 确定的 URDF 生成 MoveIt 配置（SRDF / 碰撞矩阵），使用虚拟 `JointTrajectoryController`
