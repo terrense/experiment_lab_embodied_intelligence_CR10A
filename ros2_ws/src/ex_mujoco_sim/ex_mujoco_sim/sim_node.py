@@ -85,6 +85,7 @@ class MujocoSim(Node):
         self._pending = None
         self.saturation = np.zeros(6, int)
         self.max_lag = 0.0
+        self.window_lag = 0.0  # max lag since the last diagnostics publish (1 s window)
         self.get_logger().info(
             f"MuJoCo {mujoco.__version__} plant: dt {self.m.opt.timestep*1000:.1f} ms, mass {self.m.body_mass.sum():.2f} kg "
             f"(+payload {self.payload} kg), M_eff {np.round(m_eff, 3).tolist()}, kp {np.round(self.gains.kp, 0).tolist()}")
@@ -145,6 +146,7 @@ class MujocoSim(Node):
                 time.sleep(min(-lag, 0.002))
                 continue
             self.max_lag = max(self.max_lag, lag)
+            self.window_lag = max(self.window_lag, lag)
             with self._lock:
                 cmd, self._pending = self._pending, None
             if cmd is not None:
@@ -183,12 +185,14 @@ class MujocoSim(Node):
         st.message = f"sim t={self.d.time:.1f}s max lag {self.max_lag*1000:.1f} ms"
         st.values = [KeyValue(key="sim_time_s", value=f"{self.d.time:.3f}"),
                      KeyValue(key="max_lag_ms", value=f"{self.max_lag*1000:.2f}"),
+                     KeyValue(key="window_max_lag_ms", value=f"{self.window_lag*1000:.2f}"),
                      KeyValue(key="torque_saturation_steps", value=str(self.saturation.tolist())),
                      KeyValue(key="payload_kg", value=str(self.payload))]
         arr = DiagnosticArray()
         arr.header.stamp = self.get_clock().now().to_msg()
         arr.status = [st]
         self.diag_pub.publish(arr)
+        self.window_lag = 0.0
 
     def destroy_node(self) -> bool:
         self._stop.set()

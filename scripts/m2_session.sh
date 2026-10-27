@@ -10,7 +10,9 @@
 set -eo pipefail
 source "$(dirname "$0")/ex_env.sh"
 cd "$EX_ROOT"
-PATTERNS='^/usr/bin/python3 /opt/ros/humble/bin/ros2 launch ex_moveit_config|^/opt/ros/humble/lib/moveit_ros_move_group/move_group|^/opt/ros/humble/lib/controller_manager/ros2_control_node|^/opt/ros/humble/lib/robot_state_publisher/robot_state_publisher|^/opt/ros/humble/lib/rviz2/rviz2|^/usr/bin/python3 /opt/ros/humble/lib/controller_manager/spawner|^/usr/bin/python3 /home/.*/ex_mujoco_sim/mujoco_sim'
+PATTERNS='^/usr/bin/python3 /opt/ros/humble/bin/ros2 launch ex_moveit_config|^/opt/ros/humble/lib/moveit_ros_move_group/move_group|^/opt/ros/humble/lib/controller_manager/ros2_control_node|^/opt/ros/humble/lib/robot_state_publisher/robot_state_publisher|^/opt/ros/humble/lib/rviz2/rviz2|^/usr/bin/python3 /opt/ros/humble/lib/controller_manager/spawner|^/usr/bin/python3 /home/[^ ]*/ex_ws_out/install/'
+# ^ every EMBODIED-X python node (monitor, sim, clients). The robot_state_monitor started by the
+#   launch was missing here: 33 orphans had piled up over a study, eating CPU (observed 2026-10-27).
 
 stop() {
   pkill -INT -f "$PATTERNS" 2>/dev/null || true
@@ -36,6 +38,12 @@ count_move_group() {
 case "${1:-}" in
 start)
   stop >/dev/null || { echo "could not stop stale processes"; exit 1; }
+  # a real-time physics plant is only as good as the CPU it gets: refuse to start on a busy box
+  for _ in $(seq 30); do
+    awk '{exit !($1 < 4.0)}' /proc/loadavg && break
+    sleep 3
+  done
+  echo "loadavg before start: $(cut -d' ' -f1-3 /proc/loadavg)"
   nohup ros2 launch ex_moveit_config sim_moveit.launch.py "rviz:=${2:-false}" "${@:3}" > /tmp/m2_session.log 2>&1 &
   for _ in $(seq 60); do grep -q "You can start planning now" /tmp/m2_session.log && break; sleep 1; done
   grep -q "You can start planning now" /tmp/m2_session.log || { echo "move_group not ready"; tail -20 /tmp/m2_session.log; exit 1; }

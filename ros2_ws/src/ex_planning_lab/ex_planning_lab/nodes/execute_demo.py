@@ -50,6 +50,7 @@ class ExecuteDemo(Benchmark):
         p("tag", "")
         self.last_exec_code = None
         self.mj_sat = None
+        self.mj_lag = None
         from diagnostic_msgs.msg import DiagnosticArray
         self.create_subscription(DiagnosticArray, "/diagnostics", self._on_diag, 20)
         self.exec_cli = ActionClient(self, ExecuteTrajectory, "/execute_trajectory")
@@ -66,6 +67,8 @@ class ExecuteDemo(Benchmark):
                 for kv in st.values:
                     if kv.key == "torque_saturation_steps":
                         self.mj_sat = json.loads(kv.value)
+                    if kv.key == "window_max_lag_ms" and self.recording:
+                        self.mj_lag = max(self.mj_lag or 0.0, float(kv.value))
 
     @staticmethod
     def traj_to_json(traj) -> dict:
@@ -242,6 +245,8 @@ class ExecuteDemo(Benchmark):
             "tag": gp("tag"), "scene": scene.name, "query": q["name"], "planner": gp("planner"), "plant": self._plant(),
             "speed_scale": speed, "loaded_trajectory": bool(loaded), "execution_ok": bool(ok),
             "moveit_error_code": self.last_exec_code, "torque_saturation_steps_during_move": sat,
+            "sim_max_lag_ms": self.mj_lag,  # max real-time lag of the physics plant DURING the measured move
+            "loadavg_1m": float(open("/proc/loadavg").read().split()[0]),
             "tcp_tracking_rms_mm": float(np.sqrt((tcp_err ** 2).mean())) if len(tcp_err) else None,
             "tcp_tracking_max_mm": float(tcp_err.max()) if len(tcp_err) else None,
             "planned_duration_s": float(t_plan[-1]), "exec_samples": int(len(Q_exec)),

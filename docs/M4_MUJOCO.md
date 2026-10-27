@@ -42,7 +42,13 @@ Run: `bash scripts/m2_session.sh start true plant:=mujoco [bandwidth_hz:=8] [pay
 | 3 | `m2_session.sh` reported "found 0 move_group" right after start | A one-shot `--no-daemon` discovery returned before move_group was seen | Longer spin window + retries |
 | 4 | Same trajectory, same config → 1 of 3 runs diverged (25° on the wrist) near the final deceleration | Velocity feedforward was differenced on **arrival** times. Measured jitter: arrival 3.9–16 ms vs sender stamps 8.9–11 ms for a 10 ms stream, so the velocity estimate was up to about 2.5× off, giving kd torque spikes and divergence near the torque limits | Use sender stamps + 20 ms low-pass; after the fix 3/3 succeed. Unit test reproduces the jitter. |
 
-Lesson: a physics plant behind a message bus inherits the bus's timing noise. Any derivative taken on the receive side has to use the sender's clock.
+| 5 | A 4 Hz servo could not even finish the positioning move → `execute_demo` crashed → **runs silently missing**, which biased results towards "good" | Positioning failure was treated as an exception | Retry the positioning move at 0.1×/0.05× speed; if it still fails, **write a failure report** (counted in the study) |
+| 6 | Study run02: errors grew as the study progressed (16 Hz/no payload: 83–97 mm, hundreds of torque-saturated steps vs about 4 mm in run01). **Run02 discarded.** | **33 orphaned `robot_state_monitor` processes** (started by every MoveIt session, missing from the cleanup list) each used 13–67 % CPU. Load average reached 26 on 16 cores, the Python 1 kHz plant could not keep real time, and state lagged behind commands. | Cleanup covers every EMBODIED-X node; start waits for loadavg < 4; the study runs with `monitor:=false`; reports now carry **per-move plant lag** and loadavg. Re-check in a clean box: 6.0 / 6.1 / 6.1 mm, 0 saturation (3 repeats). |
+
+Lessons:
+- A physics plant behind a message bus inherits the bus's timing noise. Any derivative taken on the receive side has to use the sender's clock.
+- **A real-time simulator is only valid while it keeps real time.** Measure and report that per run; otherwise CPU contention shows up as "dynamics".
+- The M2 planner benchmark run02 also ran with orphaned monitors present, so it is being re-run (run03) for comparison.
 
 ## Results
 See §Results (written from `data/reports/m4/run02`).
