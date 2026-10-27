@@ -50,5 +50,23 @@ Lessons:
 - **A real-time simulator is only valid while it keeps real time.** Measure and report that per run; otherwise CPU contention shows up as "dynamics".
 - The M2 planner benchmark run02 also ran with orphaned monitors present, so it is being re-run (run03) for comparison.
 
-## Results
-See §Results (written from `data/reports/m4/run02`).
+## Results (run03, clean environment, SIMULATED data)
+Design: one RRTConnect trajectory (wall/sweep_60, 4.6 s at 0.3× speed scaling), replayed unchanged. Conditions: mock plant, then MuJoCo with servo bandwidth {4, 8, 16} Hz × payload {0, 5, 10} kg × speed {1.0, 1.8}, **3 repeats each** (60 executions). Load average during the study ≤ 1.27; plant real-time lag during moves: median 2.2 ms.
+Full table: `docs/evidence/m4/m4_run03_summary.md`.
+
+![tracking](../assets/m4/tracking_tcp_max.png)
+
+| Servo bandwidth | Max TCP error, median (speed 1.0 / 1.8) | Executions completed | Start latency |
+|---|---|---|---|
+| mock (no dynamics) | 2.2 / 2.8 mm | 5/6 (1 unexplained abort, see below) | 26–28 ms |
+| 4 Hz | 19–189 / 28–42 mm | **0/18**: JTC aborts (trajectory tolerance 0.15 rad); 2 runs could not even reach the start pose | 48–97 ms |
+| 8 Hz | 7.6–9.2 / 12.0–15.1 mm | 15/18 | 30–40 ms |
+| 16 Hz | 3.4–4.6 / 5.7–6.6 mm | 17/18 | 28–30 ms |
+
+Findings (under the stated dynamics assumptions):
+1. **Tracking error ≈ 1/bandwidth.** 8 → 16 Hz halves the error (9.2 → 4.6 mm at no payload). 1.8× speed raises it by about 1.5×. A 4 Hz servo cannot track a 0.3×-speed TOTG trajectory within a 0.15 rad tolerance.
+2. **Payload barely matters here, and that is an artefact of the model.** The servo gains scale with the effective inertia *including* the payload, and the gravity/Coriolis feed-forward is perfect, so a known payload is fully compensated (errors even shrink slightly with payload). On a real Dobot this corresponds to a *correctly configured* `SetPayload`. The informative next experiment is a **payload mismatch** (true mass ≠ configured mass).
+3. Torque saturation disappeared in the clean environment, except J3 at 16 Hz / 10 kg / 1.8× (51 steps). The saturation seen in run02 was mostly caused by the plant losing real time.
+4. Even the best physics case (16 Hz, 3.4–6.6 mm) is about 2× the mock. Every planner-level clearance from M2 (median 1–2 cm) has to budget for **model error (M1, ≤ 5.5 mm before calibration) + tracking error (this study, 3–15 mm)**. Padding ≥ 2 cm is the minimum.
+
+Open issue: 7 of 60 executions (including 1 on the mock plant) aborted with MoveIt code −4 at an unexplained moment, while the other repeats of the same condition were tight. 8 dedicated repeats on the mock afterwards: 0 failures. The cause is unknown and not plant-related. Session logs are now archived (`data/sessions/`) so the next occurrence is diagnosable. Statistics use the per-condition median, and aborts are counted, not hidden.

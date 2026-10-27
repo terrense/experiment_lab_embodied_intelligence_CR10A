@@ -15,6 +15,12 @@ PATTERNS='^/usr/bin/python3 /opt/ros/humble/bin/ros2 launch ex_moveit_config|^/o
 #   launch was missing here: 33 orphans had piled up over a study, eating CPU (observed 2026-10-27).
 
 stop() {
+  # keep every session's log: failures must stay diagnosable after the next start overwrites it
+  if [ -s /tmp/m2_session.log ]; then
+    mkdir -p "$EX_ROOT/data/sessions"
+    cp /tmp/m2_session.log "$EX_ROOT/data/sessions/m2_$(date +%Y%m%d_%H%M%S).log"
+    : > /tmp/m2_session.log
+  fi
   pkill -INT -f "$PATTERNS" 2>/dev/null || true
   for _ in $(seq 20); do pgrep -f "$PATTERNS" >/dev/null || break; sleep 0.5; done
   pkill -KILL -f "$PATTERNS" 2>/dev/null || true
