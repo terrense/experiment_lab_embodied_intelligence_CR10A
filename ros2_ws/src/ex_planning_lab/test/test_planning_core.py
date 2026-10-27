@@ -144,3 +144,49 @@ def test_time_offset_recovers_delay():
     tq = np.clip(te - 0.12, 0, 2)  # executed = planned delayed by 120 ms
     Qe = np.stack([np.sin(tq * 2), 0.5 * tq ** 2], axis=1)
     assert estimate_time_offset(t, Qp, te, Qe) == pytest.approx(0.12, abs=0.003)
+
+
+def test_min_clearance_ignores_mounting_pair_and_reports_pair():
+    cap = Capsule("base_link", np.zeros(3), np.zeros(3), 0.1)
+    table = Box("table", np.array([0, 0, -0.03]), np.array([2, 2, 0.04]))
+    wall = Box("wall", np.array([1.0, 0, 0.5]), np.array([0.1, 1, 1]))
+    poses = lambda q: {"base_link": np.eye(4)}  # noqa: E731
+    d, pair = min_clearance(np.zeros((1, 1)), poses, [cap], [table, wall], capsule_box_distance, return_pair=True)
+    assert pair == ("base_link", "wall") and d == pytest.approx(0.85)
+    d2 = min_clearance(np.zeros((1, 1)), poses, [cap], [table], capsule_box_distance, ignore=frozenset())
+    assert d2 < 0  # without the ignore rule the mount reads as penetration
+
+
+def test_clearance_interval_brackets_truth():
+    from ex_planning_lab.core.capsules import points_box_distance, voxel_downsample
+    from ex_planning_lab.core.metrics import clearance_interval
+    rng = np.random.default_rng(1)
+    # "mesh": points on a thin rod offset from the bone; capsule fitted around it
+    pts = np.stack([rng.uniform(0, 0.5, 4000), np.full(4000, 0.1), np.zeros(4000)], axis=1)
+    cap = Capsule("L", np.zeros(3), np.array([0.5, 0, 0]), 0.1)   # bone fit, contains pts
+    box = Box("b", np.array([0.25, 0.4, 0.0]), np.array([1.0, 0.2, 1.0]))  # face at y = 0.3
+    poses = lambda q: {"L": np.eye(4)}  # noqa: E731
+    lb, est, pair = clearance_interval(np.zeros((1, 1)), poses, [cap], {"L": voxel_downsample(pts, 0.005)}, [box],
+                                       capsule_box_distance, points_box_distance)
+    truth = 0.2  # rod at y=0.1, box face at y=0.3
+    assert lb <= truth + 1e-9 <= est + 1e-9 and est - truth < 0.01 and pair == ("L", "b")
+    assert lb == pytest.approx(0.2)  # capsule surface reaches y = 0.1 as well here
+
+
+def test_points_box_penetration_negative():
+    from ex_planning_lab.core.capsules import points_box_distance
+    pts = np.array([[0.0, 0.0, 0.0]])
+    assert points_box_distance(np.eye(4), pts, np.array([-0.1, -0.1, -0.05]), np.array([0.1, 0.1, 0.1])) == pytest.approx(-0.05)
+
+
+def test_surface_samples_cover_long_thin_triangle():
+    from ex_planning_lab.core.capsules import surface_samples
+    tri = np.array([[[0, 0, 0], [0.3, 0, 0], [0, 0.02, 0]]], float)  # 300 mm sliver like the CR10 STL
+    s = surface_samples(tri, 0.005)
+    rng = np.random.default_rng(0)
+    u, v = rng.uniform(size=(2, 2000))
+    m = u + v > 1
+    u[m], v[m] = 1 - u[m], 1 - v[m]
+    q = tri[0, 0] + u[:, None] * (tri[0, 1] - tri[0, 0]) + v[:, None] * (tri[0, 2] - tri[0, 0])
+    d = np.linalg.norm(q[:, None, :] - s[None, :, :], axis=2).min(axis=1)
+    assert d.max() <= 0.005

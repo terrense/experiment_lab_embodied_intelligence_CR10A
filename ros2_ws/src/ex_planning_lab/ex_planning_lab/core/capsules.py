@@ -93,6 +93,76 @@ def fit_capsules(urdf_xml: str, resolve: Callable[[str], Optional[Path]], links:
     return out
 
 
+def voxel_downsample(v: np.ndarray, voxel: float) -> np.ndarray:
+    """One representative vertex per voxel. Every dropped vertex lies within
+    voxel*sqrt(3) of a kept one."""
+    keys = np.floor(v / voxel).astype(np.int64)
+    _, idx = np.unique(keys, axis=0, return_index=True)
+    return v[np.sort(idx)]
+
+
+def max_triangle_edge(path: str | Path) -> float:
+    data = Path(path).read_bytes()
+    n = struct.unpack_from("<I", data, 80)[0]
+    if 84 + n * 50 != len(data):
+        return float("nan")
+    rec = np.frombuffer(data, dtype=np.dtype([("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")]), count=n, offset=84)
+    v = rec["v"].astype(float)
+    e = np.stack([v[:, 1] - v[:, 0], v[:, 2] - v[:, 1], v[:, 0] - v[:, 2]], axis=1)
+    return float(np.linalg.norm(e, axis=2).max())
+
+
+def read_stl_triangles(path: str | Path) -> np.ndarray:
+    """(N,3,3) triangles of a binary STL."""
+    data = Path(path).read_bytes()
+    n = struct.unpack_from("<I", data, 80)[0]
+    if 84 + n * 50 != len(data):
+        raise ValueError(f"{path}: only binary STL supported for surface sampling")
+    rec = np.frombuffer(data, dtype=np.dtype([("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")]), count=n, offset=84)
+    return rec["v"].astype(float)
+
+
+def surface_samples(tris: np.ndarray, spacing: float) -> np.ndarray:
+    """Barycentric grid on every triangle with step <= spacing along each edge
+    direction, so every surface point is within `spacing` of a sample (STL
+    meshes have long thin triangles: vertices alone are far too sparse)."""
+    out = []
+    a, b, c = tris[:, 0], tris[:, 1], tris[:, 2]
+    longest = np.max(np.stack([np.linalg.norm(b - a, axis=1), np.linalg.norm(c - b, axis=1),
+                               np.linalg.norm(a - c, axis=1)], axis=1), axis=1)
+    ns = np.maximum(1, np.ceil(longest / spacing)).astype(int)
+    for n in np.unique(ns):
+        sel = ns == n
+        ij = np.array([(i, j) for i in range(n + 1) for j in range(n + 1 - i)], dtype=float) / n
+        A, B, C = a[sel], b[sel], c[sel]
+        pts = A[:, None, :] + ij[None, :, 0:1] * (B - A)[:, None, :] + ij[None, :, 1:2] * (C - A)[:, None, :]
+        out.append(pts.reshape(-1, 3))
+    return np.unique(np.round(np.concatenate(out), 5), axis=0)
+
+
+def link_point_clouds(urdf_xml: str, resolve: Callable[[str], Optional[Path]], links: List[str],
+                      spacing: float = 0.005) -> Dict[str, np.ndarray]:
+    """Mesh SURFACE samples per link (link frame), every surface point within `spacing`."""
+    root = ET.fromstring(urdf_xml)
+    out: Dict[str, np.ndarray] = {}
+    for link in links:
+        g = root.find(f"link[@name='{link}']/collision/geometry/mesh")
+        if g is None:
+            g = root.find(f"link[@name='{link}']/visual/geometry/mesh")
+        if g is not None:
+            out[link] = surface_samples(read_stl_triangles(resolve(g.get("filename"))), spacing)
+    return out
+
+
+def points_box_distance(T_world_link: np.ndarray, pts: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> float:
+    w = pts @ T_world_link[:3, :3].T + T_world_link[:3, 3]
+    inside = np.all((w >= lo) & (w <= hi), axis=1)
+    if inside.any():  # penetration depth estimate (negative)
+        wi = w[inside]
+        return -float(np.minimum(wi - lo, hi - wi).min(axis=1).max())
+    return float(point_aabb_distance(w, lo, hi).min())
+
+
 def capsule_volume(a: np.ndarray, b: np.ndarray, r: float) -> float:
     return math.pi * r * r * float(np.linalg.norm(b - a)) + 4.0 / 3.0 * math.pi * r ** 3
 

@@ -36,8 +36,8 @@ from visualization_msgs.msg import Marker, MarkerArray
 
 from ex_robot_state.nodes.common import LATCHED_QOS, load_model
 
-from ..core.capsules import capsule_box_distance, fit_capsules
-from ..core.metrics import cartesian_path_length, densify, joint_path_length, min_clearance, summarize
+from ..core.capsules import capsule_box_distance, fit_capsules, link_point_clouds, points_box_distance
+from ..core.metrics import cartesian_path_length, clearance_interval, densify, joint_path_length, summarize
 from ..core.scene import Box, Scene, sample_in_tcp_region
 
 JOINTS = [f"joint{i}" for i in range(1, 7)]
@@ -80,6 +80,12 @@ class Benchmark(Node):
                 child_origin[j.parent] = j.origin[:3, 3]
         self.capsules = fit_capsules(urdf_xml, _resolve_pkg, ARM_LINKS, child_origin)
         self.get_logger().info("capsule radii (m): " + ", ".join(f"{c.link}={c.radius:.3f}" for c in self.capsules))
+        self.spacing = 0.005
+        self.points = link_point_clouds(urdf_xml, _resolve_pkg, ARM_LINKS, self.spacing)
+        # surface-sampled distance exceeds the true mesh distance by at most `spacing`
+        self.est_error_bound = self.spacing
+        self.get_logger().info(f"mesh surface samples per link: { {k: len(v) for k, v in self.points.items()} }; "
+                               f"estimate error bound {self.est_error_bound * 1000:.1f} mm")
 
         self.plan_cli = self.create_client(GetMotionPlan, "/plan_kinematic_path")
         self.valid_cli = self.create_client(GetStateValidity, "/check_state_validity")
@@ -236,11 +242,13 @@ class Benchmark(Node):
                         if code == 1 and Q is not None:
                             P = np.array([self.fk_tcp(x) for x in Q])
                             Qd = densify(Q, 0.02)
-                            clr = min_clearance(Qd, self.link_poses, self.capsules,
-                                                [b for b in scene.boxes], capsule_box_distance)
+                            lb, est, pair = clearance_interval(Qd, self.link_poses, self.capsules, self.points,
+                                                               scene.boxes, capsule_box_distance, points_box_distance)
                             row.update({"waypoints": len(Q), "joint_path_rad": round(joint_path_length(Q), 4),
                                         "tcp_path_m": round(cartesian_path_length(P), 4),
-                                        "duration_s": round(dur, 4), "min_clearance_m": round(clr, 4)})
+                                        "duration_s": round(dur, 4), "clearance_lb_m": round(lb, 4),
+                                        "clearance_est_m": round(est, 4),
+                                        "clearance_pair": "-".join(pair) if pair else ""})
                             key = f"{sname}/{q['name']}/{planner}"
                             if key not in paths:
                                 paths[key] = P.round(4).tolist()
@@ -268,16 +276,19 @@ class Benchmark(Node):
 
     def write(self, out: Path, rows, paths, query_log, elapsed: float) -> None:
         fields = ["scene", "query", "planner", "trial", "success", "error_code", "planning_time_s", "wall_time_s",
-                  "waypoints", "joint_path_rad", "straight_joint_dist_rad", "tcp_path_m", "duration_s", "min_clearance_m"]
+                  "waypoints", "joint_path_rad", "straight_joint_dist_rad", "tcp_path_m", "duration_s", "clearance_lb_m",
+                  "clearance_est_m",
+                  "clearance_pair"]
         with open(out / "results.csv", "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()
             for r in rows:
                 w.writerow({k: r.get(k, "") for k in fields})
         summary = {"config": self.cfg, "elapsed_s": round(elapsed, 1), "queries": query_log,
-                   "capsules": {c.link: round(c.radius, 4) for c in self.capsules}, "by_scene_planner": {}}
+                   "capsules": {c.link: round(c.radius, 4) for c in self.capsules},
+                   "clearance_estimate_error_bound_m": round(self.est_error_bound, 4), "by_scene_planner": {}}
         md = ["| scene | planner | success | plan time median [p90] (s) | joint path median (rad) | TCP path median (m) "
-              "| duration median (s) | min clearance median (m) |", "|---|---|---|---|---|---|---|---|"]
+              "| duration median (s) | min clearance median: est [capsule LB] (m) |", "|---|---|---|---|---|---|---|---|"]
         for sname in self.cfg["scenes"]:
             for planner in self.cfg["planners"]:
                 rs = [r for r in rows if r["scene"] == sname and r["planner"] == planner]
@@ -289,12 +300,13 @@ class Benchmark(Node):
                      "joint_path_rad": summarize([r["joint_path_rad"] for r in ok]),
                      "tcp_path_m": summarize([r["tcp_path_m"] for r in ok]),
                      "duration_s": summarize([r["duration_s"] for r in ok]),
-                     "min_clearance_m": summarize([r["min_clearance_m"] for r in ok])}
+                     "clearance_lb_m": summarize([r["clearance_lb_m"] for r in ok]),
+                     "clearance_est_m": summarize([r["clearance_est_m"] for r in ok])}
                 summary["by_scene_planner"][f"{sname}/{planner}"] = s
                 g = lambda k, f="{:.3f}": f.format(s[k]["median"]) if s[k].get("n") else "-"  # noqa: E731
                 pt = f"{s['planning_time_s']['median']:.3f} [{s['planning_time_s']['p90']:.3f}]" if ok else "-"
                 md.append(f"| {sname} | {planner} | {len(ok)}/{len(rs)} | {pt} | {g('joint_path_rad', '{:.2f}')} | "
-                          f"{g('tcp_path_m', '{:.2f}')} | {g('duration_s', '{:.2f}')} | {g('min_clearance_m', '{:.3f}')} |")
+                          f"{g('tcp_path_m', '{:.2f}')} | {g('duration_s', '{:.2f}')} | {g('clearance_est_m', '{:.3f}')} [{g('clearance_lb_m', '{:.3f}')}] |")
         (out / "summary.json").write_text(json.dumps(summary, indent=2))
         (out / "summary.md").write_text("\n".join(md) + "\n")
         (out / "paths.json").write_text(json.dumps(paths))

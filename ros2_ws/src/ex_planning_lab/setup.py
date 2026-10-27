@@ -24,6 +24,7 @@ setup(
         "console_scripts": [
             "benchmark = ex_planning_lab.nodes.benchmark:main",
             "execute_demo = ex_planning_lab.nodes.execute_demo:main",
+            "validity_probe = ex_planning_lab.nodes.validity_probe:main",
         ],
     },
 )
