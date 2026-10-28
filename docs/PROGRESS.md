@@ -134,3 +134,11 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - 失败分析（详见 M4_MUJOCO）：线程内的 import 遮蔽（物理线程死掉但节点看起来正常）；JTC 没设容差时会把"没动"判为成功；按到达时间做速度差分引起发散；定位失败的运行被静默丢弃；**33 个孤儿监视进程把负载推到 26，run02 作废**
 - run03（干净环境）：误差约与 1/伺服带宽 成正比（8→16 Hz：9.2→4.6 mm）；4 Hz 全部中止；已知负载被完全补偿（模型假设导致的）；60 次执行中有 7 次间歇性 −4 中止，原因未查明（mock 上也出现过）
 - M2 复测（run03）比 run02 慢 2.7 倍，原因未能证实（复测时电池 7%）→ 跨时段计时不可比，规划器排名结论不变
+
+## 2026-10-28: first program-controlled motion of the real CR10A (ex_dobot_motion)
+- Done on site, with the owner at the e-stop and unit authorization. Two dry-runs first, which caught and corrected my wrong claim that the TCP never goes below the start; then two executions:
+  - run01: 22 s, unusable because of the timestamp-precision bug.
+  - run02: 84.7 s, 241 moves, clean. Returned to start, disabled, no error.
+- Evidence: `docs/evidence/live/excitation_run02/`. Fix: full-precision CSV + regression test (ex_dobot_motion 32/32).
+- Controller quirk recorded: a garbage packet at the ENABLE transition.
+- Next: dynamics-ID analysis (validate on MuJoCo synthetic data first, then apply to run02).

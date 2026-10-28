@@ -141,6 +141,10 @@ def test_execute_end_to_end(tmp_path, mock_robot, cr10_urdf):
     assert np.allclose(q, GOOD_Q0, atol=1e-6) and mode == 4  # back at start, disabled
     s = json.loads((out / "summary.json").read_text())
     assert s["packets"] > 100 and (out / "feedback.csv.gz").exists()
+    import gzip
+    rows = [l.split(",") for l in gzip.open(out / "feedback.csv.gz", "rt").read().splitlines()[1:]]
+    t = [float(r[0]) for r in rows]
+    assert len(set(t)) > 0.9 * len(t)  # host timestamps keep sub-ms resolution (regression: %.6g)
 
 
 def test_controller_error_aborts_and_disables(tmp_path, mock_robot, cr10_urdf):

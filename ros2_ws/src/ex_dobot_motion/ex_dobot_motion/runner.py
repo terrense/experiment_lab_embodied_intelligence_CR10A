@@ -84,6 +84,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--urdf", default="", help="expanded URDF (default: calibrated ex_cr10 from the install space)")
     ap.add_argument("--amplitude-scale", type=float, default=1.0, help="scales the per-joint amplitudes (<= 1 recommended)")
     ap.add_argument("--waypoints", type=int, default=60)
+    ap.add_argument("--cycles", type=float, default=1.0, help="periods of the slowest joint (duration ~ cycles)")
     ap.add_argument("--speed", type=int, default=20, help="MovJ v%% (<= 30)")
     ap.add_argument("--acc", type=int, default=20, help="MovJ a%% and AccJ (<= 30)")
     ap.add_argument("--speed-factor", type=int, default=20, help="global SpeedFactor (<= 30)")
@@ -120,7 +121,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     env = SafetyEnvelope()
     amps = [x * a.amplitude_scale for x in DEFAULT_AMPLITUDES_DEG]
-    plan = make_plan(p0.q_actual_deg, amps, a.waypoints)
+    plan = make_plan(p0.q_actual_deg, amps, a.waypoints, a.cycles)
     problems = validate_plan(plan, link_positions, lower, upper, env)
     P = np.array([link_positions(w)["tcp"] for w in plan.waypoints_deg])
     plan.report = {"tcp_min_z_m": float(P[:, 2].min()), "tcp_bbox_min": P.min(0).tolist(), "tcp_bbox_max": P.max(0).tolist(),
@@ -208,7 +209,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         with gzip.open(out / "feedback.csv.gz", "wt") as f:
             f.write(",".join(COLUMNS) + "\n")
             for row in fb.rows:
-                f.write(",".join(f"{v:.6g}" for v in row) + "\n")
+                f.write(",".join(repr(float(v)) for v in row) + "\n")  # full precision (%.6g destroyed timestamps)
         (out / "dashboard_log.json").write_text(json.dumps(dash.log, indent=1))
         (out / "summary.json").write_text(json.dumps({"exit_code": rc, "moves_sent": len(sent_ids),
                                                       "packets": len(fb.rows), "args": vars(a)}, indent=1))

@@ -65,9 +65,9 @@
 只有完成 §0–§3、并获得所属单位允许程序控制的授权后才能进行。
 
 - [ ] 现场有人看护，**手放在急停旁**；机械臂周围半径 1.5 m 内没有人和障碍物；末端没有装工具，或者实测了工具质量 ______ kg
-- [ ] 示教器上碰撞检测等级 ______（不得为 0）；控制器没有报警
+- [ ] 碰撞检测等级 ______（不得为 0；本现场没有示教器，DobotStudio Pro 里没找到，2026-10-28 由操作人决定靠急停）；控制器没有报警
 - [ ] 用示教器或 DobotStudio 把机械臂放到**开阔姿态**（手臂前伸、腕部朝下、离桌面 ≥ 0.4 m），然后**下使能**，并关闭 DobotStudio 的控制连接
 - [ ] 演练：`python3 -m ex_dobot_motion.runner --robot-ip 192.168.201.1` → 必须显示 `validation: OK`，看一下 TCP 范围
-- [ ] 执行：加上 `--execute --confirm I_AM_AT_THE_ROBOT_WITH_ESTOP --payload-kg <工具质量>`（速度默认 20%，大约 2–4 分钟）
+- [ ] 执行：加上 `--execute --confirm I_AM_AT_THE_ROBOT_WITH_ESTOP --payload-kg <工具质量>`（速度默认 20%；默认 cycles=1 只有约 22 s，辨识用 `--cycles 4 --waypoints 240`，约 85 s）
 - [ ] 观察：运动平滑、幅度小；有任何异常就按急停，或在终端按 Ctrl-C
 - [ ] 结束：机器人回到起点并下使能；数据在 `data/live/excitation_*`（feedback.csv.gz 包含 q、qd、电流、力矩）

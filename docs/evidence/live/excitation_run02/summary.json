@@ -1,0 +1,22 @@
+{
+ "exit_code": 0,
+ "moves_sent": 241,
+ "packets": 10514,
+ "args": {
+  "robot_ip": "192.168.201.1",
+  "dashboard_port": 29999,
+  "feedback_port": 30004,
+  "urdf": "",
+  "amplitude_scale": 0.5,
+  "waypoints": 240,
+  "cycles": 4.0,
+  "speed": 20,
+  "acc": 20,
+  "speed_factor": 20,
+  "blend": 50,
+  "payload_kg": 0.4,
+  "out": "data/live/excitation_run02",
+  "execute": true,
+  "confirm": "I_AM_AT_THE_ROBOT_WITH_ESTOP"
+ }
+}
