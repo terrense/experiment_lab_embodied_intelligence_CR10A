@@ -11,8 +11,11 @@ mesh-box queries (GJK failures), changing the CCD options crashed MuJoCo 3.3.7, 
 endpoints came back swapped for mesh-vs-box pairs (found 2026-10-28, see docs/LEARNING.md).
 
 Obs (22) = ReachEnv obs (21) + min clearance (m, capped at `clearance_cap`).
-Reward   = ReachEnv reward - shaping near obstacles; contact (clearance < 0) ends the episode
-           with `collision_penalty`. Success = TCP within `success_radius` at the end, no contact.
+Reward   = progress_weight * (previous - current goal distance) - 0.01 |a|^2, +1 once on reaching the
+           goal, - shaping near obstacles; contact (clearance < 0) ends the episode with
+           -collision_penalty. Potential-based: standing still earns ~0, so dying early never pays
+           (the v1 reward -distance/step taught PPO to crash, see docs/LEARNING.md).
+           Success = TCP within `success_radius` at the end, no contact.
 """
 
 from __future__ import annotations
@@ -70,6 +73,7 @@ class WallConfig(ReachConfig):
     shaping_margin: float = 0.05
     shaping_weight: float = 1.0
     collision_penalty: float = 10.0
+    progress_weight: float = 10.0
 
 
 class ReachWallEnv(ReachEnv):
@@ -163,11 +167,20 @@ class ReachWallEnv(ReachEnv):
                 break
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
-        self.t, self.succeeded, self.collided = 0, False, False
+        self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
         return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal}
 
     def step(self, action):
-        obs, reward, term, trunc, info = super().step(action)
+        d_prev = float(np.linalg.norm(self.goal - self.tcp()))
+        obs, _, term, trunc, info = super().step(action)
+        a = np.clip(np.asarray(action, float), -1.0, 1.0)
+        # progress reward (potential-based): bounded episode return, ~0 for standing still.
+        # v1 used the base reward (-distance every step): ending the episode early by colliding
+        # then beat living on (-10 once vs ~-0.5 per remaining step) and PPO learned to crash.
+        reward = self.cfg.progress_weight * (d_prev - info["dist"]) - 0.01 * float(a @ a)
+        if info["success"] and not self.succeeded_bonus:
+            reward += 1.0
+            self.succeeded_bonus = True
         c = float(obs[-1])
         if c < self.cfg.shaping_margin:
             reward -= self.cfg.shaping_weight * (self.cfg.shaping_margin - c) / self.cfg.shaping_margin

@@ -70,3 +70,16 @@ def test_repulsion_alone_increases_wall_clearance(env):
     for _ in range(20):
         obs, *_ = env.step(pol(obs))
     assert wall_clear() > c0
+
+
+def test_crashing_early_never_pays(env):
+    # regression (PPO v1 learned to crash): standing still for a whole episode must earn more
+    # than any collision, whatever happened before it
+    obs, _ = env.reset(seed=3)
+    still = 0.0
+    for _ in range(env.cfg.max_steps):
+        obs, r, term, trunc, _ = env.step(np.zeros(6))
+        still += r
+        if term or trunc:
+            break
+    assert not env.collided and still > -env.cfg.collision_penalty / 2

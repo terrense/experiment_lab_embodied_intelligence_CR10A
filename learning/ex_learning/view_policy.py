@@ -13,6 +13,8 @@ Space pause, Tab/Shift-Tab hide the side panels, Esc/close window to quit.
 from __future__ import annotations
 
 import argparse
+import os
+import sys
 import time
 from pathlib import Path
 
@@ -54,32 +56,40 @@ def main(argv=None) -> int:
     if a.policy == "ppo":
         make = load_ppo(a.model, env)
 
-    with mujoco.viewer.launch_passive(env.m, env.d) as v:
-        v.cam.azimuth, v.cam.elevation, v.cam.distance, v.cam.lookat[:] = 135, -25, 2.6, (-0.4, 0.0, 0.4)
-        for ep in range(a.episodes):
-            obs, _ = env.reset(seed=a.seed + ep)
-            pol = make(env)
-            outcome = "timeout"
-            for _ in range(env.cfg.max_steps):
-                t0 = time.time()
-                obs, r, term, trunc, inf = env.step(pol(obs))
-                with v.lock():
-                    v.user_scn.ngeom = 0
-                    rgba = np.array([0.9, 0.2, 0.2, 0.9] if inf.get("collision") else [0.2, 0.8, 0.3, 0.9])
-                    mujoco.mjv_initGeom(v.user_scn.geoms[0], mujoco.mjtGeom.mjGEOM_SPHERE, np.array([0.025, 0, 0]),
-                                        env.goal, np.eye(3).flatten(), rgba)
-                    v.user_scn.ngeom = 1
-                v.sync()
-                if not v.is_running():
-                    return 0
-                time.sleep(max(0.0, env.cfg.control_dt * a.slowmo - (time.time() - t0)))
-                if term or trunc:
-                    outcome = "COLLISION " + str(getattr(env, "last_pair", "")) if inf.get("collision") else \
-                        ("success" if inf["success"] else f"missed by {inf['dist'] * 1000:.0f} mm")
-                    break
-            print(f"episode {ep} (seed {a.seed + ep}): {outcome}", flush=True)
-            time.sleep(1.0 * a.slowmo)
-    return 0
+    v = mujoco.viewer.launch_passive(env.m, env.d)
+    v.cam.azimuth, v.cam.elevation, v.cam.distance, v.cam.lookat[:] = 135, -25, 2.6, (-0.4, 0.0, 0.4)
+    for ep in range(a.episodes):
+        obs, _ = env.reset(seed=a.seed + ep)
+        pol = make(env)
+        outcome = "timeout"
+        for _ in range(env.cfg.max_steps):
+            t0 = time.time()
+            obs, r, term, trunc, inf = env.step(pol(obs))
+            with v.lock():
+                v.user_scn.ngeom = 0
+                rgba = np.array([0.9, 0.2, 0.2, 0.9] if inf.get("collision") else [0.2, 0.8, 0.3, 0.9])
+                mujoco.mjv_initGeom(v.user_scn.geoms[0], mujoco.mjtGeom.mjGEOM_SPHERE, np.array([0.025, 0, 0]),
+                                    env.goal, np.eye(3).flatten(), rgba)
+                v.user_scn.ngeom = 1
+            v.sync()
+            if not v.is_running():
+                return _quit(v)
+            time.sleep(max(0.0, env.cfg.control_dt * a.slowmo - (time.time() - t0)))
+            if term or trunc:
+                outcome = "COLLISION " + str(getattr(env, "last_pair", "")) if inf.get("collision") else \
+                    ("success" if inf["success"] else f"missed by {inf['dist'] * 1000:.0f} mm")
+                break
+        print(f"episode {ep} (seed {a.seed + ep}): {outcome}", flush=True)
+        time.sleep(1.0 * a.slowmo)
+    return _quit(v)
+
+
+def _quit(v) -> int:
+    # Under WSLg the passive viewer segfaults when it is closed (exit 139 from v.close() and from
+    # the context-manager exit; observed 2026-10-28, MuJoCo 3.3.7). Output is flushed; leave
+    # without closing - the OS releases the window and the GL context.
+    sys.stdout.flush()
+    os._exit(0)
 
 
 if __name__ == "__main__":
