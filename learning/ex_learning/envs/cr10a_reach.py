@@ -32,21 +32,27 @@ from ex_mujoco_sim.servo import gains_from_inertia, servo_torque  # noqa: E402
 HOME = np.array([0.0, -0.35, 1.75, -1.4, -1.5708, 0.0])  # arm in front (-x), wrist down
 
 
-def make_model(calibrated: bool = True) -> mujoco.MjModel:
+DESC = ROOT / "ros2_ws" / "src" / "ex_description"
+
+
+def expanded_urdf_text(calibrated: bool = True) -> str:
     import xacro
-    desc = ROOT / "ros2_ws" / "src" / "ex_description"
-    text = (desc / "urdf" / "ex_cr10.urdf.xacro").read_text().replace("$(find ex_description)", str(desc))
+    text = (DESC / "urdf" / "ex_cr10.urdf.xacro").read_text().replace("$(find ex_description)", str(DESC))
     with tempfile.NamedTemporaryFile("w", suffix=".xacro", delete=False) as f:
         f.write(text)
         tmp = f.name
     try:
-        urdf = xacro.process_file(tmp, mappings={"calibrated": "true" if calibrated else "false"}).toxml()
+        return xacro.process_file(tmp, mappings={"calibrated": "true" if calibrated else "false"}).toxml()
     finally:
         os.unlink(tmp)
 
-    def resolve(uri: str) -> Path:
-        return desc / uri.split("package://ex_description/", 1)[1]
-    return mujoco.MjModel.from_xml_string(build_mjcf(urdf, resolve, DynamicsAssumptions()))
+
+def mjcf_text(urdf: str, dyn: Optional[DynamicsAssumptions] = None) -> str:
+    return build_mjcf(urdf, lambda uri: DESC / uri.split("package://ex_description/", 1)[1], dyn or DynamicsAssumptions())
+
+
+def make_model(calibrated: bool = True) -> mujoco.MjModel:
+    return mujoco.MjModel.from_xml_string(mjcf_text(expanded_urdf_text(calibrated)))
 
 
 @dataclass
