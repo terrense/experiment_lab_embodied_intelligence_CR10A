@@ -17,7 +17,7 @@ Run: `bash scripts/m2_session.sh start true plant:=mujoco [bandwidth_hz:=8] [pay
 
 ## Model (single source of truth)
 - The MJCF is built **at runtime from the same `robot_description`** that MoveIt uses (calibrated CR10A by default). Unit test: MuJoCo FK agrees with URDF FK to about 1.5 µm (the difference is the finite precision of `mj_saveLastXML`).
-- Link masses and inertias come from the official Dobot URDF (CAD). **Total arm mass in the URDF: 24.8 kg. The CR10A datasheet weight is 40 kg** (it includes the base and the drives/brakes). Inertias are probably underestimated. This needs identification against real joint-torque data.
+- Link masses and inertias come from the official Dobot URDF (CAD). **Total arm mass in the URDF: 24.8 kg. The CR10A datasheet weight is 40 kg** (it includes the base and the drives/brakes). Inertias are probably underestimated. This needs identification against real joint-torque data. **Measured 2026-10-28 (`docs/DYNAMICS_ID.md`): real J2/J3 torques fit k = 1.64 × URDF; Coulomb friction 10–14 N m on J1–J3, 3–5× the placeholders below.**
 - Robot geometry is visual-only in physics (contype 0). Collision avoidance is the planner's job; MuJoCo provides the arm dynamics.
 
 ### Explicit assumptions (UNVERIFIED, `DynamicsAssumptions`)

@@ -142,3 +142,10 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - Evidence: `docs/evidence/live/excitation_run02/`. Fix: full-precision CSV + regression test (ex_dobot_motion 32/32).
 - Controller quirk recorded: a garbage packet at the ENABLE transition.
 - Next: dynamics-ID analysis (validate on MuJoCo synthetic data first, then apply to run02).
+
+## 2026-10-28: dynamics identification (M4.5), see docs/DYNAMICS_ID.md
+- `ex_robot_state/core/dynamics.py`: inverse-dynamics regressor that is linear in the parameters, verified against MuJoCo `mj_inverse` (5 tests).
+- `evaluation/dynamics_synthetic.py` (known truth) + `evaluation/dynamics_id.py` (M0/M1/M1s/M2, time split, hyper-parameters chosen on validation).
+- Synthetic: armature, Coulomb friction and the mass scale are recovered; viscous friction is NOT recovered at these speeds.
+- Real run02: URDF masses about 1.64× too light (matches the 40 kg datasheet); Coulomb 10–14 N m on J1–J3; held-out torque VAF 96–99 %.
+- Blocker for full identification: a richer excitation needs a wider motion envelope, which needs the owner's OK and an on-site session.
