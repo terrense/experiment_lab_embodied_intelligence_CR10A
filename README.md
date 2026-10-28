@@ -14,7 +14,7 @@ Every stage ships working code, tests, measured results and an honest failure an
 | **M2** MoveIt planning lab (sim) | 400-plan OMPL benchmark: RRTConnect/SBL 39/40, narrow passages separate the planners | [M2_PLANNING_LAB](docs/M2_PLANNING_LAB.md) |
 | **M4** MuJoCo physics plant (sim) | Behind ros2_control, MoveIt unchanged; tracking error ∝ 1/servo bandwidth (3–15 mm) | [M4_MUJOCO](docs/M4_MUJOCO.md) |
 | **M4.5** Dynamics identification (**real CR10A moving**) | URDF masses are 1.64× too light (≈ 40 kg datasheet); Coulomb friction 10–14 N m; sim-to-real torque gap cut **3–6×** | [DYNAMICS_ID](docs/DYNAMICS_ID.md) |
-| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 58 % / 0 % collisions** (1 seed so far) | [LEARNING](docs/LEARNING.md) |
+| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions** | [LEARNING](docs/LEARNING.md) |
 
 ---
 
@@ -63,7 +63,10 @@ The arm moved under program control: owner on site at the e-stop, unit authoriza
 
 ## M5: learning (simulation)
 ![MuJoCo viewer](assets/hands_on/mujoco_viewer_apf_wall.png)
-*Reach-around-the-wall task in the MuJoCo viewer. Classical baselines first: DLS 4 % success / 96 % collisions, potential field 44 % / 0 %, PPO (seed 0) 58 % / 0 %. More seeds are running.*
+*Reach-around-the-wall task in the MuJoCo viewer.*
+
+![wall task results](assets/learning/wall_task.png)
+*Classical baselines first, then RL, all on the same 50 evaluation episodes. All 3 PPO seeds beat the potential field and never collide. The success rate spreads between seeds because most misses end just outside the 2 cm threshold.*
 
 Failures found and fixed on the way (all documented with regression tests):
 - PPO learned to **crash on purpose** under a −distance reward.

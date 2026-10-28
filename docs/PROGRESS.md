@@ -149,3 +149,10 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - Synthetic: armature, Coulomb friction and the mass scale are recovered; viscous friction is NOT recovered at these speeds.
 - Real run02: URDF masses about 1.64× too light (matches the 40 kg datasheet); Coulomb 10–14 N m on J1–J3; held-out torque VAF 96–99 %.
 - Blocker for full identification: a richer excitation needs a wider motion envelope, which needs the owner's OK and an on-site session.
+
+## 2026-10-28: M5 learning, wall task (docs/LEARNING.md)
+- Reach-around-the-wall env on the M4 plant; collision is measured with the M2 capsules (mesh distance queries were unreliable, see failure analysis).
+- Baselines first (50 eval episodes): DLS 4 % success / 96 % collisions; APF 44 % / 0 %.
+- PPO (SB3, isolated venv, CPU, 3 M steps): 3 seeds reach 58 / 64 / 80 % success with 0 collisions. Every seed beats APF.
+- Reward v1 taught PPO to crash; fixed with a potential-based reward and a regression test.
+- Hands-on launchers + Chinese guide (`hands_on/`); README is now a visual tour of all stages.

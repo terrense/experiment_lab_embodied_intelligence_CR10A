@@ -20,9 +20,17 @@ Rule followed: **classical baseline first**, then RL. The same evaluation protoc
 | wall | random | 0 % | 10 % | 1432 mm |
 | wall | DLS Jacobian (straight line) | 4 % | **96 %** | 781 mm |
 | wall | APF (DLS + repulsion of every link capsule; k_rep, d0 tuned on seeds 0–19) | 44 % | 0 % | 34 mm |
-| wall | **PPO, seed 0** (3 M steps, 38 min, 12 envs, CPU) | **58 %** | **0 %** | **18 mm** |
+| wall | **PPO seed 0** (3 M steps, 12 envs, CPU, 38 min) | 58 % | 0 % | 18 mm |
+| wall | **PPO seed 1** (32 min) | 64 % | 0 % | 16 mm |
+| wall | **PPO seed 2** (22 min) | 80 % | 0 % | 12 mm |
+| wall | **PPO, 3 seeds** | **67 % mean (58–80)** | **0 %** | **12–18 mm** |
 
-PPO seeds 1 and 2: see the section below. This file is updated when they finish. **A single seed is not a result.**
+![wall task](../assets/learning/wall_task.png)
+
+**All three seeds beat the best classical baseline** (APF 44 %, 22/50) on the same 50 evaluation episodes (worst seed 29/50), and none of them collides.
+- The learning curves are nearly identical across seeds, but the success rate spreads from 58 % to 80 %. Most misses end 20–40 mm from the goal, right at the 2 cm success threshold, so the success rate is sensitive to that threshold.
+- The return is still rising at 3 M steps: training is not converged.
+- Training time differs between seeds (22–38 min) because of CPU load on the laptop, not because of the algorithm.
 
 Observations:
 - Free-space reaching is solved by a 5-line classical controller, so it is not a reason to use RL.
@@ -45,7 +53,7 @@ Observations:
 - Throughput: about 550–1100 env steps/s with 12 subprocess envs on the laptop.
 
 ## Not done / next
-- More PPO seeds (running), plus a learning-curve figure.
+- Longer training (curves still rising) and a success-vs-threshold curve, instead of one 2 cm cut.
 - A harder scene (window, narrow passage) where APF should collapse.
 - Domain randomization over the identified dynamics (`identified_run02` vs `placeholder`) and a sim-to-sim transfer check.
 - Nothing here has been run on hardware. A learned policy on the real arm would need its own safety case.
