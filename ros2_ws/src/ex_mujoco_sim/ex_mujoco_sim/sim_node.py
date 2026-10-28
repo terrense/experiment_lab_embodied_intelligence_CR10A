@@ -29,7 +29,7 @@ from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
 
-from .model_builder import JOINTS, DynamicsAssumptions, build_mjcf
+from .model_builder import JOINTS, build_mjcf, dynamics_preset, scale_link_masses
 from .servo import CommandInterpolator, gains_from_inertia, servo_torque
 
 LATCHED = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.TRANSIENT_LOCAL)
@@ -57,10 +57,12 @@ class MujocoSim(Node):
         p("viewer", False)
         p("initial_positions", [0.0, 0.0, math.pi / 2, 0.0, -math.pi / 2, 0.0])
         p("save_mjcf", "")
+        p("dynamics", "placeholder")      # placeholder | identified_run02 (docs/DYNAMICS_ID.md)
         gp = lambda n: self.get_parameter(n).value  # noqa: E731
 
         urdf = gp("robot_description") or self._wait_description()
-        dyn = DynamicsAssumptions()
+        dyn, mass_scale = dynamics_preset(gp("dynamics"))
+        self.dynamics_name = f"{gp('dynamics')} (link mass x{mass_scale})"
         mjcf = build_mjcf(urdf, resolve_uri, dyn)
         if gp("save_mjcf"):
             Path(gp("save_mjcf")).write_text(mjcf)
@@ -73,6 +75,8 @@ class MujocoSim(Node):
         # feed-forward come from it, so a wrong SetPayload shows up as a model error.
         self.mc = mujoco.MjModel.from_xml_string(mjcf)
         self.dc = mujoco.MjData(self.mc)
+        for model in (self.m, self.mc):  # identified link masses: true plant AND controller model
+            scale_link_masses(model, mass_scale)
         b = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_BODY, "flange")
         for model, mass in ((self.m, self.payload), (self.mc, self.payload_cfg)):
             if mass > 0:  # point mass at the flange body origin
@@ -98,7 +102,7 @@ class MujocoSim(Node):
         self.window_lag = 0.0  # max lag since the last diagnostics publish (1 s window)
         self.get_logger().info(
             f"MuJoCo {mujoco.__version__} plant: dt {self.m.opt.timestep*1000:.1f} ms, mass {self.m.body_mass.sum():.2f} kg "
-            f"(+payload {self.payload} kg, controller believes {self.payload_cfg} kg), M_eff {np.round(m_eff, 3).tolist()}, kp {np.round(self.gains.kp, 0).tolist()}")
+            f"(+payload {self.payload} kg, controller believes {self.payload_cfg} kg), M_eff {np.round(m_eff, 3).tolist()}, kp {np.round(self.gains.kp, 0).tolist()}, dynamics {self.dynamics_name}, frictionloss {dyn.frictionloss}")
 
         self.state_pub = self.create_publisher(JointState, gp("states_topic"), 10)
         self.diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
@@ -203,7 +207,8 @@ class MujocoSim(Node):
                      KeyValue(key="window_max_lag_ms", value=f"{self.window_lag*1000:.2f}"),
                      KeyValue(key="torque_saturation_steps", value=str(self.saturation.tolist())),
                      KeyValue(key="payload_kg", value=str(self.payload)),
-                     KeyValue(key="payload_configured_kg", value=str(self.payload_cfg))]
+                     KeyValue(key="payload_configured_kg", value=str(self.payload_cfg)),
+                     KeyValue(key="dynamics", value=self.dynamics_name)]
         arr = DiagnosticArray()
         arr.header.stamp = self.get_clock().now().to_msg()
         arr.status = [st]

@@ -95,3 +95,18 @@ Mechanism (checked against the logged gains): the servo here is **PD only (no in
 Caveats:
 - The real Dobot servo almost certainly has integral action and its own load identification, so the real arm would not sag like this. **This result belongs to the model, not the CR10A.** What carries over is the direction: a wrong `SetPayload` shows up as static offset and reduced stiffness, and "too light" is the dangerous side.
 - Verifying this on hardware needs the excitation run (`ex_dobot_motion`) plus a known mass. It has not been done (UNVERIFIED).
+
+## Re-run with identified dynamics (dyn01, SIMULATED data)
+The `identified_run02` preset (`docs/DYNAMICS_ID.md`): link masses ×1.636 and Coulomb friction measured on the real CR10A (10.4, 14.2, 9.3, 1.5, 1.5, 1.4 N m). The comparison point is `placeholder`, the defaults used in run03. Same trajectory, 0.4 kg payload, 3 repeats, 24/24 executions completed. Raw lines: `docs/evidence/m4/m4_dynamics_dyn01.md`.
+
+| Servo / speed | Max TCP error (median), placeholder | identified_run02 |
+|---|---|---|
+| 8 Hz / 1.0 | 8.9 mm | **13.3 mm** |
+| 8 Hz / 1.8 | 14.2 mm | 17.4 mm |
+| 16 Hz / 1.0 | 4.1 mm | 4.7 mm |
+| 16 Hz / 1.8 | 6.7 mm | 7.1 mm |
+
+With dynamics closer to the real arm, the run03 tracking predictions were **optimistic**: +50 % at 8 Hz and +5–15 % at 16 Hz.
+- Likely cause: the 3–5× larger Coulomb friction, which the servo model (PD + gravity/Coriolis feed-forward, no friction compensation) leaves to the feedback loop. The mass scale itself is compensated by construction, because the gains scale with the inertia and the feed-forward uses the same model.
+- This attribution was not isolated by an ablation (friction only / mass only).
+- The clearance budget in finding 4 above rises accordingly: plan for ≥ 2 cm if the effective servo bandwidth is closer to 8 Hz than 16 Hz.

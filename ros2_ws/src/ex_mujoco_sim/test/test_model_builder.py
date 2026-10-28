@@ -73,3 +73,17 @@ def test_gravity_torque_shape(mj):
     tau = d.qfrc_bias.copy()
     assert abs(tau[0]) < 0.01  # calibrated model: J1 axis tilted by ~1e-4 deg -> tiny gravity torque
     assert abs(tau[1]) > 50 and abs(tau[1]) > abs(tau[2]) > abs(tau[4])
+
+
+def test_identified_preset_scales_masses_and_friction(urdf):
+    from ex_mujoco_sim.model_builder import IDENTIFIED_RUN02_MASS_SCALE, dynamics_preset, scale_link_masses
+    dyn0, k0 = dynamics_preset("placeholder")
+    dyn1, k1 = dynamics_preset("identified_run02")
+    assert k0 == 1.0 and k1 == IDENTIFIED_RUN02_MASS_SCALE and dyn1.frictionloss[1] > dyn0.frictionloss[1]
+    m0 = mujoco.MjModel.from_xml_string(build_mjcf(urdf, _resolve, dyn0))
+    m1 = mujoco.MjModel.from_xml_string(build_mjcf(urdf, _resolve, dyn1))
+    scale_link_masses(m1, k1)
+    assert abs(m1.body_mass.sum() / m0.body_mass.sum() - k1) < 1e-9
+    assert np.allclose(m1.dof_frictionloss, dyn1.frictionloss)
+    with pytest.raises(ValueError):
+        dynamics_preset("made_up")

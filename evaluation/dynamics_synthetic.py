@@ -40,6 +40,8 @@ def main(argv=None) -> int:
     ap.add_argument("--bandwidth-hz", type=float, default=16.0)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--mass-scale", type=float, default=1.0, help="scale ALL link masses+inertias of the true plant")
+    for k in ("armature", "damping", "frictionloss"):
+        ap.add_argument(f"--{k}", type=float, nargs=6, default=None, help=f"override DynamicsAssumptions.{k} (J1..J6)")
     a = ap.parse_args(argv)
 
     h, D = load(a.source)
@@ -52,7 +54,7 @@ def main(argv=None) -> int:
 
     urdf = expanded_urdf()
     desc = ROOT / "ros2_ws" / "src" / "ex_description"
-    dyn = DynamicsAssumptions()
+    dyn = DynamicsAssumptions(**{k: list(v) for k in ("armature", "damping", "frictionloss") if (v := getattr(a, k)) is not None})
     m = mujoco.MjModel.from_xml_string(build_mjcf(urdf, lambda u: desc / u.split("package://ex_description/", 1)[1], dyn))
     if a.mass_scale != 1.0:  # COM unchanged -> every inertial parameter scales exactly
         m.body_mass[:] *= a.mass_scale

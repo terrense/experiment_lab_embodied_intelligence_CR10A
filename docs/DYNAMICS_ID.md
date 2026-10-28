@@ -59,3 +59,21 @@ Findings:
 - A larger and faster excitation: full amplitude, a different posture (J2/J3 ±30° so that gravity changes), and speeds that cover a velocity range. This needs the owner on site, plus a wider envelope (more than `max_joint_excursion 20°`), which requires the owner's explicit OK because it widens the motion caps.
 - A second trajectory for validation, to test generalisation.
 - Design it in simulation first: `dynamics_synthetic.py` + `dynamics_id.py`, and pick the trajectory that recovers the known truth.
+
+## Step 3: close the loop: calibrated MuJoCo plant vs the real robot (sim2real)
+`evaluation/sim2real_torque.py` replays run02's real trajectory on three MuJoCo plants and compares the simulated joint torque with the real one. Nothing is fitted in this step: k and Coulomb come from Step 2, which fitted them on the first 50 % of the same run, so the **last 25 %** is the out-of-sample segment.
+
+![sim2real](../assets/dynamics/sim2real_torque.png)
+
+| Plant (+0.4 kg payload) | RMS vs real, test segment, J1..J6 [N m] | VAF % (whole run) |
+|---|---|---|
+| P0 M4 defaults (URDF masses, placeholder friction) | 7.3, **24.0, 24.9**, 1.9, 1.0, 1.4 | 39–76 |
+| P1 masses × 1.636 | 7.3, 11.4, 9.4, 1.2, 1.0, 1.4 | 39–76 |
+| P2 masses × 1.636 + identified Coulomb | **3.9, 3.9, 5.6**, 0.93, 0.74, 0.66 | 86–94 |
+
+The torque gap between the M4 plant and the real arm shrinks **3–6×** on J1–J3. Remaining gaps:
+- J3 gravity: one global k does not describe the mass distribution.
+- Friction reversal: MuJoCo's `frictionloss` constraint switches more slowly than the real joint.
+
+The preset is available as `dynamics:=identified_run02` (`ex_mujoco_sim/model_builder.py`, `sim_moveit.launch.py`). The default stays `placeholder` so earlier M4 results remain reproducible.
+Validity: only the operating region of run02 (one posture, ±5–7.5°, ≤ 10 °/s), on the same day and at the same temperature. Friction in harmonic drives depends on temperature and load.

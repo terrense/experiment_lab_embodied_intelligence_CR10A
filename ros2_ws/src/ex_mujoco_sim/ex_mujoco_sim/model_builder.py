@@ -17,7 +17,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 
 JOINTS = [f"joint{i}" for i in range(1, 7)]
 
@@ -31,6 +31,32 @@ class DynamicsAssumptions:
     torque_limit: List[float] = field(default_factory=lambda: [300.0, 300.0, 150.0, 60.0, 60.0, 30.0])  # N m
     timestep: float = 0.001
 
+
+# Identified on the real CR10A (docs/DYNAMICS_ID.md, excitation run02, 2026-10-28):
+#   link masses AND inertias x IDENTIFIED_RUN02_MASS_SCALE (one global factor: J2/J3 gravity torque),
+#   Coulomb friction (frictionloss) from model M1. Viscous damping and armature were NOT identifiable
+#   from that excitation, so the placeholders are kept for them.
+IDENTIFIED_RUN02_MASS_SCALE = 1.636
+DYNAMICS_PRESETS = ("placeholder", "identified_run02")
+
+
+def identified_run02() -> DynamicsAssumptions:
+    return DynamicsAssumptions(frictionloss=[10.39, 14.15, 9.33, 1.48, 1.46, 1.43])
+
+
+def dynamics_preset(name: str) -> Tuple[DynamicsAssumptions, float]:
+    """-> (joint-level assumptions, link mass scale)"""
+    if name == "placeholder":
+        return DynamicsAssumptions(), 1.0
+    if name == "identified_run02":
+        return identified_run02(), IDENTIFIED_RUN02_MASS_SCALE
+    raise ValueError(f"dynamics preset must be one of {DYNAMICS_PRESETS}, got {name!r}")
+
+
+def scale_link_masses(model, k: float) -> None:
+    """Scale every body's mass and inertia of a compiled MjModel (COM unchanged)."""
+    model.body_mass[:] *= k
+    model.body_inertia[:] *= k
 
 def _rewrite_meshes(root: ET.Element, resolve: Callable[[str], Path]) -> None:
     for m in root.iter("mesh"):
