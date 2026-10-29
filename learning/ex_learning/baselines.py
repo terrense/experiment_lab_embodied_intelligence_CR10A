@@ -17,6 +17,7 @@ from typing import Callable, Dict, List
 
 import numpy as np
 
+from .envs import TASKS
 from .envs.cr10a_reach import ReachEnv
 
 
@@ -50,6 +51,17 @@ def apf_policy(env, gain: float = 3.0, damping: float = 0.05, k_rep: float = 0.0
             dd = max(d, 0.005)
             dq = dq + jp[:, env.dadr].T @ (k_rep * (1.0 / dd - 1.0 / d0) / dd ** 2 * n)
         a = dq / env.cfg.max_joint_speed
+        m = np.max(np.abs(a))
+        return a / m if m > 1 else a
+    return act
+
+
+def joint_interp_policy(env, gain: float = 3.0) -> Callable:
+    """DIAGNOSTIC, PRIVILEGED: knows the goal joint configuration (env.q_goal) and moves straight to it
+    in joint space. Not a competitor (no policy gets q_goal); it measures how many episodes a naive
+    joint-space path already solves, i.e. how hard the episodes are."""
+    def act(obs):
+        a = gain * (env.q_goal - env.q()) / env.cfg.max_joint_speed
         m = np.max(np.abs(a))
         return a / m if m > 1 else a
     return act
@@ -90,19 +102,18 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--episodes", type=int, default=50)
     ap.add_argument("--seed", type=int, default=1000)
-    ap.add_argument("--task", choices=("reach", "wall"), default="reach")
+    ap.add_argument("--task", choices=TASKS, default="reach")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     a.out = a.out or f"data/reports/learning/baselines_{a.task}.json"
     rng = np.random.default_rng(0)
     rep = {}
     policies = [("random", lambda e: random_policy(e, rng)), ("dls_ik", dls_policy)]
-    if a.task == "wall":
-        from .envs.cr10a_reach_wall import ReachWallEnv
-        env = ReachWallEnv()
+    from .envs import make_env
+    env = make_env(a.task)
+    if a.task != "reach":
         policies.append(("apf", apf_policy))
-    else:
-        env = ReachEnv()
+        policies.append(("joint_interp_PRIVILEGED", joint_interp_policy))
     for name, mk in policies:
         t0 = time.time()
         rep[name] = evaluate(env, mk, a.episodes, a.seed)

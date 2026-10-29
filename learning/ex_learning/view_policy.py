@@ -22,22 +22,23 @@ import mujoco
 import mujoco.viewer
 import numpy as np
 
+from .envs import TASKS
 from .baselines import apf_policy, dls_policy
 
 
-def load_ppo(path: Path, env):
+def load_ppo(path: Path, env, env_task: str = "wall"):
     from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
     from .train_ppo import GymWrap
     model = PPO.load(path / "ppo", device="cpu")
-    vn = VecNormalize.load(str(path / "vecnormalize.pkl"), DummyVecEnv([lambda: GymWrap("wall")]))
+    vn = VecNormalize.load(str(path / "vecnormalize.pkl"), DummyVecEnv([lambda: GymWrap(env_task)]))
     vn.training = False
     return lambda e: (lambda obs: model.predict(vn.normalize_obs(obs.astype(np.float32)[None]), deterministic=True)[0][0])
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--task", choices=("reach", "wall"), default="wall")
+    ap.add_argument("--task", choices=TASKS, default="wall")
     ap.add_argument("--policy", choices=("dls", "apf", "ppo", "random"), default="apf")
     ap.add_argument("--model", type=Path, default=Path("../data/reports/learning/ppo_wall_s0"))
     ap.add_argument("--episodes", type=int, default=20)
@@ -45,16 +46,12 @@ def main(argv=None) -> int:
     ap.add_argument("--slowmo", type=float, default=1.0, help=">1 = slower than real time")
     a = ap.parse_args(argv)
 
-    if a.task == "wall":
-        from .envs.cr10a_reach_wall import ReachWallEnv
-        env = ReachWallEnv()
-    else:
-        from .envs.cr10a_reach import ReachEnv
-        env = ReachEnv()
+    from .envs import make_env
+    env = make_env(a.task)
     rng = np.random.default_rng(0)
     make = {"dls": dls_policy, "apf": apf_policy, "random": lambda e: (lambda o: rng.uniform(-1, 1, 6))}.get(a.policy)
     if a.policy == "ppo":
-        make = load_ppo(a.model, env)
+        make = load_ppo(a.model, env, a.task)
 
     v = mujoco.viewer.launch_passive(env.m, env.d)
     v.cam.azimuth, v.cam.elevation, v.cam.distance, v.cam.lookat[:] = 135, -25, 2.6, (-0.4, 0.0, 0.4)

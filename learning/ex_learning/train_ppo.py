@@ -17,6 +17,7 @@ from pathlib import Path
 import gymnasium as gym
 import numpy as np
 
+from .envs import TASKS
 from .baselines import evaluate
 
 
@@ -24,12 +25,8 @@ class GymWrap(gym.Env):
     metadata = {"render_modes": []}
 
     def __init__(self, task: str, seed: int = 0) -> None:
-        if task == "wall":
-            from .envs.cr10a_reach_wall import ReachWallEnv
-            self.env = ReachWallEnv(seed=seed)
-        else:
-            from .envs.cr10a_reach import ReachEnv
-            self.env = ReachEnv(seed=seed)
+        from .envs import make_env
+        self.env = make_env(task, seed)
         self.observation_space = gym.spaces.Box(-np.inf, np.inf, (self.env.observation_dim,), np.float32)
         self.action_space = gym.spaces.Box(-1.0, 1.0, (6,), np.float32)
 
@@ -48,7 +45,7 @@ def main(argv=None) -> int:
     from stable_baselines3.common.vec_env import SubprocVecEnv, VecNormalize
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--task", choices=("reach", "wall"), default="wall")
+    ap.add_argument("--task", choices=TASKS, default="wall")
     ap.add_argument("--timesteps", type=int, default=2_000_000)
     ap.add_argument("--n-envs", type=int, default=12)
     ap.add_argument("--seed", type=int, default=0)

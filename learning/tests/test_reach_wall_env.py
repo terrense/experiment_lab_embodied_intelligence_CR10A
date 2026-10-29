@@ -83,3 +83,56 @@ def test_crashing_early_never_pays(env):
         if term or trunc:
             break
     assert not env.collided and still > -env.cfg.collision_penalty / 2
+
+
+def test_window_reward_never_penalises_valid_starts_or_goals():
+    # regression (window v1): a 5 cm shaping margin penalised standing AT 68 % of the goals
+    from ex_learning.envs import make_env
+    win = make_env("window")
+    for pool in (win.start_pool, win.goal_pool):
+        for q in pool[:64]:
+            win._set_q(q)
+            assert win.clearance() >= win.cfg.shaping_margin
+
+
+def test_random_walls_change_every_episode_and_are_observed():
+    from ex_learning.envs import make_env
+    from ex_learning.envs.cr10a_reach_wall import OOD_WALLS, TRAIN_WALLS
+    env = make_env("wall_rand")
+    walls = []
+    for s in range(6):
+        obs, _ = env.reset(seed=s)
+        assert obs.shape == (28,) and obs[21] > 0.0          # start collision-free
+        walls.append(obs[22:].copy())
+        lo, hi = env.box_lo[env.wall_i], env.box_hi[env.wall_i]
+        assert np.allclose(obs[22:25], 0.5 * (lo + hi)) and np.allclose(obs[25:], 0.5 * (hi - lo))
+        env._set_q(env.q_goal)
+        assert env.clearance() > 0.02                         # goal collision-free too
+    assert len({tuple(np.round(w, 4)) for w in walls}) == 6
+    assert make_env("wall_rand_blind").reset(seed=0)[0].shape == (22,)
+    assert OOD_WALLS["height"][0] >= TRAIN_WALLS["height"][1] and OOD_WALLS["width"][0] >= TRAIN_WALLS["width"][1]
+
+
+def test_fixed_wall_task_unchanged_by_randomisation_code(env):
+    # the fixed-wall results must stay reproducible: wall box as in the M2 scene, obs 22
+    w = env.box_names.index("wall")
+    assert np.allclose(env.box_lo[w], [-0.95, -0.02, 0.0]) and np.allclose(env.box_hi[w], [-0.45, 0.02, 0.9])
+    assert env.reset(seed=0)[0].shape == (22,)
+
+
+@pytest.mark.parametrize("task", ["wall", "wall_rand", "wall_rand_blind", "window"])
+def test_reported_clearance_is_the_true_clearance(task):
+    # regression: step() once read obs[-1] as the clearance; with the wall in the observation that
+    # is the wall half-height, so collisions were never detected (DLS "100 % success" on wall_rand)
+    from ex_learning.envs import make_env
+    e = make_env(task)
+    e.reset(seed=0)
+    _, _, _, _, info = e.step(np.zeros(6))
+    assert abs(info["clearance"] - min(e.clearance(), e.cfg.clearance_cap)) < 1e-9
+
+
+def test_straight_line_hits_random_walls_too():
+    from ex_learning.baselines import dls_policy, evaluate
+    from ex_learning.envs import make_env
+    rep = evaluate(make_env("wall_rand"), dls_policy, episodes=4, seed=1000)
+    assert rep["collision_rate"] >= 0.5

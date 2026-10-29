@@ -1,0 +1,463 @@
+{
+ "episodes": 50,
+ "success_rate": 0.06,
+ "final_dist_m_median": 0.053434585264174175,
+ "time_to_reach_s_median": 2.72,
+ "path_m_median": 1.9779653498559053,
+ "limit_hit_episodes": 0,
+ "collision_rate": 0.24,
+ "per_episode": [
+  {
+   "success": false,
+   "final_dist_m": 1.0898993142572584,
+   "path_m": 0.41987969564099714,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.011571509393717164
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.20391291633367647,
+   "path_m": 2.0619400347921553,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.04305586921998018
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.0645805370348565,
+   "path_m": 1.7402058196626822,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.023099284804928025
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.024832823931026482,
+   "path_m": 2.6480998738357213,
+   "time_to_reach_s": 2.66,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.05361389211323006
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.0857217523033862,
+   "path_m": 2.0672036116056067,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.11812227768794265
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.07453270882629603,
+   "path_m": 2.5003012413279504,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.02212205456426114
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.031059210839206142,
+   "path_m": 2.315602907249221,
+   "time_to_reach_s": 2.56,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.0007439971587078625
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.0950038289804906,
+   "path_m": 0.683915532558077,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0026408779297236312
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.2111704997313169,
+   "path_m": 0.4276627332128463,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0077405964713063435
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.08562990640758787,
+   "path_m": 2.4232293741161506,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.05424069710236374
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.0229686342165538,
+   "path_m": 0.562650388238859,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0036665573002160196
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04220900573541829,
+   "path_m": 1.9608843656911144,
+   "time_to_reach_s": 2.66,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.03852947721110159
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.03701013292543264,
+   "path_m": 1.75269563002758,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.028427555585695666
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.040303673236162636,
+   "path_m": 1.9520249322633523,
+   "time_to_reach_s": 2.48,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.03889797978784907
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04062861653548633,
+   "path_m": 1.9830118943769952,
+   "time_to_reach_s": 4.0600000000000005,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.034501255747444226
+  },
+  {
+   "success": true,
+   "final_dist_m": 0.016637228100242842,
+   "path_m": 1.9729188053348157,
+   "time_to_reach_s": 4.12,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.016742980157335455
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.0925715344111349,
+   "path_m": 0.48777554844773796,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.006507468760653903
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.21881602284188895,
+   "path_m": 2.1870786726990783,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.03267411555065304
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.05717195927317448,
+   "path_m": 1.8675788321502522,
+   "time_to_reach_s": 2.34,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.009719391746210601
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04150506016918381,
+   "path_m": 1.6403181364336303,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.030134621904339312
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.2249310311430675,
+   "path_m": 0.37422781950312084,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0033600975805003486
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.023865675421325432,
+   "path_m": 2.0500426580351996,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.013804865509338016
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.3355011392644427,
+   "path_m": 0.35712877656165376,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0005559629302719915
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.162467914417082,
+   "path_m": 0.2884113477199199,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.011173251673564796
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.031430462742304134,
+   "path_m": 1.923682212442681,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.03436963738817833
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04258021019795216,
+   "path_m": 1.8377368691087574,
+   "time_to_reach_s": 3.48,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.04764822886740114
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.06487363360973887,
+   "path_m": 2.3516200396641103,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.04012127667020436
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.0613477352628664,
+   "path_m": 2.2801373322917056,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.044001476900333375
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.0340591239671622,
+   "path_m": 0.48191502648386314,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.015944409829307282
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04460507211032282,
+   "path_m": 2.4280073394112835,
+   "time_to_reach_s": 2.44,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.026282972340258115
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.042161553845989096,
+   "path_m": 2.359872270561992,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.060450934391041045
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.03910056570134947,
+   "path_m": 1.7984751123118412,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.02735080375580759
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.07546437066478273,
+   "path_m": 2.586927143160637,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.000874604136968618
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.06763517641830842,
+   "path_m": 2.2490722141270636,
+   "time_to_reach_s": 4.0,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.023461327776572102
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.060907107922933,
+   "path_m": 0.5559409635281608,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.0077938439846548385
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.04384254158411444,
+   "path_m": 2.2490367478085056,
+   "time_to_reach_s": 2.84,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.007949585996785316
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.049697211255173866,
+   "path_m": 2.0610492523353696,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.01575956490624543
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.03391511600664505,
+   "path_m": 2.1365512479347553,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.0016815529021745462
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.029085154143686162,
+   "path_m": 2.6372428663100087,
+   "time_to_reach_s": 3.08,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.04107920569216161
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.021893101015622144,
+   "path_m": 1.914189529029652,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.007827579662610204
+  },
+  {
+   "success": true,
+   "final_dist_m": 0.01902225999374257,
+   "path_m": 2.0258864312168114,
+   "time_to_reach_s": 2.72,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.01440876227831768
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.1697195230965263,
+   "path_m": 0.615957043564926,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.007134330358749635
+  },
+  {
+   "success": false,
+   "final_dist_m": 1.1624630845022517,
+   "path_m": 0.44049758792597404,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": true,
+   "min_clearance_m": -0.00847769168677115
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.028416293607144025,
+   "path_m": 1.8936778405372667,
+   "time_to_reach_s": 3.62,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.04683730645736685
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.062083953694191805,
+   "path_m": 2.4657014921956932,
+   "time_to_reach_s": 3.34,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.010805251541078337
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.034584045312324306,
+   "path_m": 2.6146416862871056,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.03246573426310931
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.0796253546858261,
+   "path_m": 2.049774316302411,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.01076607615684022
+  },
+  {
+   "success": true,
+   "final_dist_m": 0.01615751265234896,
+   "path_m": 1.836846984057428,
+   "time_to_reach_s": 2.72,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.0328691929514342
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.023135071457053114,
+   "path_m": 2.664480633342694,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.01956340684037923
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.03194622476701079,
+   "path_m": 2.1305283275470974,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.017843941861521245
+  }
+ ],
+ "model": "../data/reports/learning/ppo_wall_s0",
+ "task": "wall_ood_blind"
+}
