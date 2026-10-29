@@ -156,3 +156,9 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - PPO (SB3, isolated venv, CPU, 3 M steps): 3 seeds reach 58 / 64 / 80 % success with 0 collisions. Every seed beats APF.
 - Reward v1 taught PPO to crash; fixed with a potential-based reward and a regression test.
 - Hands-on launchers + Chinese guide (`hands_on/`); README is now a visual tour of all stages.
+
+## 2026-10-29: M5 window scene + generalisation (docs/LEARNING.md)
+- Window (narrow passage, mesh point-cloud collision): DLS 6 % / 76 % collisions, APF 0 %, PPO (5 M) 0 %, RRT-Connect + path following 38 % / 2 % (40 % planned within 60k checks).
+- Generalisation, 50 paired episodes, 3 PPO seeds each: one-wall PPO 67 % → 21 % on moved walls; random-wall PPO (wall observed) 77 % in distribution (APF 64 %), 21 % success / 36 % collisions on taller+wider walls (APF 50 % / 2 %).
+- Bug found before training: `step()` read the wall size as the clearance when the wall was in the observation; fixed + tests.
+- Commands: `python -m ex_learning.train_ppo --task wall_rand --seed {0,1,2} --steps 5000000`, `python -m ex_learning.eval_ppo --model ... --task {wall_rand,wall_ood,wall_obs}`, `python -m ex_learning.planner --task window --exec-steps 1500`, `python3 evaluation/plot_generalisation.py data/reports/learning --out assets/learning/generalisation.png`.
