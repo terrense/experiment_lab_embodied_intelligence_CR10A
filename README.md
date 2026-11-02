@@ -14,7 +14,7 @@ Every stage ships working code, tests, measured results and an honest failure an
 | **M2** MoveIt planning lab (sim) | 400-plan OMPL benchmark: RRTConnect/SBL 39/40, narrow passages separate the planners | [M2_PLANNING_LAB](docs/M2_PLANNING_LAB.md) |
 | **M4** MuJoCo physics plant (sim) | Behind ros2_control, MoveIt unchanged; tracking error ∝ 1/servo bandwidth (3–15 mm) | [M4_MUJOCO](docs/M4_MUJOCO.md) |
 | **M4.5** Dynamics identification (**real CR10A moving**) | URDF masses are 1.64× too light (≈ 40 kg datasheet); Coulomb friction 10–14 N m; sim-to-real torque gap cut **3–6×** | [DYNAMICS_ID](docs/DYNAMICS_ID.md) |
-| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions**. Moved walls: one-wall PPO 21 %, random-wall PPO 77 %, but 36 % collisions on out-of-distribution walls (APF 2 %). Window: RRT-Connect 38 %, APF/PPO 0 % |  [LEARNING](docs/LEARNING.md) |
+| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions**. Moved walls: one-wall PPO 21 %, random-wall PPO 77 %, but 36 % collisions on out-of-distribution walls (APF 2 %). A **control-barrier safety filter** cuts those to 5 % collisions while success *rises* to 31 %. Window: RRT-Connect 38 %, APF/PPO 0 % |  [LEARNING](docs/LEARNING.md) |
 
 ---
 
@@ -70,6 +70,9 @@ The arm moved under program control: owner on site at the e-stop, unit authoriza
 
 ![generalisation](assets/learning/generalisation.png)
 *Does it still avoid the wall when the wall moves? The one-wall PPO memorised a path (67 % → 21 % on moved walls). Trained on random, observed walls it reaches 77 % (APF 64 %), but on taller and wider walls than in training it collides in about a third of the episodes, where APF collides in 2 %. A policy for this family of walls, not a general obstacle-avoidance skill.*
+
+![safety filter](assets/learning/safety_filter.png)
+*Does a safety filter rescue the policy out of distribution? A naive always-on repulsion halves the success rate (it fights the policy). A control-barrier (CBF) projection — brake only when `clearance ≥ margin` is about to be violated — cuts the out-of-distribution collisions from 36 % to 5 % while success rises 21 % → 31 %, and it costs nothing in distribution (77 % → 81 %, 0 collisions).*
 
 Window scene (narrow passage, forearm must go through a 0.5 × 0.4 m window): APF 0 %, PPO 0 %, RRT-Connect + path following 38 % (2 % collisions). Here sampling-based planning wins clearly.
 

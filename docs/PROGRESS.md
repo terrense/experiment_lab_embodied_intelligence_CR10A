@@ -162,3 +162,10 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - Generalisation, 50 paired episodes, 3 PPO seeds each: one-wall PPO 67 % → 21 % on moved walls; random-wall PPO (wall observed) 77 % in distribution (APF 64 %), 21 % success / 36 % collisions on taller+wider walls (APF 50 % / 2 %).
 - Bug found before training: `step()` read the wall size as the clearance when the wall was in the observation; fixed + tests.
 - Commands: `python -m ex_learning.train_ppo --task wall_rand --seed {0,1,2} --steps 5000000`, `python -m ex_learning.eval_ppo --model ... --task {wall_rand,wall_ood,wall_obs}`, `python -m ex_learning.planner --task window --exec-steps 1500`, `python3 evaluation/plot_generalisation.py data/reports/learning --out assets/learning/generalisation.png`.
+
+## 2026-10-29: M5 safety filter (CBF) on top of PPO (docs/LEARNING.md)
+- Question: can a safety filter stop the 36 % OOD collisions without killing success? Two filters on the generalist wall_rand policy (3 seeds, 50 paired episodes):
+  - naive additive repulsion (d0 0.10, k 0.02): OOD 15 % success / 17 % collisions, but original wall 71 -> 43 % success (fights the policy).
+  - CBF projection (margin 0.05, alpha 5): OOD 21 % -> 31 % success, 36 % -> 5 % collisions; in-distribution 77 % -> 81 % and 4 % -> 0 % collisions; original unchanged 71 %.
+- New modules: ex_learning/safety_filter.py (safe_policy, cbf_policy), eval_ppo_safe.py, run_safe_eval.py, sweep_safe.py; 4 tests in tests/test_safety_filter.py.
+- Commands: python -m ex_learning.run_safe_eval; python3 evaluation/plot_safety_filter.py data/reports/learning --out assets/learning/safety_filter.png.

@@ -80,7 +80,31 @@ Reading:
 - Training on randomised, observed walls fixes this **within the training distribution**: 77 %, better than APF (64 %), and it loses nothing on the original wall (71 % vs 67 %).
 - It does **not** extrapolate: on taller and wider walls it collides in about a third of the episodes (34–38 % for every seed), far worse than APF (2 %). APF has no training distribution to leave; the geometry is computed on line.
 - The policy only knows "a box with these 6 numbers". Any other obstacle shape (window, shelf, a person) is outside what it can represent, see the window scene above.
-- So: the RL result is a policy for *this family of walls*, not a general obstacle-avoidance skill. Wider randomisation, a geometric observation (e.g. distances or a point cloud) or a safety filter (APF / control-barrier on top of the policy) are the obvious next steps, none of them done yet.
+- So: the RL result is a policy for *this family of walls*, not a general obstacle-avoidance skill. Wider randomisation, a geometric observation (e.g. distances or a point cloud) or a safety filter on top of the policy are the obvious next steps — the safety filter is done below.
+
+## Safety filter: can we bolt "don't collide" onto the policy?
+The OOD failure is collisions (36 %), not slow reaching, so the cheapest fix is a safety layer that leaves the policy alone except when it is about to touch something. Two filters are compared, both using the env's geometric clearance (the same point/segment model as everything else):
+
+- **Naive additive repulsion** (`safe_policy`): the APF potential-field term added to the learned action, always-on within `d0`. This is "give the policy APF as a reflex".
+- **Control-barrier projection** (`cbf_policy`): the closest obstacle point defines the constraint `clearance >= margin`; the learned action is projected onto it with the *minimal* change, so it only brakes the approach near contact and is inactive otherwise. Single constraint, closed-form projection.
+
+Both were tuned on seeds 0–19, then evaluated on the same 50 paired episodes (seeds 1000–1049) as the generalisation experiment, 3 seeds, on the three settings.
+
+| Method | Original wall | New random walls | OOD walls (taller + wider) |
+|---|---|---|---|
+| policy alone (raw) | 71 % / 0 % | 77 % / 4 % | 21 % / 36 % |
+| + additive repulsion (d0 0.10, k 0.02) | 43 % / 2 % | 67 % / 2 % | 15 % / 17 % |
+| **+ CBF projection (margin 0.05, α 5)** | **71 % / 0 %** | **81 % / 0 %** | **31 % / 5 %** |
+
+Success / collisions, mean over 3 seeds. Per-seed OOD: raw 12/16/34 % success & 38/36/34 % collisions; CBF 30/22/40 % & 4/4/6 %.
+
+![safety filter](../assets/learning/safety_filter.png)
+
+Reading:
+- **The naive additive filter fails.** It reduces OOD collisions a bit (36 → 17 %) but *halves* the success rate everywhere (original 71 → 43 %), because the always-on repulsion fights the policy — which was trained without any repulsion — and creates local minima that stall the arm short of the goal (final distance balloons to ~1 m in the tuning sweep).
+- **The CBF filter does exactly what a safety filter should.** OOD collisions collapse from 36 % to 5 % (the residual is grazing: final distance still ~26 mm) *and* success roughly doubles out of distribution (21 → 31 %). In distribution it loses nothing — actually it gains (77 → 81 %, and 4 % → 0 % collisions), because braking near contact also stops the occasional in-distribution graze.
+- Why the two differ: the additive repulsion acts *whenever* the arm is within d0, the CBF only when the constraint `clearance >= margin` is *about to be violated*. The policy is free to plan and move normally, and the filter only vetoes the dangerous part of the action.
+- The CBF is a single-constraint, closest-point projection with a saturation caveat (the projected action is clipped to the command bound), not a full QP over all links. It is a *practical* safety layer, not a proof of safety; a real guarantee needs all-pairs constraints and the joint limits in the QP.
 
 ## Failure analysis (found while building, all fixed with regression tests)
 | # | Symptom | Cause | Fix |
@@ -102,6 +126,7 @@ Reading:
 ## Not done / next
 - Longer training (curves still rising) and a success-vs-threshold curve, instead of one 2 cm cut.
 - Window scene: PPO 0 %; curriculum or planner-guided RL (e.g. RRT paths as demonstrations) not tried.
-- Generalisation beyond the training walls: wider randomisation, geometric observations, a safety filter on top of the policy.
+- Generalisation beyond the training walls: wider randomisation, geometric observations (a distance field or point cloud instead of the 6 wall numbers). The CBF safety filter is now done, but it is a reactive layer, not generalisation.
+- A full CBF (all-pairs constraints + joint limits in one QP) and a formal safety proof, vs the single-constraint projection used here.
 - Domain randomization over the identified dynamics (`identified_run02` vs `placeholder`) and a sim-to-sim transfer check.
-- Nothing here has been run on hardware. A learned policy on the real arm would need its own safety case.
+- Nothing here has been run on hardware. A learned policy on the real arm would need its own safety case (a real-arm CBF is a candidate, but it must be validated in simulation first).
