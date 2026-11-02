@@ -169,3 +169,13 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   - CBF projection (margin 0.05, alpha 5): OOD 21 % -> 31 % success, 36 % -> 5 % collisions; in-distribution 77 % -> 81 % and 4 % -> 0 % collisions; original unchanged 71 %.
 - New modules: ex_learning/safety_filter.py (safe_policy, cbf_policy), eval_ppo_safe.py, run_safe_eval.py, sweep_safe.py; 4 tests in tests/test_safety_filter.py.
 - Commands: python -m ex_learning.run_safe_eval; python3 evaluation/plot_safety_filter.py data/reports/learning --out assets/learning/safety_filter.png.
+
+## 2026-11-02: M5 research-state brief for external analysis (docs/RESEARCH_STATE.md)
+- Wrote a self-contained, stand-alone snapshot of the whole project (M1 → M5) meant to be fed to
+  an external paper-literate reader (ChatGPT / a colleague) so it can propose paper-grounded next
+  steps without reading the repo: hardware + access constraints, per-stage measured results, the
+  learning setup in detail, the honest failure log, and 12 numbered open questions grouped into
+  (A) learning through clutter, (B) safe RL / safety filters, (C) sim-to-real, (D) planning gaps,
+  (E) perception, (F) prior art to adopt.
+- Push note: WSL NAT cannot reach the Windows Clash proxy (127.0.0.1:7890), so this commit was
+  pushed from Windows git (C:\Program Files\Git) instead of from WSL.

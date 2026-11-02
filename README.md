@@ -122,7 +122,7 @@ ros2_ws/src/ex_dobot_motion   the ONLY motion-capable package: whitelist, caps, 
 learning/                     M5 envs (reach, wall), baselines (DLS, APF), PPO, viewer
 evaluation/                   calibration, dynamics identification, sim2real, plots
 hands_on/                     double-click demos + guide (Chinese)
-docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, evidence/
+docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, RESEARCH_STATE (self-contained brief for external analysis), evidence/
 ```
 
 ## Troubleshooting
