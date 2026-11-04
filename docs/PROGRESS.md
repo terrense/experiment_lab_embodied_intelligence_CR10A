@@ -179,3 +179,24 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   (E) perception, (F) prior art to adopt.
 - Push note: WSL NAT cannot reach the Windows Clash proxy (127.0.0.1:7890), so this commit was
   pushed from Windows git (C:\Program Files\Git) instead of from WSL.
+
+## 2026-11-04: external source audit -> defects verified, fixed, and the research plan written
+- An external review of the archived code (CR10A_Research_Design_CN.md, 2026-11-02) alleged 6 P0
+  and 4 P1 defects. Every one was independently re-derived before anything was changed; several
+  severities were corrected (the dead limit mask is P2, not P0: it fires 0 times in >1M substeps
+  across all archived policies; the sampled-clearance defect does NOT flip the collision sign on
+  the real CR10A capsules, it over-states the clearance by up to 12 mm against a 20-50 mm margin).
+- Fixed (commit 5bf50aa, 175 tests pass, 15 new regression tests):
+  P0-A bounded projection onto box INTERSECT half-space (learning/ex_learning/qp_filter.py) with
+  the legacy filter kept as cbf_policy_legacy for the archived JSON; P0-B the joint-limit mask is
+  captured before q_ref is overwritten; P0-C conservative_geometry makes the capsule clearance a
+  rigorous lower bound; P0-D opt-in per-substep collision checking; P1-b the dynamics preset is a
+  config field and is recorded on the env. All defaults keep the LEGACY behaviour.
+- New: docs/RESEARCH_PLAN.md - the main line (execution-aware safety filtering), the verified
+  audit table, the frozen evaluation protocol (seeds 1000-1049 are now historical dev data; a new
+  untouched test range is 20000-20199), the B0-B8 method ladder, the six-week plan with decision
+  gates, and the falsification criteria stated BEFORE the results.
+- Honesty edits: "success roughly doubles" -> "+10 points, +48 % relative, still below APF's
+  50 %"; the window comparison is labelled not budget/privilege-matched; the CBF is a kinematic
+  filter with audited defects, not a safety guarantee.
+- Next: the corrected evaluator (evaluation/independent_collision.py) and the episode manifest.

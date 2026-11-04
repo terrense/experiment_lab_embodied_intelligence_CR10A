@@ -107,7 +107,10 @@ Full detail in the next section. Headline numbers (50 evaluation episodes, seeds
 
 Reading: free-space reaching is solved by a 5-line classical controller (so it is *not* a
 reason to use RL). RL beats APF on the fixed/random wall; APF beats RL out of distribution;
-the CBF safety filter fixes the RL policy's OOD collisions and roughly doubles its OOD success.
+the CBF safety filter removes most of the RL policy's OOD collisions (36 % → 5 %) and raises its
+OOD success from 21 % to 31 % (+10 points, +48 % relative — **not** a doubling, and still below
+APF's 50 %). All of these numbers come from the *legacy* collision evaluator; the audited
+defects and the corrected protocol are in `docs/RESEARCH_PLAN.md`.
 
 ---
 
@@ -185,7 +188,9 @@ our current hypothesis.
 3. PPO curves are still rising at 5 M steps. With ~10³ steps/s CPU-only, what **sample-efficient**
    algorithms or improvements should we try first (SAC/TD3, HRL, action/state history, PPO
    hyperparameters, Hindsight Experience Replay for "goal-directed with clutter")?
-4. The narrow passage (window) is 0 % for every reactive method and 38 % for RRT-Connect.
+4. The narrow passage (window) is 0 % for every reactive method and 38 % for RRT-Connect — but
+   the planner gets the privileged goal joint configuration and a 30 s budget against the reactive
+   policies' 6 s, so this is not yet a controlled comparison.
    What is the best current way to **combine planning and learning** — planner-generated
    demonstrations for BC/RL, RRT-informed RL, curriculum over passage width, or planner-guided
    residual policies?
@@ -228,6 +233,12 @@ our current hypothesis.
 ---
 
 ## 6. Where things live (for reproducibility)
+
+> **Read `docs/RESEARCH_PLAN.md` as well.** An external source review of the archived code
+> (2026-11-02) found six defects in the evaluation path. They were independently re-derived and
+> fixed (commit `5bf50aa`, 175 tests pass), the legacy numbers are kept as the *legacy* reference,
+> and the plan states the frozen protocol, the method ladder and the falsification criteria that
+> decide whether the learning component survives at all.
 
 | What | Where |
 |---|---|

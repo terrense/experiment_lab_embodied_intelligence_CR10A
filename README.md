@@ -14,7 +14,7 @@ Every stage ships working code, tests, measured results and an honest failure an
 | **M2** MoveIt planning lab (sim) | 400-plan OMPL benchmark: RRTConnect/SBL 39/40, narrow passages separate the planners | [M2_PLANNING_LAB](docs/M2_PLANNING_LAB.md) |
 | **M4** MuJoCo physics plant (sim) | Behind ros2_control, MoveIt unchanged; tracking error ∝ 1/servo bandwidth (3–15 mm) | [M4_MUJOCO](docs/M4_MUJOCO.md) |
 | **M4.5** Dynamics identification (**real CR10A moving**) | URDF masses are 1.64× too light (≈ 40 kg datasheet); Coulomb friction 10–14 N m; sim-to-real torque gap cut **3–6×** | [DYNAMICS_ID](docs/DYNAMICS_ID.md) |
-| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions**. Moved walls: one-wall PPO 21 %, random-wall PPO 77 %, but 36 % collisions on out-of-distribution walls (APF 2 %). A **control-barrier safety filter** cuts those to 5 % collisions while success *rises* to 31 %. Window: RRT-Connect 38 %, APF/PPO 0 % |  [LEARNING](docs/LEARNING.md) |
+| **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions**. Moved walls: one-wall PPO 21 %, random-wall PPO 77 %, but 36 % collisions on out-of-distribution walls (APF 2 %). A **control-barrier safety filter** cuts those to 5 % collisions while success rises 21 % → 31 % (still below APF's 50 % success). Window: RRT-Connect 38 % (privileged goal, 30 s budget), APF/PPO 0 % |  [LEARNING](docs/LEARNING.md) |
 
 ---
 
@@ -74,7 +74,7 @@ The arm moved under program control: owner on site at the e-stop, unit authoriza
 ![safety filter](assets/learning/safety_filter.png)
 *Does a safety filter rescue the policy out of distribution? A naive always-on repulsion halves the success rate (it fights the policy). A control-barrier (CBF) projection — brake only when `clearance ≥ margin` is about to be violated — cuts the out-of-distribution collisions from 36 % to 5 % while success rises 21 % → 31 %, and it costs nothing in distribution (77 % → 81 %, 0 collisions).*
 
-Window scene (narrow passage, forearm must go through a 0.5 × 0.4 m window): APF 0 %, PPO 0 %, RRT-Connect + path following 38 % (2 % collisions). Here sampling-based planning wins clearly.
+Window scene (narrow passage, forearm must go through a 0.5 × 0.4 m window): APF 0 %, PPO 0 %, RRT-Connect + path following 38 % (2 % collisions). Here sampling-based planning wins clearly — but the comparison is **not budget- or privilege-matched**: the planner is given the goal joint configuration and 30 s of execution, the reactive policies 6 s and only a Cartesian goal. A matched protocol is the first item on the research plan.
 
 Failures found and fixed on the way (all documented with regression tests):
 - PPO learned to **crash on purpose** under a −distance reward.
@@ -122,7 +122,7 @@ ros2_ws/src/ex_dobot_motion   the ONLY motion-capable package: whitelist, caps, 
 learning/                     M5 envs (reach, wall), baselines (DLS, APF), PPO, viewer
 evaluation/                   calibration, dynamics identification, sim2real, plots
 hands_on/                     double-click demos + guide (Chinese)
-docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, RESEARCH_STATE (self-contained brief for external analysis), evidence/
+docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, RESEARCH_STATE (self-contained brief for external analysis), RESEARCH_PLAN (the working plan + the audited defects and their fixes), evidence/
 ```
 
 ## Troubleshooting
