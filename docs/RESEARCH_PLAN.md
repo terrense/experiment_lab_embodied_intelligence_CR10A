@@ -52,8 +52,8 @@ M5 success/collision figures in `docs/LEARNING.md` and `README.md`.
 
 | ID | Alleged defect | Verdict | Severity now | Changes published numbers? |
 |---|---|---|---|---|
-| **P0-A** | `safety_filter.py::cbf_policy` projects onto the barrier half-space and then clips to the command box; the clip can re-violate the constraint | **CONFIRMED** (mechanism, 2-D counterexample reproduced) | P0 for the *method*; the archived numbers were produced by the defective variant and must be labelled legacy | **Yes** — the corrected filter is a different filter; see the `cbf_policy_legacy` split |
-| **P0-B** | `cr10a_reach.py::step` assigns `self.q_ref = clipped` before evaluating `clipped == self.q_ref`, so the limit mask is always True and the servo velocity feed-forward is never suppressed | **CONFIRMED**, severity **downgraded to P2** | P2 (latent plant-fidelity defect) | **No** — the mask fires **0 times in >1 M substeps** across all 6 archived PPO checkpoints, random actions and a Jacobian controller; the goal distribution never reaches a soft limit. When it does fire (saturated push into the elbow), the elbow settles 0.036 rad *past* its own limit with a 153 N·m torque error — i.e. real, but unreachable in the shipped tasks |
+| **P0-A** | `safety_filter.py::cbf_policy` projects onto the barrier half-space and then clips to the command box; the clip can re-violate the constraint | **CONFIRMED** (mechanism, 2-D counterexample reproduced) | **P1** (downgraded from P0) | **Barely.** Measured on wall_ood, 3 seeds, 50 dev episodes: the clip violates the constraint in **9.6 % of the active-constraint steps** and in **46 of 50 episodes** — the mechanism is *not* rare. But every violation had a feasible in-box command (`Σ|cᵢ| ≥ g`), and the downstream effect is small: with the exact bounded projection the collision verdict changes in **1 episode out of 150**, success is unchanged in every configuration, and the mean minimum-clearance difference is **0.1 mm**. Worst violation 0.1146 = 2.29 mm of extra approach within one 20 ms step. The published claim "the filter returns a command satisfying the constraint" was false; the published *numbers* are barely affected |
+| **P0-B** | `cr10a_reach.py::step` assigns `self.q_ref = clipped` before evaluating `clipped == self.q_ref`, so the limit mask is always True and the servo velocity feed-forward is never suppressed | **CONFIRMED**, severity **downgraded to P2** | P2 (latent plant-fidelity defect) | **No** — the mask fires **0 times in >1 M substeps** across all 6 archived PPO checkpoints, random actions and a Jacobian controller; the goal distribution never reaches a soft limit. When it does fire (saturated push into the elbow), the elbow settles 0.036 rad *past* its own limit with a 153 N·m torque error — real, but unreachable in the shipped tasks |
 | **P0-C** | `cr10a_reach_wall.py::pair_distances` samples 32 points along the capsule axis; the sampled minimum is an **upper** bound, so the clearance can read positive while the capsule intersects | **CONFIRMED** (mechanism). **The specific "missed collision" does NOT occur with the real CR10A capsules** | P1 | **Not as a missed collision.** The CR10A's enclosing radii are 61–150 mm and dominate the 0–12 mm sampling error, so the sign never flips. What *does* happen: the clearance is systematically **over-stated by up to 12 mm** (Link2), against a filter margin of only 20–50 mm — the filter brakes up to 12 mm too late |
 | **P0-D** | Collision is checked only at the *end* of a policy step (20 physics substeps), so a brief intersection inside a step is invisible | **CONFIRMED** | P1 | Under measurement (see §3) |
 | **P0-E** | The window comparison (RRT-Connect 38 % vs PPO 0 %) is not budget- or privilege-matched: the planner gets the goal **joint configuration** and a 30 s budget against the reactive policies' 6 s | **CONFIRMED** | P1 | **Yes** — the headline "planning wins clearly" is not a controlled statement |
@@ -61,6 +61,19 @@ M5 success/collision figures in `docs/LEARNING.md` and `README.md`.
 | **P1-b** | The learning environment always used the **placeholder** dynamics; the `identified_run02` preset existed but was not selectable from the learning constructor | **CONFIRMED** (first-hand) | P1 | Yes — every archived policy is a policy on the *placeholder* plant, not on the identified one |
 | **P1-c** | `evaluation/dynamics_id.py` filters the whole series with `filtfilt` **before** splitting into time segments, coupling the split boundary | Under independent verification | — | Under verification |
 | **P1-d** | `run_safe_eval.py` records only model/task/filter; the margin, α, environment, commit and checkpoint hash are missing; `cbf_policy`'s default margin is 2 cm while the evaluation script uses 5 cm | **CONFIRMED** (first-hand) | P2 (blocks reproducibility, not correctness) | No, but the archived JSONs cannot be reproduced from themselves |
+
+### A finding the review did not anticipate
+
+The environment's collision detector is **sound but loose**: it answers "did the *enclosing
+capsule* touch the wall?", not "did the *arm* touch the wall?". The CR10A's link capsules have
+radii of 61–150 mm, so the capsule can be in contact while the mesh is still **13 cm** away
+(measured at the home pose: capsule clearance 0.054 m vs mesh clearance 0.130 m).
+
+The consequence is not that the published collision rates are too *high* in a way that flatters
+the method — the opposite. It means **the published numbers measure a different physical event
+than the one the paper talks about**, and the independent mesh-based checker must be the arbiter
+from now on. The legacy↔corrected comparison is running; its result decides whether the
+published table is re-derived.
 
 **Already fixed** (commit `5bf50aa`, 175 tests pass, 15 new regression tests in
 `learning/tests/test_audit_fixes.py`): P0-A (bounded projection in
@@ -135,12 +148,18 @@ allowed to stop the project.
 ### Week 1 — repair and mechanism diagnosis *(in progress)*
 
 - ✅ P0-A/B/C/D + P1-b fixes with 15 regression tests (`5bf50aa`)
-- ⬜ `evaluation/independent_collision.py`: a checker that does **not** reuse the environment's
-  distance code — mesh point cloud, sub-step coverage, and the self-collision pairs defined in the
-  MoveIt SRDF (the environment currently checks link-vs-box only)
-- ⬜ `evaluation/episode_manifest.py`: the frozen manifest of §3
-- ⬜ re-run the archived 50 dev scenes under **both** evaluators; publish the comparison, never
-  overwrite the legacy JSON
+- ✅ `evaluation/independent_collision.py`: a checker that does **not** reuse the environment's
+  distance code — mesh surface samples, an exact point-to-AABB distance, a penetration depth for
+  containment, and the self-collision pairs defined in the MoveIt SRDF (the environment checks
+  link-vs-box only). Validated against the environment: the capsule axes coincide to 1e-6 and
+  every mesh point lies inside its capsule (max excess 0.000000 m) (`6e29b71`)
+- ✅ `evaluation/episode_manifest.py`: the frozen manifest of §3
+- ✅ `evaluation/compare_evaluators.py`: replays the *same recorded actions* through the three
+  detectors, so the physics is identical and only the detector differs. Its self-consistency
+  assertion caught two bugs of its own — most importantly that **the episode sampling depended on
+  the evaluator** (the corrected clearance is lower, so the rejection sampling accepted different
+  start/goal configurations and the two evaluators were not comparing the same episodes at all)
+- ⬜ the legacy↔corrected↔independent comparison over the 3 × 3 × 50 dev episodes (running)
 - ⬜ per-episode diagnosis of the residual OOD collisions: which link, which box, the
   reference-tracking error `q_ref − q`, the pre/post-projection residual, the clip mask, the
   sub-step minimum distance — allowing several causes per episode

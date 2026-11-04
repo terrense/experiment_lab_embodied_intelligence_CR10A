@@ -248,6 +248,49 @@ def test_legacy_detector_misses_the_same_intersection(monkeypatch):
     assert not env.collided, "the legacy detector is expected to miss an in-step penetration"
 
 
+# --------------------------------------------------------------------------------------- P1-a
+def test_discount_consistent_shaping_satisfies_the_potential_identity():
+    # potential-based shaping F = gamma*Phi(s') - Phi(s) with Phi(s) = -d must satisfy
+    #     sum_t gamma^t F_t = d_0 - gamma^T d_T
+    # for EVERY trajectory, which is exactly what makes the optimal policy unchanged.
+    gamma, d0 = 0.99, 0.80
+    ds = [0.80, 0.70, 0.55, 0.40, 0.33]
+    T = len(ds) - 1
+    shaped = sum(gamma ** t * (ds[t] - gamma * ds[t + 1]) for t in range(T))
+    assert abs(shaped - (d0 - gamma ** T * ds[-1])) < 1e-12
+    # the legacy form does NOT satisfy it -> invariance must not be claimed for it
+    legacy = sum(gamma ** t * (ds[t] - ds[t + 1]) for t in range(T))
+    assert abs(legacy - (d0 - gamma ** T * ds[-1])) > 1e-3
+
+
+def test_the_env_exposes_both_shaping_variants():
+    from ex_learning.envs.cr10a_reach_wall import ReachWallEnv, WallConfig
+    legacy = ReachWallEnv(WallConfig(max_steps=4))
+    strict = ReachWallEnv(WallConfig(max_steps=4, discount_consistent_shaping=True, limit_penalty=0.1))
+    d_prev, d_now = 0.8, 0.7
+    assert legacy.progress_reward(d_prev, d_now) == pytest.approx(legacy.cfg.progress_weight * (d_prev - d_now))
+    assert strict.progress_reward(d_prev, d_now) == pytest.approx(
+        strict.cfg.progress_weight * (d_prev - strict.cfg.gamma * d_now))
+    # the legacy default is unchanged: the archived policies stay comparable
+    assert WallConfig().discount_consistent_shaping is False
+    assert WallConfig().limit_penalty == 0.0
+
+
+def test_the_wall_reward_can_include_the_joint_limit_penalty():
+    from ex_learning.envs.cr10a_reach_wall import ReachWallEnv, WallConfig
+    env = ReachWallEnv(WallConfig(max_steps=6, limit_penalty=0.1))
+    env.reset(seed=0)
+    # drive a joint into its limit so the penalty must fire
+    env.q_ref[1] = env.hi[1] - 1e-9
+    obs, r, term, trunc, info = env.step(np.array([0.3, 1.0, 0.0, 0.0, 0.0, 0.0]))
+    assert info["limit_hit"] is True
+    legacy = ReachWallEnv(WallConfig(max_steps=6))
+    legacy.reset(seed=0)
+    legacy.q_ref[1] = legacy.hi[1] - 1e-9
+    obs2, r2, term2, trunc2, info2 = legacy.step(np.array([0.3, 1.0, 0.0, 0.0, 0.0, 0.0]))
+    assert r < r2, "the limit penalty must make the reward smaller"
+
+
 # --------------------------------------------------------------------------------------- P1-b
 def test_learning_env_uses_the_placeholder_preset_by_default():
     # the archived M5 policies were all trained on the placeholder preset

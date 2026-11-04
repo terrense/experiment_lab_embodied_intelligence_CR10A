@@ -146,3 +146,35 @@ def test_corrected_environment_clearance_is_never_larger_than_the_legacy_one():
             legacy._set_q(q)
             strict._set_q(q)
             assert np.all(strict.pair_distances()[0] <= legacy.pair_distances()[0] + 1e-12)
+
+
+# ------------------------------------------------------------------ the result manifest
+def test_result_manifest_is_complete(tmp_path):
+    # P1-d: an archived number must be reproducible from its own file
+    from ex_learning.envs import make_env
+    from ex_learning.run_safe_eval import build_manifest
+    model = tmp_path / "ppo_wall_rand_s0"
+    model.mkdir()
+    (model / "ppo.zip").write_bytes(b"not a real checkpoint")
+    env = make_env("wall_ood")
+    m = build_manifest(model, "wall_ood", "cbf",
+                       {"margin": 0.05, "alpha": 5.0, "d_max": 0.30}, env, 50, 1000, ROOT)
+    for key in ("model", "task", "filter", "filter_params", "env", "episodes", "seed_start",
+                "seed_end_exclusive", "checkpoint_sha256_16", "git_commit", "episode_manifest_hash"):
+        assert key in m, f"the manifest is missing {key}"
+    assert m["env"]["dynamics_preset"] == "placeholder"
+    assert m["env"]["collision_evaluator"] == "legacy"
+    assert m["checkpoint_sha256_16"] != "MISSING"
+    assert m["git_commit"] != "UNKNOWN"
+    assert m["episode_manifest_hash"] != ""
+
+
+def test_the_corrected_evaluator_is_labelled_in_the_manifest(tmp_path):
+    from ex_learning.envs import make_env
+    from ex_learning.run_safe_eval import build_manifest
+    model = tmp_path / "m"
+    model.mkdir()
+    (model / "ppo.zip").write_bytes(b"x")
+    env = make_env("wall_ood", conservative_geometry=True, substep_collision_check=True)
+    m = build_manifest(model, "wall_ood", "cbf", {}, env, 50, 1000, ROOT)
+    assert m["env"]["collision_evaluator"] == "corrected"

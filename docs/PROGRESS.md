@@ -200,3 +200,29 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   50 %"; the window comparison is labelled not budget/privilege-matched; the CBF is a kinematic
   filter with audited defects, not a safety guarantee.
 - Next: the corrected evaluator (evaluation/independent_collision.py) and the episode manifest.
+
+## 2026-11-04 (later): corrected evaluator, independent checker, result manifest (P1-a, P1-d)
+- New evaluation/independent_collision.py: a second checker that does NOT reuse the environment's
+  distance code - mesh SURFACE samples instead of the enclosing capsules, an exact point-to-AABB
+  distance, a penetration depth for containment, and a self-collision check over the link pairs
+  the MoveIt SRDF does not disable. Validated against the environment: capsule axes coincide to
+  1e-6, every mesh point lies inside its capsule (max excess 0.000000 m).
+- New evaluation/episode_manifest.py: the frozen protocol. Seeds 1000-1049 are now historical DEV
+  data (they produced the published numbers and were inspected while writing them); the
+  confirmatory range is a new, untouched 20000-20199.
+- New evaluation/compare_evaluators.py: replays the SAME recorded actions through three
+  detectors, so the physics is identical and only the detector differs. Its self-consistency
+  assertion caught two of its own bugs, most importantly that the episode SAMPLING depended on the
+  evaluator (the corrected clearance is lower, so the rejection sampling accepted different
+  start/goal configurations - the two evaluators were not comparing the same episodes at all).
+- P1-d fixed: every result JSON now carries a full manifest (filter settings, env config, plant
+  preset, collision-evaluator variant, seed range, git commit, SHA-256 of the checkpoint, episode
+  manifest hash).
+- P1-a prepared (opt-in, the legacy reward stays the default): discount-consistent shaping
+  gamma*Phi(s')-Phi(s) with the identity sum gamma^t F_t = d_0 - gamma^T d_T as a regression
+  test, and an optional joint-limit penalty the legacy wall reward dropped.
+- Measured so far: the environment's collision detector is sound but LOOSE. It reports "the
+  enclosing capsule touched the wall" while the mesh may still be 13 cm away (home pose: capsule
+  clearance 0.054 m vs mesh clearance 0.130 m). The published collision numbers therefore measure
+  a different physical event than the paper's wording suggests.
+- 189 tests pass.

@@ -115,6 +115,11 @@ class WallConfig(ReachConfig):
     # evaluations stay reproducible; the corrected evaluator turns them on)
     conservative_geometry: bool = False   # subtract the sampling error so the clearance is a
                                            # rigorous LOWER bound (see pair_distances)
+    # reward shaping (legacy by default; the audited P1-a fixes are opt-in so the archived
+    # policies stay comparable)
+    gamma: float = 0.99
+    discount_consistent_shaping: bool = False  # use gamma*Phi(s') - Phi(s) instead of d_t - d_(t+1)
+    limit_penalty: float = 0.0            # the base reward's joint-limit penalty (dropped by legacy)
     # generalisation experiment: a new wall every episode (None = the scene's fixed wall)
     wall_ranges: Optional[Dict[str, Tuple[float, float]]] = None  # keys cx, cy, height, width (m)
     wall_in_obs: bool = False          # append wall centre + half sizes (6) to the observation
@@ -418,6 +423,18 @@ class ReachWallEnv(ReachEnv):
         self.q_goal = q_goal.copy()
         return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal}
 
+    def progress_reward(self, d_prev: float, d_now: float) -> float:
+        """The shaping term.
+
+        Potential-based shaping must be  F = gamma*Phi(s') - Phi(s)  with  Phi(s) = -distance, i.e.
+        `d_prev - gamma * d_now`. The legacy form `d_prev - d_now` is the gamma = 1 version: it is a
+        useful shaping signal but it is NOT policy-invariant for gamma = 0.99, so invariance must
+        not be claimed for it (audit P1-a).
+        """
+        if self.cfg.discount_consistent_shaping:
+            return self.cfg.progress_weight * (d_prev - self.cfg.gamma * d_now)
+        return self.cfg.progress_weight * (d_prev - d_now)
+
     def step(self, action):
         d_prev = float(np.linalg.norm(self.goal - self.tcp()))
         self.min_clearance_step = float("inf")   # worst clearance inside THIS policy step
@@ -426,7 +443,11 @@ class ReachWallEnv(ReachEnv):
         # progress reward (potential-based): bounded episode return, ~0 for standing still.
         # v1 used the base reward (-distance every step): ending the episode early by colliding
         # then beat living on (-10 once vs ~-0.5 per remaining step) and PPO learned to crash.
-        reward = self.cfg.progress_weight * (d_prev - info["dist"]) - 0.01 * float(a @ a)
+        reward = self.progress_reward(d_prev, info["dist"]) - 0.01 * float(a @ a)
+        if self.cfg.limit_penalty:
+            # the legacy wall reward replaced the base reward outright and dropped the base
+            # joint-limit penalty, so nothing taught the policy to stay away from the limits
+            reward -= self.cfg.limit_penalty * float(info["limit_hit"])
         if info["success"] and not self.succeeded_bonus:
             reward += 1.0
             self.succeeded_bonus = True
