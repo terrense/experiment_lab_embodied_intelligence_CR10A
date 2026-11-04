@@ -199,7 +199,12 @@ class ReachWallEnv(ReachEnv):
         Two phases: (1) uniform over the joint ranges (J1 limited to the work side +-90 deg, J4/J6 to
         +-180 deg: their full range is redundant) until 50 configurations put the TCP in the box;
         (2) uniform over the bounding box of those hits padded by 10 deg. Phase 2 is ~10x more
-        efficient for the far window goals; configurations outside that joint sub-box are never drawn."""
+        efficient for the far window goals; configurations outside that joint sub-box are never drawn.
+
+        The acceptance test always uses the LEGACY (non-conservative) distance: the episode set
+        must not depend on the evaluator, or a legacy-vs-corrected comparison would compare
+        different episodes.
+        """
         rng = np.random.default_rng(seed)
         lo, hi = self.lo.copy(), self.hi.copy()
         lo[[0, 3, 5]] = np.maximum(lo[[0, 3, 5]], [-math.pi / 2, -math.pi, -math.pi])
@@ -219,7 +224,7 @@ class ReachWallEnv(ReachEnv):
             if np.all(p >= blo) and np.all(p <= bhi):
                 if len(hits) < 50:
                     hits.append(q)
-                if self.clearance() > 0.02:
+                if self.clearance(conservative=False) > 0.02:
                     pool.append(q)
         if len(pool) < self.cfg.pool_size:
             raise RuntimeError(f"only {len(pool)} valid configurations in {box} after {tries} tries")
@@ -241,7 +246,7 @@ class ReachWallEnv(ReachEnv):
         n[bad] = robot_pt[bad] - centre[bad]
         return n / (np.linalg.norm(n, axis=-1, keepdims=True) + 1e-12)
 
-    def pair_distances(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def pair_distances(self, conservative: Optional[bool] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Every (link, box) pair -> (signed clearance, nearest point on the robot surface, unit normal away from the box).
 
         The capsule-to-box distance is computed by sampling SEG_SAMPLES points along the capsule
@@ -274,7 +279,7 @@ class ReachWallEnv(ReachEnv):
         n = self._unit_away(seg, box, centre)
         r = self.cap_r[self._pi]
         d = dist[idx, k]
-        if self.cfg.conservative_geometry:
+        if self.cfg.conservative_geometry if conservative is None else conservative:
             seg_len = np.linalg.norm(B - A, axis=1)[self._pi]
             d = d - seg_len / (2.0 * (SEG_SAMPLES - 1))   # == segment_box_distance_bound per pair
         return d - r, seg - n * r[:, None], n
@@ -304,8 +309,8 @@ class ReachWallEnv(ReachEnv):
         centre = 0.5 * (self.box_lo[self._pb] + self.box_hi[self._pb])
         return d - self.pt_margin, rp, self._unit_away(rp, bp, centre)
 
-    def clearance(self, with_detail: bool = False):
-        d, _, _ = self.pair_distances()
+    def clearance(self, with_detail: bool = False, conservative: Optional[bool] = None):
+        d, _, _ = self.pair_distances(conservative)
         i = int(np.argmin(d))
         return (float(d[i]), self.pairs[i]) if with_detail else float(d[i])
 
@@ -373,7 +378,7 @@ class ReachWallEnv(ReachEnv):
         for _ in range(20):  # start pose must itself be collision-free
             q0 = qa + self.rng.uniform(-n, n, 6)
             self._set_q(q0)
-            if self.clearance() > 0.01:
+            if self.clearance(conservative=False) > 0.01:
                 break
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
@@ -384,19 +389,24 @@ class ReachWallEnv(ReachEnv):
         return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal}
 
     def _reset_random_wall(self, goal=None):
-        """New wall every episode; start AND goal must be collision-free (else resample, wall included)."""
+        """New wall every episode; start AND goal must be collision-free (else resample, wall included).
+
+        The acceptance test uses the LEGACY (non-conservative) distance on purpose: the episode set
+        must be identical for every evaluator, otherwise a legacy-vs-corrected comparison would
+        compare different episodes instead of different detectors.
+        """
         r, n = self.cfg.wall_ranges, math.radians(self.cfg.noise_deg)
         for _ in range(200):
             self.set_wall(*(self.rng.uniform(*r[k]) for k in ("cx", "cy", "height", "width")))
             qa, qb = (self.q_a, self.q_b) if self.rng.random() < 0.5 else (self.q_b, self.q_a)
             q_goal = qb + self.rng.uniform(-n, n, 6)
             self._set_q(q_goal)
-            if self.clearance() <= 0.02:
+            if self.clearance(conservative=False) <= 0.02:
                 continue
             goal_xyz = self.tcp()
             q0 = qa + self.rng.uniform(-n, n, 6)
             self._set_q(q0)
-            if self.clearance() > 0.02:
+            if self.clearance(conservative=False) > 0.02:
                 break
         else:
             raise RuntimeError("no valid random wall episode in 200 tries")

@@ -196,7 +196,7 @@ def test_substep_check_evaluates_the_geometry_inside_the_step(monkeypatch):
         seen = []
         real = env.pair_distances
 
-        def fake():
+        def fake(*args, **kwargs):
             seen.append(env.d.time)
             return real()
 
@@ -217,7 +217,7 @@ def test_collision_decision_uses_the_worst_clearance_inside_the_step(monkeypatch
     t_end = env.d.time + env.n_sub * env.m.opt.timestep
     real = env.pair_distances
 
-    def fake():
+    def fake(*args, **kwargs):
         d, s, n = real()
         if env.d.time < t_end:            # present during the step, gone at the end
             d = d - 0.5
@@ -237,7 +237,7 @@ def test_legacy_detector_misses_the_same_intersection(monkeypatch):
     t_end = env.d.time + env.n_sub * env.m.opt.timestep
     real = env.pair_distances
 
-    def fake():
+    def fake(*args, **kwargs):
         d, s, n = real()
         if env.d.time < t_end:
             d = d - 0.5
