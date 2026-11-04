@@ -34,6 +34,8 @@ from .cr10a_reach import DESC, ROOT, ReachConfig, ReachEnv, expanded_urdf_text, 
 
 sys.path.insert(0, str(ROOT / "ros2_ws" / "src" / "ex_planning_lab"))
 sys.path.insert(0, str(ROOT / "ros2_ws" / "src" / "ex_robot_state"))
+sys.path.insert(0, str(ROOT / "ros2_ws" / "src" / "ex_mujoco_sim"))
+from ex_mujoco_sim.model_builder import dynamics_preset, scale_link_masses  # noqa: E402
 from ex_planning_lab.core.capsules import fit_capsules, link_point_clouds, voxel_downsample  # noqa: E402
 from ex_robot_state.core.urdf_model import UrdfModel  # noqa: E402
 
@@ -46,21 +48,51 @@ IGNORE = {("base_link", "table"), ("Link1", "table"), ("Link2", "table")}
 SEG_SAMPLES = 32
 
 
+def segment_box_sampled_distance(a, b, lo, hi, n: int = SEG_SAMPLES) -> float:
+    """Distance from the segment a->b to the AABB [lo, hi], sampled at n points along the axis.
+
+    The result is an UPPER bound on the true segment-to-box distance: the minimum over a finite
+    set of samples can never be smaller than the continuous minimum. A thin obstacle that falls
+    BETWEEN two samples is therefore missed entirely.
+    """
+    t = np.linspace(0.0, 1.0, n)
+    pts = a[None, :] + t[:, None] * (b - a)[None, :]
+    q = np.clip(pts, lo, hi)
+    return float(np.linalg.norm(pts - q, axis=1).min())
+
+
+def segment_box_distance_bound(a, b, n: int = SEG_SAMPLES) -> float:
+    """The sampling error of `segment_box_sampled_distance`: a rigorous lower-bound correction.
+
+    The distance from a point to a closed convex set is 1-Lipschitz in that point, so along a
+    segment of length L sampled at n equally spaced points the continuous minimum is at least
+    (sampled minimum) - L/(2(n-1)). Subtracting this makes the reported distance a LOWER bound.
+    """
+    return float(np.linalg.norm(np.asarray(b) - np.asarray(a))) / (2.0 * (n - 1))
+
+
 def load_scene(name: str) -> Tuple[List[Dict], Dict[str, Dict], Optional[Dict]]:
     s = yaml.safe_load((SCENES / f"{name}.yaml").read_text())
     return s["boxes"], {q["name"]: q for q in s.get("queries", [])}, s.get("sample_queries")
 
 
-def model_with_boxes(urdf: str, boxes: List[Dict]) -> mujoco.MjModel:
-    """M4 plant + the obstacle boxes as visual geoms (for the viewer only)."""
-    root = ET.fromstring(mjcf_text(urdf))
+def model_with_boxes(urdf: str, boxes: List[Dict], dynamics: str = "placeholder") -> mujoco.MjModel:
+    """M4 plant + the obstacle boxes as visual geoms (for the viewer only).
+
+    `dynamics` selects the plant preset; the archived M5 policies were all trained on
+    "placeholder" (see docs/DYNAMICS_ID.md for the identified alternative)."""
+    dyn, mass_scale = dynamics_preset(dynamics)
+    root = ET.fromstring(mjcf_text(urdf, dyn))
     world = root.find("worldbody")
     for b in boxes:
         half = " ".join(f"{v / 2:.4f}" for v in b["size"])
         world.append(ET.Element("geom", {"name": f"obs_{b['name']}", "type": "box", "size": half,
                                          "pos": " ".join(map(str, b["center"])), "rgba": "0.8 0.3 0.3 0.4",
                                          "contype": "0", "conaffinity": "0"}))
-    return mujoco.MjModel.from_xml_string(ET.tostring(root, encoding="unicode"))
+    model = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding="unicode"))
+    if mass_scale != 1.0:
+        scale_link_masses(model, mass_scale)
+    return model
 
 
 @dataclass
@@ -72,12 +104,17 @@ class WallConfig(ReachConfig):
     pool_seed: int = 7
     collision_model: str = "capsules"  # capsules (1 enclosing capsule/link, coarse) | points (mesh surface samples, tight)
     point_voxel: float = 0.01          # points model: voxel size (m); margin = voxel * sqrt(3)
+    point_spacing: float = 0.005       # points model: surface sampling spacing (m)
     noise_deg: float = 8.0
     clearance_cap: float = 0.20
     shaping_margin: float = 0.05
     shaping_weight: float = 1.0
     collision_penalty: float = 10.0
     progress_weight: float = 10.0
+    # geometry / detection strictness (both default to the LEGACY behaviour so the archived
+    # evaluations stay reproducible; the corrected evaluator turns them on)
+    conservative_geometry: bool = False   # subtract the sampling error so the clearance is a
+                                           # rigorous LOWER bound (see pair_distances)
     # generalisation experiment: a new wall every episode (None = the scene's fixed wall)
     wall_ranges: Optional[Dict[str, Tuple[float, float]]] = None  # keys cx, cy, height, width (m)
     wall_in_obs: bool = False          # append wall centre + half sizes (6) to the observation
@@ -94,7 +131,7 @@ class ReachWallEnv(ReachEnv):
         cfg = cfg or WallConfig()
         urdf = expanded_urdf_text()
         boxes, queries, sample_spec = load_scene(cfg.scene)
-        super().__init__(cfg, model=model_with_boxes(urdf, boxes), seed=seed)
+        super().__init__(cfg, model=model_with_boxes(urdf, boxes, cfg.dynamics), seed=seed)
         self.sample_spec = None
         if cfg.query is not None:
             q = queries[cfg.query]
@@ -126,20 +163,28 @@ class ReachWallEnv(ReachEnv):
         if cfg.collision_model == "points":
             # mesh SURFACE samples (5 mm), voxel-downsampled: every dropped surface point lies within
             # voxel*sqrt(3) of a kept one, so subtracting that margin keeps the clearance conservative
-            clouds = link_point_clouds(urdf, lambda uri: DESC / uri.split("package://ex_description/", 1)[1], ARM_LINKS, 0.005)
+            clouds = link_point_clouds(urdf, lambda uri: DESC / uri.split("package://ex_description/", 1)[1], ARM_LINKS, cfg.point_spacing)
             clouds = {k: voxel_downsample(v, cfg.point_voxel) for k, v in clouds.items()}
             self.link_body = self.cap_body
             self.pt_local = np.concatenate([clouds[c.link] for c in caps])
             self.pt_link = np.concatenate([np.full(len(clouds[c.link]), i) for i, c in enumerate(caps)])
             starts = np.cumsum([0] + [len(clouds[c.link]) for c in caps])
             self.pt_slices = [slice(starts[i], starts[i + 1]) for i in range(len(caps))]
-            self.pt_margin = cfg.point_voxel * math.sqrt(3)
+            # Coverage budget for the point cloud: the voxel reduction moves a dropped surface point
+            # by up to voxel*sqrt(3), and the SURFACE sampling itself can miss the true closest
+            # surface point by up to half the sampling spacing. Both have to be subtracted from the
+            # reported clearance for it to be conservative. A surface-distance bound alone does not
+            # resolve solid containment - that needs an independent intersection check.
+            self.pt_margin = cfg.point_voxel * math.sqrt(3) + 0.5 * cfg.point_spacing
             self.sphere_c = np.array([0.5 * (self.pt_local[sl].min(0) + self.pt_local[sl].max(0)) for sl in self.pt_slices])
             self.sphere_r = np.array([np.linalg.norm(self.pt_local[sl] - c, axis=1).max() for sl, c in zip(self.pt_slices, self.sphere_c)])
         elif cfg.collision_model != "capsules":
             raise ValueError(f"collision_model must be capsules|points, got {cfg.collision_model!r}")
         self.collided = False
         self.last_pair: Optional[Tuple[str, str]] = None
+        self.min_clearance_step = float("inf")   # worst clearance inside the current policy step
+        self.min_clearance_episode = float("inf")
+        self.substep_collision = False
         if cfg.wall_ranges is not None or cfg.wall_in_obs:
             self.wall_i = self.box_names.index("wall")
             self.wall_geom = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_GEOM, "obs_wall")
@@ -197,7 +242,24 @@ class ReachWallEnv(ReachEnv):
         return n / (np.linalg.norm(n, axis=-1, keepdims=True) + 1e-12)
 
     def pair_distances(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Every (link, box) pair -> (signed clearance, nearest point on the robot surface, unit normal away from the box)."""
+        """Every (link, box) pair -> (signed clearance, nearest point on the robot surface, unit normal away from the box).
+
+        The capsule-to-box distance is computed by sampling SEG_SAMPLES points along the capsule
+        axis. The minimum over those samples is an UPPER bound on the true segment-to-box distance,
+        so by itself the clearance is NOT conservative: a thin obstacle between two samples can be
+        missed entirely (a unit-length axis with a 2 mm box at its midpoint reports +13.1 mm while
+        the capsule actually intersects it).
+
+        With `conservative_geometry` the sampling error is subtracted: the distance from a point to
+        a closed convex set is 1-Lipschitz in that point, so along a segment of length L sampled at
+        N equally spaced points the true minimum is at least (sampled minimum) - L/(2(N-1)). The
+        result is then a rigorous LOWER bound on the segment-box distance, and after subtracting the
+        capsule radius a lower bound on the capsule-box clearance.
+
+        The returned nearest point and normal still come from the best SAMPLE, so they are an
+        approximation of the true closest point; they are used for the repulsion direction and the
+        distance Jacobian, not for the safety decision itself.
+        """
         if self.cfg.collision_model == "points":
             return self._pair_distances_points()
         A, B = self._segments_world()
@@ -211,7 +273,11 @@ class ReachWallEnv(ReachEnv):
         centre = 0.5 * (self.box_lo[self._pb] + self.box_hi[self._pb])
         n = self._unit_away(seg, box, centre)
         r = self.cap_r[self._pi]
-        return dist[idx, k] - r, seg - n * r[:, None], n
+        d = dist[idx, k]
+        if self.cfg.conservative_geometry:
+            seg_len = np.linalg.norm(B - A, axis=1)[self._pi]
+            d = d - seg_len / (2.0 * (SEG_SAMPLES - 1))   # == segment_box_distance_bound per pair
+        return d - r, seg - n * r[:, None], n
 
     def _pair_distances_points(self):
         R = self.d.xmat[self.link_body].reshape(-1, 3, 3)
@@ -242,6 +308,24 @@ class ReachWallEnv(ReachEnv):
         d, _, _ = self.pair_distances()
         i = int(np.argmin(d))
         return (float(d[i]), self.pairs[i]) if with_detail else float(d[i])
+
+    def _substep_check(self) -> None:
+        """Collision detection INSIDE a policy step (opt-in, see WallConfig.substep_collision_check).
+
+        The legacy evaluator only looked at the state at the END of a 20 ms policy step, so the arm
+        could pass through an obstacle and be back outside before the check ran. This checks the
+        clearance after every physics substep and keeps the worst one, so a brief intersection is
+        counted and the true minimum clearance is reported.
+        """
+        if not self.cfg.substep_collision_check:
+            return
+        d = self.clearance()
+        if d < self.min_clearance_step:
+            self.min_clearance_step = d
+        if d < 0.0 and not self.collided:
+            _, (ci, bi) = self.clearance(with_detail=True)
+            self.last_pair = (self.capsules[ci].link, self.box_names[bi])
+            self.substep_collision = True
 
     def repulsion_points(self, d0: float):
         """[(signed distance, point on the robot surface, unit normal away from the box, body id)] for pairs within d0."""
@@ -275,6 +359,8 @@ class ReachWallEnv(ReachEnv):
             self.q_ref = q0.copy()
             self.goal = goal_xyz if goal is None else np.asarray(goal, float)
             self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+            self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
+            self.substep_collision = False
             self.q_goal = q_goal.copy()  # privileged: only the diagnostic joint_interp baseline reads it
             return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal.copy()}
         if self.cfg.wall_ranges is not None:
@@ -292,6 +378,8 @@ class ReachWallEnv(ReachEnv):
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
         self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+        self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
+        self.substep_collision = False
         self.q_goal = q_goal.copy()  # privileged: only the diagnostic joint_interp baseline reads it
         return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal}
 
@@ -315,11 +403,14 @@ class ReachWallEnv(ReachEnv):
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
         self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+        self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
+        self.substep_collision = False
         self.q_goal = q_goal.copy()
         return self.obs(), {"goal": self.goal.copy(), "q_goal": q_goal}
 
     def step(self, action):
         d_prev = float(np.linalg.norm(self.goal - self.tcp()))
+        self.min_clearance_step = float("inf")   # worst clearance inside THIS policy step
         obs, _, term, trunc, info = super().step(action)
         a = np.clip(np.asarray(action, float), -1.0, 1.0)
         # progress reward (potential-based): bounded episode return, ~0 for standing still.
@@ -330,12 +421,19 @@ class ReachWallEnv(ReachEnv):
             reward += 1.0
             self.succeeded_bonus = True
         c = self.last_clearance  # NOT obs[-1]: with the wall in the observation that is the wall half-height
+        if self.cfg.substep_collision_check:
+            # the end-of-step clearance can be positive again after a brief intersection inside the
+            # step; the substep minimum is the honest number
+            c = min(c, self.min_clearance_step)
+        self.min_clearance_episode = min(self.min_clearance_episode, c)
         if c < self.cfg.shaping_margin:
             reward -= self.cfg.shaping_weight * (self.cfg.shaping_margin - c) / self.cfg.shaping_margin
-        if c < 0.0:
+        if c < 0.0 or self.substep_collision:
             self.collided, term = True, True
             reward -= self.cfg.collision_penalty
-            _, (ci, bi) = self.clearance(with_detail=True)
-            self.last_pair = (self.capsules[ci].link, self.box_names[bi])
-        info.update({"clearance": c, "collision": self.collided, "success": bool(info["success"] and not self.collided)})
+            if self.last_pair is None:
+                _, (ci, bi) = self.clearance(with_detail=True)
+                self.last_pair = (self.capsules[ci].link, self.box_names[bi])
+        info.update({"clearance": c, "collision": self.collided, "success": bool(info["success"] and not self.collided),
+                     "min_clearance_episode": self.min_clearance_episode})
         return obs, reward, term, trunc, info

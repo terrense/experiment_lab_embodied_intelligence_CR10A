@@ -26,7 +26,13 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "ros2_ws" / "src" / "ex_mujoco_sim"))
-from ex_mujoco_sim.model_builder import JOINTS, DynamicsAssumptions, build_mjcf  # noqa: E402
+from ex_mujoco_sim.model_builder import (  # noqa: E402
+    JOINTS,
+    DynamicsAssumptions,
+    build_mjcf,
+    dynamics_preset,
+    scale_link_masses,
+)
 from ex_mujoco_sim.servo import gains_from_inertia, servo_torque  # noqa: E402
 
 HOME = np.array([0.0, -0.35, 1.75, -1.4, -1.5708, 0.0])  # arm in front (-x), wrist down
@@ -51,8 +57,19 @@ def mjcf_text(urdf: str, dyn: Optional[DynamicsAssumptions] = None) -> str:
     return build_mjcf(urdf, lambda uri: DESC / uri.split("package://ex_description/", 1)[1], dyn or DynamicsAssumptions())
 
 
-def make_model(calibrated: bool = True) -> mujoco.MjModel:
-    return mujoco.MjModel.from_xml_string(mjcf_text(expanded_urdf_text(calibrated)))
+def make_model(calibrated: bool = True, dynamics: str = "placeholder") -> mujoco.MjModel:
+    """Build the M4 plant. `dynamics` selects a preset: "placeholder" (the original, UNVERIFIED
+    assumption set) or "identified_run02" (fitted on the real CR10A, docs/DYNAMICS_ID.md).
+
+    The trained M5 policies were all trained with the PLACEHOLDER preset: the learning constructor
+    never selected the identified one. Any policy trained on identified dynamics is a different
+    model and must not be mixed with the archived ones.
+    """
+    dyn, mass_scale = dynamics_preset(dynamics)
+    model = mujoco.MjModel.from_xml_string(mjcf_text(expanded_urdf_text(calibrated), dyn))
+    if mass_scale != 1.0:
+        scale_link_masses(model, mass_scale)
+    return model
 
 
 @dataclass
@@ -65,6 +82,8 @@ class ReachConfig:
     goal_high: Tuple[float, float, float] = (-0.45, 0.45, 0.95)
     bandwidth_hz: float = 8.0
     joint_margin: float = math.radians(10)
+    dynamics: str = "placeholder"         # "placeholder" (the archived M5 setting) | "identified_run02"
+    substep_collision_check: bool = False  # legacy: collision is checked once per policy step
 
 
 class ReachEnv:
@@ -73,7 +92,8 @@ class ReachEnv:
 
     def __init__(self, cfg: Optional[ReachConfig] = None, model: Optional[mujoco.MjModel] = None, seed: int = 0) -> None:
         self.cfg = cfg or ReachConfig()
-        self.m = model if model is not None else make_model()
+        self.dynamics_preset = self.cfg.dynamics   # which plant assumption set this env runs on
+        self.m = model if model is not None else make_model(dynamics=self.cfg.dynamics)
         self.d = mujoco.MjData(self.m)
         self.rng = np.random.default_rng(seed)
         self.site = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_SITE, "tcp_site")
@@ -91,6 +111,10 @@ class ReachEnv:
         self.q_ref = HOME.copy()
         self.t = 0
         self.succeeded = False
+        # diagnostics of the last policy step: which joints were clipped at their limit, and the
+        # velocity the servo was actually told to expect (0 on a clipped joint)
+        self.last_ref_mask = np.ones(6, dtype=bool)
+        self.last_cmd_vel = np.zeros(6)
 
     # ------------------------------------------------------------------ helpers
     def _set_q(self, q) -> None:
@@ -132,12 +156,20 @@ class ReachEnv:
         for _ in range(self.n_sub):
             self.q_ref = self.q_ref + v * self.m.opt.timestep
             clipped = np.clip(self.q_ref, self.lo, self.hi)
-            limit_hit += int(np.any(clipped != self.q_ref))
+            # Which joints actually moved: capture BEFORE self.q_ref is overwritten. The old code
+            # compared `clipped == self.q_ref` AFTER the assignment, which is `clipped == clipped`
+            # and therefore always True - the mask never suppressed the velocity feed-forward.
+            mask = clipped == self.q_ref
+            limit_hit += int(np.any(~mask))
             self.q_ref = clipped
+            self.last_ref_mask, self.last_cmd_vel = mask.copy(), v * mask
             q, dq = self.d.qpos[self.qadr], self.d.qvel[self.dadr]
-            tau = servo_torque(q, dq, self.q_ref, v * (clipped == self.q_ref), self.d.qfrc_bias[self.dadr], self.gains, self.tau_max)
+            # a clipped joint is NOT moving in the commanded direction: feeding the servo a desired
+            # velocity it cannot follow pushes it against the limit.
+            tau = servo_torque(q, dq, self.q_ref, v * mask, self.d.qfrc_bias[self.dadr], self.gains, self.tau_max)
             self.d.ctrl[:] = tau
             mujoco.mj_step(self.m, self.d)
+            self._substep_check()
         self.t += 1
         dist = float(np.linalg.norm(self.goal - self.tcp()))
         reward = -dist - 0.01 * float(a @ a) - 0.1 * (limit_hit > 0)
@@ -147,3 +179,9 @@ class ReachEnv:
         truncated = self.t >= self.cfg.max_steps
         return self.obs(), reward, False, truncated, {"dist": dist, "limit_hit": limit_hit > 0,
                                                       "success": dist < self.cfg.success_radius}
+
+    def _substep_check(self) -> None:
+        """Hook called after every physics substep. No-op here; the wall env overrides it to
+        detect a collision that happens INSIDE a policy step (the legacy evaluator only looked at
+        the state at the end of the step, so a brief intersection was invisible)."""
+        return None
