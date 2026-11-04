@@ -226,3 +226,21 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   clearance 0.054 m vs mesh clearance 0.130 m). The published collision numbers therefore measure
   a different physical event than the paper's wording suggests.
 - 189 tests pass.
+
+## 2026-11-04 (evening): P1-c measured - the filter leakage is real but negligible
+- evaluation/dynamics_id.py gains --split-before-filter: split into train/val/test FIRST and
+  filter each part separately, with a 0.2 s guard interval at the internal boundaries, so the
+  held-out test part no longer sees the training part through the zero-phase filtfilt.
+- Measured on the archived run02: the result moves by <= 0.1 VAF percentage points
+  (M1 97.2/97.3/98.5 -> 97.2/97.3/98.4, M2 97.5/97.4/98.7 -> 97.5/97.4/98.6), mass scale
+  k = 1.636 and the Coulomb values are unchanged. The leakage is real as a mechanism and
+  irrelevant in magnitude. The corrected report is written to a NEW file; the archived one is
+  untouched.
+- Two bugs of my own were found and fixed on the way, both by reproducibility checks:
+  1. the concatenation of separately filtered segments has a TIME GAP, so np.gradient over the
+     concatenated array invented huge acceleration spikes at the joins and destroyed the fit
+     (the derivative must be computed inside each segment);
+  2. I transcribed qdd = d(filtered velocity)/dt as d(filtered position)/dt, which silently
+     changed the LEGACY path and did not reproduce the archived JSON. The legacy path now
+     reproduces data/reports/dynamics/run02_id.json exactly, and a regression test pins it.
+- New: ros2_ws/src/ex_robot_state/test/test_dynamics_id.py (4 tests). 193 tests pass.

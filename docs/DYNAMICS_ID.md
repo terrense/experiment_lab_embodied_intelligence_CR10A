@@ -46,6 +46,16 @@ Lessons from the known-truth test:
 
 (Torque std on the test part: 10.2, 15.6, 9.5, 1.7, 1.6, 1.8 N m.)
 
+**Held-out protocol (checked 2026-11-02).** The numbers above come from the pipeline as it was
+written: the whole series is low-pass filtered with a zero-phase `filtfilt` and split into
+train/validation/test *afterwards*, so the test part sees a little of the training part near the
+boundaries. Running the corrected protocol — split first, each segment filtered separately, with a
+0.2 s guard interval at the internal boundaries (`--split-before-filter`) — moves the result by
+**≤ 0.1 VAF percentage points** (M1: 97.2/97.3/98.5 → 97.2/97.3/98.4; M2: 97.5/97.4/98.7 →
+97.5/97.4/98.6; mass scale k = 1.636 and the Coulomb values unchanged). The leakage is real as a
+mechanism and negligible in magnitude on this recording; the corrected report is in
+`data/reports/dynamics/run02_split_before_filter.json` and the archived one is untouched.
+
 Findings:
 1. **The official URDF underestimates the mass.** With the URDF inertials, the gravity torque on J2/J3 is about 24 N m short.
    - The single-scale fit gives **k = 1.64**, i.e. 24.8 kg × 1.64 ≈ 40.6 kg, against the 40 kg in the datasheet.

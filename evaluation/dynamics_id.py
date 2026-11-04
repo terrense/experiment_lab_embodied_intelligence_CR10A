@@ -58,7 +58,16 @@ def load(run: Path) -> Tuple[List[str], np.ndarray]:
     return rows[0], np.array(rows[1:], float)
 
 
-def preprocess(h: List[str], D: np.ndarray, fc_hz: float, trim_s: float = 0.5) -> Dict[str, np.ndarray]:
+def preprocess(h: List[str], D: np.ndarray, fc_hz: float, trim_s: float = 0.5,
+               split_before_filter: bool = False, guard_s: float = 0.2) -> Dict[str, np.ndarray]:
+    """Resample the feedback log onto a fixed grid and low-pass filter it.
+
+    `split_before_filter` (default: False = the LEGACY behaviour) splits the series into the
+    train / validation / test parts FIRST and filters each part on its own, dropping a guard
+    interval of `guard_s` around the internal boundaries. The reason: `filtfilt` is zero-phase, so
+    filtering the whole series makes the values near a boundary depend on samples of the OTHER
+    segment - the held-out test part then sees a little of the training part (audit P1-c).
+    """
     from scipy.signal import butter, filtfilt
     c = {n: i for i, n in enumerate(h)}
     Q = D[:, [c[f"q{k}_deg"] for k in range(1, 7)]]
@@ -73,15 +82,50 @@ def preprocess(h: List[str], D: np.ndarray, fc_hz: float, trim_s: float = 0.5) -
     qd_raw = col("qd{}", math.pi / 180)
     tau = col("m{}")
     b, a = butter(4, fc_hz / (0.5 / DT))
+    n = int(trim_s / DT)
+    if split_before_filter:
+        N = len(tg)
+        i_tr, i_va = int(0.5 * N), int(0.75 * N)
+        g = int(guard_s / DT)
+        parts, tparts, scales = [], [], []
+        for k, (s, e) in enumerate(((0, i_tr), (i_tr, i_va), (i_va, N))):
+            # guard interval at the internal boundaries, trim at the outer edges
+            lo = s + (g if k > 0 else n)
+            hi = e - (g if k < 2 else n)
+            sl = slice(lo, hi)
+            qf_k, qdf_k, tauf_k = (filtfilt(b, a, x[sl], axis=0) for x in (q, qd_raw, tau))
+            # the derivative MUST be computed inside the segment: the concatenated array has a
+            # time gap at the joins, and np.gradient over it would invent huge acceleration
+            # spikes that destroy the regressor
+            qdd_k = np.gradient(qdf_k, DT, axis=0)
+            dq_k = np.gradient(qf_k, DT, axis=0)
+            parts.append((qf_k, qdf_k, tauf_k, qdd_k))
+            tparts.append(tg[sl])
+            scales.append([float(np.dot(dq_k[:, j], qdf_k[:, j]) / np.dot(qdf_k[:, j], qdf_k[:, j]))
+                           for j in range(6)])
+        qf = np.concatenate([p[0] for p in parts])
+        qdf = np.concatenate([p[1] for p in parts])
+        tauf = np.concatenate([p[2] for p in parts])
+        qdd = np.concatenate([p[3] for p in parts])
+        tgc = np.concatenate(tparts)
+        # the split points in the CONCATENATED arrays (parts[k] is a tuple of arrays, so the
+        # sample count is the SHAPE of its first element, not len(parts[k]))
+        n0 = parts[0][0].shape[0]
+        n1 = parts[1][0].shape[0]
+        bounds = (n0, n0 + n1)
+        scale = np.median(np.array(scales), axis=0)
+        return {"t": tgc, "q": qf, "qd": qdf, "qdd": qdd, "tau": tauf, "qd_scale_vs_dqdt": scale,
+                "n_raw": int(good.sum()), "duration_s": float(tg[-1]), "split_bounds": bounds,
+                "split_before_filter": True}
     qf, qdf, tauf = (filtfilt(b, a, x, axis=0) for x in (q, qd_raw, tau))
-    qdd = np.gradient(qdf, DT, axis=0)
+    qdd = np.gradient(qdf, DT, axis=0)          # the acceleration is d(filtered velocity)/dt
     # sanity: controller qd vs numerical derivative of q (unit / scale check)
     dq = np.gradient(qf, DT, axis=0)
     scale = np.array([float(np.dot(dq[:, j], qdf[:, j]) / np.dot(qdf[:, j], qdf[:, j])) for j in range(6)])
-    n = int(trim_s / DT)
     sl = slice(n, len(tg) - n)
     return {"t": tg[sl], "q": qf[sl], "qd": qdf[sl], "qdd": qdd[sl], "tau": tauf[sl], "qd_scale_vs_dqdt": scale,
-            "n_raw": int(good.sum()), "duration_s": float(tg[-1])}
+            "n_raw": int(good.sum()), "duration_s": float(tg[-1]), "split_bounds": None,
+            "split_before_filter": False}
 
 
 def metrics(tau: np.ndarray, pred: np.ndarray) -> Dict[str, List[float]]:
@@ -94,7 +138,10 @@ def metrics(tau: np.ndarray, pred: np.ndarray) -> Dict[str, List[float]]:
 
 def identify(data: Dict[str, np.ndarray], cd: ChainDynamics, theta_rigid_prior: np.ndarray, lambdas=(1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100)):
     N = len(data["t"])
-    i_tr, i_va = int(0.5 * N), int(0.75 * N)
+    # the split points: the LEGACY path splits the (already filtered) series at 50 % / 75 %; the
+    # split-before-filter path carries the boundaries of the separately filtered segments
+    bounds = data.get("split_bounds")
+    i_tr, i_va = (bounds if bounds else (int(0.5 * N), int(0.75 * N)))
     # Coulomb smoothing width tanh(qd / v_eps): chosen on VALIDATION with the M1 model
     best_eps = None
     for eps in (0.002, 0.005, 0.01, 0.02, 0.04, 0.08):
@@ -173,19 +220,33 @@ def main(argv=None) -> int:
     ap.add_argument("--tool-kg", type=float, default=0.0, help="tool point mass added to Link6 in the prior")
     ap.add_argument("--tool-com", type=float, nargs=3, default=(0.0, 0.0, 0.04), help="tool COM in Link6 frame (m), prior only")
     ap.add_argument("--fc", type=float, default=4.0, help="low-pass cut-off (Hz)")
+    ap.add_argument("--split-before-filter", action="store_true",
+                    help="split into train/val/test FIRST and filter each part separately, with a "
+                         "guard interval around the internal boundaries (removes the zero-phase "
+                         "leakage of the legacy whole-series filtfilt; audit P1-c)")
+    ap.add_argument("--guard-s", type=float, default=0.2, help="guard interval at the internal boundaries (s)")
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--plot", type=Path, default=None)
     a = ap.parse_args(argv)
 
     h, D = load(a.run)
-    data = preprocess(h, D, a.fc)
+    data = preprocess(h, D, a.fc, split_before_filter=a.split_before_filter, guard_s=a.guard_s)
     cd = ChainDynamics(expanded_urdf())
     prior = cd.theta_urdf.copy()
     if a.tool_kg:
         prior[50:60] = add_point_mass(prior[50:60], a.tool_kg, a.tool_com)
     rep, preds = identify(data, cd, prior)
     rep.update({"run": str(a.run), "fc_hz": a.fc, "tool_kg_prior": a.tool_kg, "duration_s": data["duration_s"],
-                "qd_scale_vs_dqdt": data["qd_scale_vs_dqdt"].round(4).tolist(), "tau_field": "m (assumed N m)"})
+                "qd_scale_vs_dqdt": data["qd_scale_vs_dqdt"].round(4).tolist(), "tau_field": "m (assumed N m)",
+                "split_before_filter": bool(data.get("split_before_filter", False)),
+                "guard_s": a.guard_s if a.split_before_filter else None,
+                "filter_note": ("train/val/test split BEFORE the zero-phase filter, each part "
+                                "filtered separately with a guard interval at the internal "
+                                "boundaries: no leakage from the training part into the held-out "
+                                "test part" if a.split_before_filter else
+                                "LEGACY: the whole series is filtered with a zero-phase filtfilt and "
+                                "split afterwards, so the held-out test part sees a little of the "
+                                "training part near the boundaries (audit P1-c)")})
     print(f"{a.run}: {rep['n_samples']} samples @ {DT * 1000:.0f} ms, fc {a.fc} Hz, qd/dqdt scale {rep['qd_scale_vs_dqdt']}")
     print(f"  M1s rigid scale k = {rep['M1s_rigid_scale_k']}   Coulomb v_eps (val) = {rep['coulomb_v_eps']} rad/s")
     for k in ("M0_urdf", "M1_urdf_plus_friction", "M1s_scaled_urdf_plus_friction", "M2_base_ridge"):
