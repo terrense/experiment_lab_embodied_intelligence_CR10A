@@ -186,10 +186,25 @@ def tightest_enclosing_capsule(v: np.ndarray, bone):
 
 
 def capsule_box_distance(T_world_link: np.ndarray, cap: Capsule, lo: np.ndarray, hi: np.ndarray,
-                         samples: int = 16) -> float:
-    """Approximate signed clearance capsule <-> AABB (negative = penetration estimate)."""
+                         samples: int = 16, conservative: bool = False) -> float:
+    """Signed clearance capsule <-> AABB (negative = penetration estimate).
+
+    The distance from a point to a closed convex set (the AABB) is 1-Lipschitz in that point, so
+    along a segment of length L sampled at n equally spaced points the continuous minimum is at
+    least (sampled minimum) - L/(2(n-1)). The sampled minimum on its own is an UPPER bound and can
+    report a positive clearance for a capsule that actually intersects the box (audit P0-C / P1-c).
+
+    `conservative=True` subtracts that sampling error, so the returned value is a LOWER bound and
+    a contact can no longer be missed. It defaults to False so the archived M2 planning metrics
+    stay reproducible; with samples = 16 the correction is L/30, i.e. up to ~25 mm for Link2 -
+    larger than the 1-2 cm path margin the M2 report quotes, so the real-robot padding
+    discussion must use the corrected value (docs/M2_PLANNING_LAB.md).
+    """
     a = T_world_link[:3, :3] @ cap.a + T_world_link[:3, 3]
     b = T_world_link[:3, :3] @ cap.b + T_world_link[:3, 3]
     t = np.linspace(0.0, 1.0, samples)[:, None]
     pts = a + t * (b - a)
-    return float(point_aabb_distance(pts, lo, hi).min()) - cap.radius
+    d = float(point_aabb_distance(pts, lo, hi).min())
+    if conservative:
+        d -= float(np.linalg.norm(b - a)) / (2.0 * (samples - 1))
+    return d - cap.radius

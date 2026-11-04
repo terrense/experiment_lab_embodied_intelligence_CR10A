@@ -244,3 +244,28 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
      changed the LEGACY path and did not reproduce the archived JSON. The legacy path now
      reproduces data/reports/dynamics/run02_id.json exactly, and a regression test pins it.
 - New: ros2_ws/src/ex_robot_state/test/test_dynamics_id.py (4 tests). 193 tests pass.
+
+## 2026-11-04 (night): P0-C re-measured with an exact reference; the same defect in the M2 metric
+- An independent verification measured the P0-C sampling defect against an EXACT segment-AABB
+  reference (ternary search, validated against a 200001-point sweep). It corrected my own first
+  conclusion: the sign DOES flip, it is just rare and small.
+  * per-pair over-statement on the real CR10A capsules and the real wall box: mean 0.006 mm,
+    p99 0.14 mm, max 6.95 mm (adversarial 7.08 mm on Link2, where the true value is already
+    deeply negative);
+  * missed collisions (repo reports safe, the geometry collides): 10/3000 (0.33 %) of
+    near-boundary configurations at margin 0, 1/3000 (0.03 %) at the filter's 2 cm margin,
+    0/3000 at 5 cm; the error at a flip is 0.06-0.42 mm;
+  * the Lipschitz correction misses 0/3000 at every margin.
+  My earlier claim that the sign never flips on the real capsules was too strong; the test
+  comment and the plan table now say what was measured.
+- The SAME defect exists in the M2 planning metric (ex_planning_lab/core/capsules.py,
+  samples=16): the sampling error is L/30 = up to 25 mm for Link2, i.e. LARGER than the 1-2 cm
+  path margin the M2 report quotes. capsule_box_distance gains a conservative=True option that
+  subtracts it; the default stays legacy so the archived M2 numbers reproduce, and
+  docs/M2_PLANNING_LAB.md now flags that the real-robot padding conclusion must be recomputed
+  with the corrected value (the direction is: MORE margin, not less).
+- New: the bounded ALL-PAIR kinematic QP (learning/ex_learning/qp_filter.py::solve_bounded_qp,
+  scipy SLSQP, bounds inside the optimisation) and the B3 filter
+  (safety_filter.cbf_policy_qp) with 5 regression tests; it never returns a violating command
+  and fits inside the 50 Hz control rate.
+- 199 tests pass.

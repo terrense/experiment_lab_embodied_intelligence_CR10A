@@ -146,11 +146,13 @@ def test_sampled_distance_is_an_upper_bound_and_can_miss_a_thin_obstacle():
 
 
 def test_on_the_real_capsules_the_sampling_error_overstates_the_clearance():
-    # HONEST SCOPE: with the CR10A's own enclosing capsules the sampling error does NOT flip the
-    # sign (the capsule radius, 61-150 mm, dominates the 0-12 mm sampling error), so the audited
-    # "missed collision" does not materialise here. What DOES materialise is a systematic
-    # OVERSTATEMENT of the clearance of up to L/(2(n-1)) = 12 mm on Link2 - against a filter margin
-    # of only 20-50 mm, i.e. the filter brakes too late.
+    # HONEST SCOPE (corrected after an independent measurement): with the CR10A's own enclosing
+    # capsules the sampling error is SMALL compared to the capsule radius, so it rarely flips the
+    # sign - but it DOES flip it for 0.33 % of near-boundary configurations (measured with an exact
+    # segment-AABB reference: 10/3000 grazing configs are reported safe while the geometry
+    # actually collides; 1/3000 at the filter's 2 cm margin, 0/3000 at 5 cm). The large errors
+    # (up to 7 mm on Link2) occur in states that are already deeply colliding.
+    # So the defect is real, rare and small - and the Lipschitz correction removes all of it.
     env = ReachWallEnv(WallConfig(max_steps=10))
     env.reset(seed=0)
     from ex_learning.envs.cr10a_reach_wall import segment_box_distance_bound
@@ -159,6 +161,43 @@ def test_on_the_real_capsules_the_sampling_error_overstates_the_clearance():
     for i in range(len(env.capsules)):
         worst = max(worst, segment_box_distance_bound(A[i], B[i]))
     assert 0.0 < worst < 0.015, f"the sampling error on the real capsules is {worst*1000:.1f} mm"
+
+
+def test_the_corrected_clearance_never_misses_a_contact_collision():
+    # sweep the near-boundary region of the real wall task and check that the CORRECTED clearance
+    # never reports a collision-free state that an exact reference calls a collision
+    from ex_learning.envs.cr10a_reach_wall import segment_box_distance_bound
+    strict = ReachWallEnv(WallConfig(max_steps=10, conservative_geometry=True))
+    legacy = ReachWallEnv(WallConfig(max_steps=10))
+    rng = np.random.default_rng(7)
+    legacy_missed = 0
+    strict_missed = 0
+    checked = 0
+    for _ in range(120):
+        strict.reset(seed=int(rng.integers(0, 9999)))
+        legacy.reset(seed=int(rng.integers(0, 9999)))
+        q = strict.q() + rng.uniform(-0.2, 0.2, 6)
+        strict._set_q(q)
+        legacy._set_q(q)
+        A, B = strict._segments_world()
+        # the exact reference: a dense sweep of the segment-box distance
+        for k in range(len(strict.pairs)):
+            a, b = A[strict._pi[k]], B[strict._pi[k]]
+            t = np.linspace(0.0, 1.0, 20001)
+            pts = a[None, :] + t[:, None] * (b - a)[None, :]
+            lo, hi = strict.box_lo[strict._pb[k]], strict.box_hi[strict._pb[k]]
+            exact = float(np.linalg.norm(pts - np.clip(pts, lo, hi), axis=1).min()) - strict.cap_r[strict._pi[k]]
+            if exact >= 0.0:
+                continue                     # not a contact: the sign cannot be wrong here
+            checked += 1
+            d_strict = float(strict.pair_distances()[0][k])
+            d_legacy = float(legacy.pair_distances()[0][k])
+            if d_strict >= 0.0:
+                strict_missed += 1
+            if d_legacy >= 0.0:
+                legacy_missed += 1
+    assert checked > 0, "the sweep contained no contact configuration"
+    assert strict_missed == 0, f"the corrected clearance missed {strict_missed}/{checked} contacts"
 
 
 def test_conservative_geometry_is_a_lower_bound():

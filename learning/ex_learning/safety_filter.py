@@ -122,3 +122,48 @@ def cbf_policy_legacy(env, base_policy: Callable, margin: float = 0.02, alpha: f
             a = np.clip(a, -1.0, 1.0)
         return a
     return act
+
+
+def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float = 5.0,
+                  d_max: float = 0.30, rho: float = 0.0, stats: Optional[Dict] = None) -> Callable:
+    """Bounded ALL-PAIR kinematic QP (the B3 baseline of the research plan).
+
+    Unlike `cbf_policy`, which constrains only the single closest obstacle, this one builds a
+    constraint for EVERY (link, box) pair within `d_max` and solves them together with the command
+    bounds in one program:
+
+        minimise   ||x - a||^2 + rho ||x - x_prev||^2
+        subject to n_i^T J_i x >= -alpha (d_i - margin) / max_speed   for every pair i
+                   -1 <= x <= 1
+
+    The bounds are inside the optimisation, so the returned command satisfies every constraint
+    that is satisfiable at all - no post-hoc clipping. Infeasibility, solver time and the
+    constraint residuals are collected in `stats`; a relaxed constraint is reported as a violation,
+    never as a certificate.
+    """
+    import mujoco
+    from .qp_filter import solve_bounded_qp
+    jp = np.zeros((3, env.m.nv))
+    state = {"prev": None}
+
+    def act(obs):
+        a = np.asarray(base_policy(obs), float).copy()
+        constraints = []
+        for d, p, n, body in env.repulsion_points(d_max):
+            mujoco.mj_jac(env.m, env.d, jp, None, p, body)
+            c = n @ jp[:, env.dadr]
+            if float(c @ c) < 1e-12:
+                continue
+            constraints.append((c, -alpha * (d - margin) / env.cfg.max_joint_speed))
+        if constraints:
+            x, info = solve_bounded_qp(a, constraints, x_prev=state["prev"], rho=rho)
+            state["prev"] = x
+            if stats is not None:
+                stats["solves"] = stats.get("solves", 0) + 1
+                stats["infeasible"] = stats.get("infeasible", 0) + int(not info["feasible"])
+                stats["max_violation"] = max(stats.get("max_violation", 0.0),
+                                             float(np.max(info["residuals"])) if len(info["residuals"]) else 0.0)
+                stats["solve_time_s_median"] = info["time_s"]
+            a = x
+        return np.clip(a, -1.0, 1.0)
+    return act

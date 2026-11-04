@@ -27,7 +27,7 @@ is found by bisection, because  c.x(lam)  is monotone non-decreasing in lam.
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 
@@ -78,8 +78,7 @@ def project_box_halfspace_multi(a: np.ndarray, C: np.ndarray, g: np.ndarray,
     Order matters and this is NOT a true QP solve: projecting onto half-space 1 can push the point
     out of half-space 2. The function therefore returns the residuals of EVERY constraint so the
     caller can log which ones are violated instead of assuming they hold. It is the cheap
-    multi-constraint baseline; the full QP (all pairs, joint limits, command bounds solved
-    together) is the next step.
+    multi-constraint baseline; `solve_bounded_qp` is the real one.
 
     Returns (x, all_feasible, residuals) with residuals = g - C.x (positive means violated).
     """
@@ -91,3 +90,60 @@ def project_box_halfspace_multi(a: np.ndarray, C: np.ndarray, g: np.ndarray,
         x, ok, _ = project_box_halfspace(x, C[i], float(g[i]), lo, hi, iters=iters)
         feasible = feasible and ok
     return x, feasible, g - C @ x
+
+
+def solve_bounded_qp(a: np.ndarray, constraints, lo: float = -1.0, hi: float = 1.0,
+                      x_prev: Optional[np.ndarray] = None, rho: float = 0.0,
+                      max_iter: int = 100, ftol: float = 1e-9) -> Tuple[np.ndarray, Dict]:
+    """Solve the BOUNDED multi-constraint program
+
+        minimise   0.5 (x-a)^T W (x-a) + 0.5 rho ||x - x_prev||^2
+        subject to C_i x >= g_i   for every constraint i
+                   lo <= x <= hi
+
+    The command bounds are INSIDE the optimisation: they are not applied afterwards by a clip,
+    because clipping after a projection is what made the original filter violate its own
+    constraint. `rho` penalises the change against the previous command, which keeps the command
+    smooth - without it the solution can jump between two feasible corners every step.
+
+    Returns (x, info) with info: feasible (bool), residuals (g - C x, positive = violated),
+    iterations, time_s, solver ("slsqp" | "none").
+    """
+    import time
+    from scipy.optimize import Bounds, LinearConstraint, minimize
+
+    a = np.asarray(a, float)
+    n = a.shape[0]
+    if not constraints:
+        x = np.clip(a, lo, hi)
+        return x, {"feasible": True, "residuals": np.zeros(0), "iterations": 0, "time_s": 0.0,
+                   "solver": "none"}
+
+    C = np.atleast_2d(np.asarray([c for c, _ in constraints], float))
+    g = np.asarray([gi for _, gi in constraints], float)
+    W = np.eye(n)
+    xp = a if x_prev is None else np.asarray(x_prev, float)
+
+    def fun(x):
+        d = x - a
+        f = 0.5 * d @ W @ d
+        if rho:
+            f += 0.5 * rho * float(np.sum((x - xp) ** 2))
+        return f
+
+    def jac(x):
+        d = x - a
+        j = W @ d
+        if rho:
+            j = j + rho * (x - xp)
+        return j
+
+    t0 = time.perf_counter()
+    res = minimize(fun, np.clip(a, lo, hi), jac=jac, method="SLSQP",
+                   bounds=Bounds(lo, hi), constraints=[LinearConstraint(C, g, np.inf)],
+                   options={"maxiter": max_iter, "ftol": ftol})
+    dt = time.perf_counter() - t0
+    x = np.clip(np.asarray(res.x, float), lo, hi)
+    residuals = g - C @ x
+    return x, {"feasible": bool(np.all(residuals <= 1e-9)), "residuals": residuals,
+               "iterations": int(res.nit), "time_s": dt, "solver": "slsqp"}
