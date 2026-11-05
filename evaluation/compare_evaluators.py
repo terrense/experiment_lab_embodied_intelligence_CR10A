@@ -41,11 +41,18 @@ TASKS = ("wall_obs", "wall_rand", "wall_ood")
 SEEDS = (0, 1, 2)
 
 
-def _make(task: str, corrected: bool):
-    """The environment for one evaluator variant."""
+def _make(task: str, corrected: bool, dynamics: str = "placeholder"):
+    """The environment for one evaluator variant.
+
+    `dynamics` selects the plant: "placeholder" (the one the archived policies were trained on)
+    or "identified_run02" (fitted on the real CR10A, docs/DYNAMICS_ID.md). The archived policies
+    are policies on the placeholder plant; running them on the identified one is a robustness
+    check on the conclusions, not a new training.
+    """
     if not corrected:
-        return make_env(task)
-    return make_env(task, conservative_geometry=True, substep_collision_check=True)
+        return make_env(task, dynamics=dynamics)
+    return make_env(task, conservative_geometry=True, substep_collision_check=True,
+                    dynamics=dynamics)
 
 
 def _boxes_from_env(env) -> List[Dict]:

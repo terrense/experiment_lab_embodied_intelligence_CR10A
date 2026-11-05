@@ -344,7 +344,13 @@ certificate.
 
 ### 5.4 Short-horizon prediction and stopping verification
 
-The proposed filter optimizes a short sequence `U = (u_t, …, u_(t+H−1))` around the nominal
+> **What is implemented (§5.0) is a subset of this section.** The implemented filter optimises a
+> single command against a look-ahead constraint over a short horizon; it does **not** optimise a
+> command sequence, it does **not** include a stopping tail, and it does **not** re-check the
+> candidate by nonlinear rollout. The two are separated deliberately: the implemented version is
+> what §7.5 and §7.6 measure, and the difference between them is the honest remaining work.
+
+The filter as specified optimises a short sequence `U = (u_t, …, u_(t+H−1))` around the nominal
 policy or reference path. Its objective penalizes deviation from the nominal sequence, changes
 between commands, and loss of path progress. Constraints require predicted clearance above the
 uncertainty allowance, joint and command limits, and a terminal state from which a specified

@@ -201,6 +201,30 @@ waypoints, the method becomes **segment-level prediction verification**, not a 5
 control loop — and the paper says so. This is the first experiment that decides whether the
 topic exists at all; it is not a formality.
 
+#### What this needs from the owner (everything else is done)
+
+The simulation-only work of Weeks 1, 2 and 4 is complete. What is left needs the robot, and
+nothing may run without the owner present at the e-stop. Concretely:
+
+1. **Authorisation to run, in this order, in an unobstructed bounded workspace:**
+   a. a **read-only** capture of the command path: one slow joint-space move, recording the
+      command timestamps, the controller's acknowledgement, the feedback stream and the queue
+      state — this opens no motion code and changes no state;
+   b. a **step-response characterisation**: for a handful of small, slow, single-joint commands,
+      record the executed motion against the commanded reference, so the latency, the tracking
+      lag and the **stopping envelope** can be measured instead of assumed;
+   c. only then, a **stop test**: issue a command and then a stop, and record what the arm
+      actually does — in particular whether already-queued waypoints keep executing.
+2. **A decision on the interface question**: if the controller only accepts queued `MovJ`
+   waypoints, the method becomes segment-level prediction verification, and the paper says so
+   instead of pretending a 50 Hz filtered loop exists.
+3. The existing **whitelist, caps and dry-run default stay in force**; the motion module is not
+   modified, and `ex_dobot_motion --execute` is not run without an explicit in-conversation
+   confirmation that the owner is at the robot with the e-stop in reach.
+
+Everything measured in week 3 becomes the training/calibration/test set of the predictor, split
+by trajectory *and* recording session — the same discipline the simulation work used.
+
 ### Week 4 — execution-aware filter (B5) and the main ablations
 
 - ⬜ short-horizon prediction of the augmented state `(q, q̇, q_ref − q, command history, feedback

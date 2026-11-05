@@ -69,6 +69,10 @@ def main(argv=None) -> int:
                          "barrier, the best completion on the tuning seeds)")
     ap.add_argument("--exec-report", type=Path,
                     default=ROOT / "data" / "reports" / "learning" / "execution_channel.json")
+    ap.add_argument("--dynamics", default="placeholder",
+                    choices=["placeholder", "identified_run02"],
+                    help="the plant: the one the archived policies were trained on, or the one "
+                         "identified on the real CR10A (a robustness check)")
     ap.add_argument("--independent-stride", type=int, default=5)
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "learning" / "final_benchmark.json")
     a = ap.parse_args(argv)
@@ -97,6 +101,7 @@ def main(argv=None) -> int:
         "methods": a.methods,
         "qp_margin": a.qp_margin, "qp0_margin": a.qp0_margin, "cbf_margin": a.cbf_margin, "cbf_alpha": a.cbf_alpha,
         "exec_margin": a.exec_margin,
+        "dynamics": a.dynamics,
         "independent_stride": a.independent_stride, "rows": [],
     }
 
@@ -124,8 +129,8 @@ def main(argv=None) -> int:
             base = ppo_policy_factory(model, task)
             for method in a.methods:
                 t0 = time.time()
-                legacy_env = _make(task, False)
-                corrected_env = _make(task, True)
+                legacy_env = _make(task, False, a.dynamics)
+                corrected_env = _make(task, True, a.dynamics)
                 stats: Dict = {}
                 rec = run_and_record(legacy_env, lambda e: make_filtered(e, base, method, stats),
                                      a.episodes, seed)

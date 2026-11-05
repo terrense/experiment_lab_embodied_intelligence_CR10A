@@ -131,10 +131,11 @@ ros2_ws/src/ex_moveit_config  MoveIt 2 + ros2_control (plant: mock | mujoco)
 ros2_ws/src/ex_planning_lab   M2 scenes, benchmark, execute demo, capsule clearance metric
 ros2_ws/src/ex_mujoco_sim     M4 MuJoCo plant: URDF->MJCF, servo model, dynamics presets
 ros2_ws/src/ex_dobot_motion   the ONLY motion-capable package: whitelist, caps, validated plans, dry-run default
-learning/                     M5 envs (reach, wall), baselines (DLS, APF), PPO, viewer
-evaluation/                   calibration, dynamics identification, sim2real, plots
+learning/                     M5 envs (reach, wall), baselines (DLS, APF), PPO, viewer, safety filters (bounded QP, execution-aware), execution model
+evaluation/                   calibration, dynamics identification, sim2real, plots, the three-detector benchmark, the execution-gap measurement
+paper/                        the manuscript (Markdown) + how to build the PDF
 hands_on/                     double-click demos + guide (Chinese)
-docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, RESEARCH_STATE (self-contained brief for external analysis), RESEARCH_PLAN (the working plan + the audited defects and their fixes), EVALUATOR_AUDIT (the Week-1 gate: is the published table an artefact of the evaluator?), evidence/
+docs/                         one document per stage + SAFETY, LIVE_ROBOT_CHECKLIST, ROADMAP, PROGRESS, RESEARCH_STATE (self-contained brief for external analysis), RESEARCH_PLAN (the working plan + the audited defects and their fixes), EVALUATOR_AUDIT (the Week-1 gate: is the published table an artefact of the evaluator?), RESULTS (every number in one place, with the script that produced it), evidence/
 ```
 
 ## Troubleshooting
