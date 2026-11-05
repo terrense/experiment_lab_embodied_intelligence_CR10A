@@ -134,12 +134,13 @@ def main(argv=None) -> int:
         ry = [r["success_rate"] * 100 for r in raw[task]]
         ax1.scatter(rx, ry, marker="o", s=64, facecolor="none", edgecolor=INK, linewidth=1.6, zorder=3)
         ax1.annotate("no filter", (np.mean(rx), np.mean(ry)), textcoords="offset points",
-                     xytext=(10, -4), fontsize=8.5, color=INK)
+                     xytext=(16, -20), fontsize=8.5, color=INK,
+                     bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85))
     ax1.set_xlabel("collision rate [%]")
     ax1.set_ylabel("completion (success) [%]")
     ax1.set_title("the trade-off: " + TASK_LABEL[task], loc="left", fontweight="bold", color=INK, fontsize=10)
-    ax1.set_xlim(-4, 26)
-    ax1.set_ylim(-4, 52)
+    ax1.set_xlim(-2.5, 9)
+    ax1.set_ylim(-4, 40)
 
     # ---- RIGHT: what conservatism costs --------------------------------------------------
     for key, label, color, marker in SERIES:
@@ -153,7 +154,7 @@ def main(argv=None) -> int:
     ax2.set_xlabel("clearance margin [cm]")
     ax2.set_ylabel("completion (success) [%]")
     ax2.set_title("what a bigger margin costs", loc="left", fontweight="bold", color=INK, fontsize=10)
-    ax2.set_ylim(-4, 52)
+    ax2.set_ylim(-4, 40)
 
     for ax in (ax1, ax2):
         ax.grid(color=GRID, lw=0.8)
