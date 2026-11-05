@@ -147,3 +147,62 @@ def solve_bounded_qp(a: np.ndarray, constraints, lo: float = -1.0, hi: float = 1
     residuals = g - C @ x
     return x, {"feasible": bool(np.all(residuals <= 1e-9)), "residuals": residuals,
                "iterations": int(res.nit), "time_s": dt, "solver": "slsqp"}
+
+
+def solve_bounded_qp_relaxed(a: np.ndarray, constraints, lo: float = -1.0, hi: float = 1.0,
+                              x_prev: Optional[np.ndarray] = None, rho: float = 0.0,
+                              max_iter: int = 100, ftol: float = 1e-9) -> Tuple[np.ndarray, Dict]:
+    """The bounded program, with an EXPLICIT relaxation when it is infeasible.
+
+    An execution-aware filter can face a genuinely infeasible program: the arm is already
+    coasting toward an obstacle faster than any command can stop it, so no command keeps the
+    margin. Hiding that (clipping the constraint, reporting success) would be a lie; the
+    honest behaviour is to return the command that comes CLOSEST to satisfying the program and
+    to report the violation.
+
+    Two stages:
+      1. solve the hard program; if it is feasible, that is the answer (the common case);
+      2. otherwise find the smallest uniform relaxation s* for which the program becomes
+         feasible (a linear program), then re-solve the program with every constraint softened
+         by s*, which returns the command closest to the policy's request.
+
+    The returned `info` always describes the ORIGINAL program:
+      feasible        do the ORIGINAL constraints hold at the returned command?
+      relaxation      the uniform relaxation that had to be applied (0 when none was needed)
+      max_violation   the worst violation of the ORIGINAL constraints, in the constraint units
+      residuals       the violations of the ORIGINAL constraints
+    A non-zero `max_violation` is a violation, never a certificate: the caller must count it.
+    """
+    x, info = solve_bounded_qp(a, constraints, lo=lo, hi=hi, x_prev=x_prev, rho=rho,
+                               max_iter=max_iter, ftol=ftol)
+    info = dict(info)
+    info["relaxation"] = 0.0
+    info["max_violation"] = float(np.max(info["residuals"])) if len(info["residuals"]) else 0.0
+    if info["feasible"]:
+        return x, info
+
+    from scipy.optimize import linprog
+
+    C = np.atleast_2d(np.asarray([c for c, _ in constraints], float))
+    g = np.asarray([gi for _, gi in constraints], float)
+    n = len(a)
+    # variables [x (n), s];  minimise s  s.t.  -C x - s*1 <= -g,  lo <= x <= hi,  s >= 0
+    A_ub = np.hstack([-C, -np.ones((len(g), 1))])
+    b_ub = -g
+    bounds = [(lo, hi)] * n + [(0.0, None)]
+    lp = linprog(c=np.concatenate([np.zeros(n), [1.0]]), A_ub=A_ub, b_ub=b_ub, bounds=bounds,
+                 method="highs")
+    s = float(lp.x[-1]) if lp.success else float(np.max(info["residuals"]))
+    s = max(s, 0.0)
+
+    soft = [(c, gi - s - 1e-9) for c, gi in constraints]
+    x2, info2 = solve_bounded_qp(a, soft, lo=lo, hi=hi, x_prev=x_prev, rho=rho,
+                                  max_iter=max_iter, ftol=ftol)
+    residuals = g - C @ x2
+    info2 = dict(info2)
+    info2["feasible"] = bool(np.all(residuals <= 1e-9))
+    info2["relaxation"] = s
+    info2["max_violation"] = float(np.max(residuals))
+    info2["residuals"] = residuals
+    info2["hard_feasible"] = False
+    return x2, info2

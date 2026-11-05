@@ -78,6 +78,7 @@ def run_and_record(env, make_policy, episodes: int, seed: int) -> List[Dict]:
         traj: List[np.ndarray] = []
         collided = False
         success = False
+        final_dist = float("inf")
         for _ in range(env.cfg.max_steps):
             a = np.asarray(policy(obs), float)
             actions.append(a.copy())
@@ -85,11 +86,12 @@ def run_and_record(env, make_policy, episodes: int, seed: int) -> List[Dict]:
             obs, r, term, trunc, inf = env.step(a)
             collided = collided or bool(inf.get("collision", False))
             success = success or bool(inf.get("success", False))
+            final_dist = float(inf.get("dist", final_dist))
             if term or trunc:
                 break
         traj.append(env.q().copy())
         results.append({"episode": ep, "seed": seed + ep, "success": success, "collision": collided,
-                        "actions": actions, "trajectory": traj, "boxes": boxes})
+                        "final_dist_m": final_dist, "actions": actions, "trajectory": traj, "boxes": boxes})
     return results
 
 

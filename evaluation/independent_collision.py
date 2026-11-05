@@ -44,6 +44,12 @@ SRDF_DISABLED = {
     ("Link2", "Link3"), ("Link3", "Link4"), ("Link4", "Link5"), ("Link4", "Link6"), ("Link5", "Link6"),
 }
 
+#: The CR10A's shoulder housing (Link2) sits on the base with a few millimetres of clearance - the
+#: two are permanently adjacent in every pose. The Dobot SRDF does not list that pair, so a
+#: geometric self-collision test would report the robot as always colliding with itself. The pair
+#: is therefore measured and REPORTED but excluded from the boolean.
+PERMANENTLY_ADJACENT = {("base_link", "Link2")}
+
 #: the same link-vs-box exclusions the environment uses (base/Link1/Link2 vs the table): the
 #: conservative capsule of the J2 motor housing overlaps the table in every pose.
 IGNORED_BOX_LINKS = {("base_link", "table"), ("Link1", "table"), ("Link2", "table")}
@@ -126,7 +132,9 @@ class IndependentCollisionChecker:
         # link pair costs 100 ms, over ~3k points a few ms. The slack is subtracted below.
         from ex_planning_lab.core.capsules import voxel_downsample
         self.self_clouds = {k: voxel_downsample(v, self_spacing) for k, v in self.clouds.items()}
-        self.self_margin = float(self_spacing) * np.sqrt(3.0)
+        # the coverage radius of the downsampled surface: a dropped surface point lies within
+        # voxel*sqrt(3)/2 of a kept one, so the sampled distance is an over-estimate by that much
+        self.self_margin = float(self_spacing) * np.sqrt(3.0) / 2.0
         self.self_collision = self_collision
         self._trees = {}
 
@@ -205,9 +213,11 @@ class IndependentCollisionChecker:
         """(minimum distance between the link SURFACES, the closest pair) over the SRDF-enabled
         pairs.
 
-        Measured on the mesh surface samples (voxel-downsampled for speed), so the value is
-        conservative by the voxel radius: a dropped surface point lies within voxel*sqrt(3) of a
-        kept one, and that slack is subtracted.
+        Measured on the mesh surface samples (voxel-downsampled for speed). The distance between
+        two sampled point sets is an OVER-estimate of the true surface-to-surface distance (a
+        dropped surface point lies within voxel*sqrt(3)/2 of a kept one), so the value is an upper
+        bound and `self_coverage_radius` is the slack to subtract when deciding whether the links
+        actually touch.
         """
         from scipy.spatial import cKDTree
         worst = float("inf")
@@ -219,7 +229,30 @@ class IndependentCollisionChecker:
                 pa, pb = self.link_points_world(a, self.self_clouds), self.link_points_world(b, self.self_clouds)
                 if len(pa) == 0 or len(pb) == 0:
                     continue
-                d = float(cKDTree(pa).query(pb, k=1)[0].min()) - self.self_margin
+                d = float(cKDTree(pa).query(pb, k=1)[0].min())
+                if d < worst:
+                    worst, worst_pair = d, (a, b)
+        return worst, worst_pair
+
+    def self_collision_distance(self) -> Tuple[float, Optional[Tuple[str, str]]]:
+        """The closest pair that is NOT permanently adjacent (base_link / Link2).
+
+        The permanently adjacent pair is measured too and reported separately, because it is a
+        property of the robot (the shoulder housing sits on the base) and not of the motion.
+        """
+        from scipy.spatial import cKDTree
+        worst = float("inf")
+        worst_pair = None
+        for i, a in enumerate(ARM_LINKS):
+            for b in ARM_LINKS[i + 1:]:
+                if (a, b) in SRDF_DISABLED or (b, a) in SRDF_DISABLED:
+                    continue
+                if (a, b) in PERMANENTLY_ADJACENT or (b, a) in PERMANENTLY_ADJACENT:
+                    continue
+                pa, pb = self.link_points_world(a, self.self_clouds), self.link_points_world(b, self.self_clouds)
+                if len(pa) == 0 or len(pb) == 0:
+                    continue
+                d = float(cKDTree(pa).query(pb, k=1)[0].min())
                 if d < worst:
                     worst, worst_pair = d, (a, b)
         return worst, worst_pair
@@ -231,11 +264,16 @@ class IndependentCollisionChecker:
 
         Returns the minimum clearance over the trajectory, the first step at which a contact
         (clearance < margin) occurred, and the minimum self-clearance.
+
+        The self-collision boolean uses the pair distance MINUS the sampling coverage radius, and
+        excludes the permanently adjacent pair (base_link / Link2), whose distance is reported
+        separately: it is a property of the robot, not of the motion.
         """
         if check_self is None:
             check_self = self.self_collision
         min_clear, first_hit, hit_pair = float("inf"), None, None
         min_self, self_pair = float("inf"), None
+        min_adj, adj_pair = float("inf"), None
         for k, q in enumerate(trajectory):
             self.set_q(q)
             d, pair = self.box_clearance(boxes)
@@ -244,13 +282,19 @@ class IndependentCollisionChecker:
             if d < margin and first_hit is None:
                 first_hit, hit_pair = k, pair
             if check_self:
-                ds, sp = self.self_clearance()
+                ds, sp = self.self_collision_distance()
                 if ds < min_self:
                     min_self, self_pair = ds, sp
+                da, ap = self.self_clearance()
+                if da < min_adj:
+                    min_adj, adj_pair = da, ap
         return {"min_clearance_m": min_clear, "first_contact_step": first_hit, "contact_pair": hit_pair,
                 "min_self_clearance_m": min_self if check_self else None,
-                "self_contact_pair": self_pair, "collision": bool(first_hit is not None),
-                "self_collision": bool(check_self and min_self < 0.0)}
+                "self_contact_pair": self_pair,
+                "min_permanent_adjacent_clearance_m": min_adj if check_self else None,
+                "permanent_adjacent_pair": adj_pair,
+                "collision": bool(first_hit is not None),
+                "self_collision": bool(check_self and min_self - self.self_margin < 0.0)}
 
 
 def check_episode_trajectory(trajectory, boxes, margin: float = 0.0) -> Dict:

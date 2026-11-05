@@ -167,3 +167,95 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
             a = x
         return np.clip(a, -1.0, 1.0)
     return act
+
+
+def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02,
+                     d_max: float = 0.30, horizon: int = 5, sample_every: int = 2,
+                     rho: float = 0.0, account_execution: bool = True,
+                     stats: Optional[Dict] = None) -> Callable:
+    """B5: the EXECUTION-AWARE safety filter (SIMULATION ONLY).
+
+    The kinematic filters (`cbf_policy`, `cbf_policy_qp`) constrain the COMMAND. They assume
+    that the executed velocity equals the commanded velocity. In this plant that is false: the
+    command is integrated into a position reference, the reference is clipped at the joint
+    limits, and a bandwidth-limited servo tracks it - so the arm keeps moving after the command
+    changes, and the motion it actually performs lags the motion the filter reasoned about.
+
+    This filter constrains the PREDICTED MOTION instead:
+
+    1. the execution model predicts where the arm goes if the candidate command is held for
+       `horizon` policy steps, starting from the EXECUTED state (q, qdot, q_ref) - not from the
+       command alone;
+    2. the prediction is expanded to first order in the command,
+
+           dQ_k(v)  ~=  dQ_k(0) + G_k . v
+
+       where ``dQ_k(0)`` is the displacement with a ZERO command: the COAST that a kinematic
+       filter never accounts for;
+    3. for every (link, obstacle) pair and every sample along the horizon, the predicted
+       clearance is required to stay above the margin,
+
+           d_i + c_i . dQ_k(v)  >=  margin
+        =>  (c_i . G_k) . v  >=  margin - d_i - c_i . dQ_k(0)
+
+       which is a LINEAR constraint in the command, so the whole thing is one bounded program
+       with the command bounds INSIDE the optimisation (the same solver as `cbf_policy_qp`);
+    4. if the program is infeasible - the arm is already coasting toward an obstacle faster than
+       any command can stop it - the solver returns the command that comes closest, and the
+       violation is reported in `stats["relaxation"]`. A relaxed constraint is a violation, never
+       a certificate.
+
+    The clearance used here is the RIGOROUS LOWER BOUND (`conservative=True`), not the sampled
+    upper bound the archived evaluations used.
+
+    `account_execution=False` is the ABLATION: the coast term `dQ_k(0)` is dropped, so the
+    constraint is the same LOOKAHEAD but with an execution-blind model. It separates "the
+    lookahead structure" from "the execution model", so the paper can say which one carries the
+    result.
+
+    `stats` collects: solves, infeasible (relaxed) solves, max_relaxation (in metres of
+    clearance), the median solve time, and the intervention rate.
+    """
+    import mujoco
+    from .qp_filter import solve_bounded_qp_relaxed
+    jp = np.zeros((3, env.m.nv))
+    state = {"prev": None}
+
+    def act(obs):
+        a = np.clip(np.asarray(base_policy(obs), float), -1.0, 1.0)
+        # the pairs, with the rigorous lower-bound clearance
+        d_all, pts, nrm = env.pair_distances(conservative=True)
+        idx = np.where(d_all < d_max)[0]
+        rows = []
+        for i in idx:
+            body = int(env.cap_body[env._pi[i]])
+            mujoco.mj_jac(env.m, env.d, jp, None, pts[i], body)
+            c = nrm[i] @ jp[:, env.dadr]
+            if float(c @ c) > 1e-12:
+                rows.append((float(d_all[i]), c))
+        if not rows:
+            state["prev"] = a
+            return a
+
+        # the predicted motion, affine in the command
+        dq0, G = exec_model.affine(env.q(), env.d.qvel[env.dadr], np.asarray(env.q_ref, float),
+                                   a, env.lo, env.hi, horizon, step=sample_every)
+        if not account_execution:
+            dq0 = np.zeros_like(dq0)
+        constraints = []
+        for di, c in rows:
+            for k in range(dq0.shape[0]):
+                constraints.append((c @ G[k], margin - di - float(c @ dq0[k])))
+
+        x, info = solve_bounded_qp_relaxed(a, constraints, x_prev=state["prev"], rho=rho)
+        state["prev"] = x
+        if stats is not None:
+            stats["solves"] = stats.get("solves", 0) + 1
+            stats["infeasible"] = stats.get("infeasible", 0) + int(not info.get("feasible", True))
+            stats["max_relaxation"] = max(stats.get("max_relaxation", 0.0),
+                                          float(info.get("max_violation", 0.0)))
+            stats["solve_time_s_median"] = info["time_s"]
+            stats["interventions"] = stats.get("interventions", 0) + int(np.linalg.norm(x - a) > 1e-9)
+            stats["steps"] = stats.get("steps", 0) + 1
+        return np.clip(x, -1.0, 1.0)
+    return act

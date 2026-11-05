@@ -316,3 +316,39 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   becomes more conservative (3.3 % at 10 cm): a single constraint can only push away from the
   closest obstacle and may push the arm into another one. In distribution the QP is insensitive
   to the margin up to 6 cm (72-73 %) and degrades at 15 cm (43 %).
+
+## 2026-11-05 (evening): the manuscript enters the repo, and the command channel is MEASURED
+- The paper is now in the repository as `paper/manuscript.md` (Markdown, because neither pandoc nor
+  a LaTeX toolchain is installed here - `paper/README.md` explains how to build the PDF). It is the
+  authoritative copy: every number in it has a committed JSON behind it. The manuscript states the
+  collision-metric redefinition (the published OOD collision rates count the safety ENVELOPE, not
+  the arm), the matched window protocol, the Week-1 audit gate, and the B0-B8 ladder.
+- The research main line was then implemented as B5, the EXECUTION-AWARE filter
+  (learning/ex_learning/execution_model.py + safety_filter.cbf_policy_exec):
+  * the plant executes a command through a CHANNEL - the command is integrated into a position
+    reference, the reference is clipped at the joint limits, and a bandwidth-limited servo
+    (omega_n = 2*pi*8 rad/s, zeta = 0.9) tracks it. A kinematic filter that treats the requested
+    velocity as the executed velocity therefore omits exactly the braking dynamics;
+  * evaluation/measure_execution.py measures that channel on the SIMULATED plant: the arm coasts
+    **14.9 mrad (0.015 rad) at a 1 rad/s command** after the command is cut, and the identified
+    second-order model predicts the position over 5 policy steps with an RMS error of **4.6 mrad**
+    (omega 37.7 rad/s, zeta 0.9, v_gain 0.8). The prediction error is flat within +-20 % of the
+    identified omega, so the filter does not depend on an exact plant identification;
+  * the filter constrains the PREDICTED MOTION instead of the command: the prediction is expanded
+    to first order in the command, dQ_k(v) ~= dQ_k(0) + G_k.v, where dQ_k(0) is the displacement
+    with a ZERO command - the coast. Every (link, obstacle) pair and every horizon sample becomes
+    one linear constraint in the command, so it is still ONE bounded program with the command
+    bounds inside the optimisation;
+  * qp_filter.solve_bounded_qp_relaxed handles the case where the program is genuinely
+    infeasible (the arm is already coasting toward an obstacle faster than any command can stop
+    it): it returns the closest command and REPORTS the violation. A relaxed constraint is a
+    violation, never a certificate;
+  * the ablation `account_execution=False` drops the coast term and keeps the lookahead, so the
+    paper can say whether the result comes from the lookahead structure or from the execution
+    model.
+- 211 unit tests pass (7 new: the coast, the affine expansion, the relaxed solver, the bounded
+  command of the filter, and the coast-aware filter being at least as conservative as the
+  execution-blind one).
+- RUNNING (results appended below when they land): the frozen-range final benchmark
+  (3 seeds x 3 tasks x {raw, cbf_legacy, qp} x 50 test episodes, three detectors) and the B5
+  margin sweep on the TUNING seeds 0-19.
