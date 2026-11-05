@@ -71,23 +71,35 @@ capsule touch the wall?"*, not *"did the arm touch the wall?"*. The CR10A's link
 radii of 61–150 mm, so the capsule can be in contact while the mesh is still **13 cm** away
 (measured at the home pose: capsule clearance 0.054 m, mesh clearance 0.130 m).
 
-**On the real episodes this is not a small effect.** Out-of-distribution walls, policy seed 0, the
-unfiltered policy, 50 episodes:
+**On the real episodes this is not a small effect.** Out-of-distribution walls, 50 episodes per cell,
+3 policy seeds:
 
-| | count |
-|---|---|
-| the legacy evaluator calls a collision | **19 / 50 (38 %)** |
-| the independent mesh checker calls a collision | **0 / 50** |
-| the mesh was still away, in those 19 episodes | **24 – 65 mm** (median 45 mm) |
+| policy seed | filter | the legacy evaluator calls a collision | the mesh checker calls a collision | the mesh was still away (min / median) |
+|---|---|---|---|---|
+| 0 | none | 19 / 50 (38 %) | **0 / 50** | 23 mm / 42 mm |
+| 0 | CBF | 2 / 50 (4 %) | **0 / 50** | 24 mm / 38 mm |
+| 1 | none | 18 / 50 (36 %) | **0 / 50** | 21 mm / 42 mm |
+| 1 | CBF | 3 / 50 (6 %) | **0 / 50** | 27 mm / 40 mm |
+| 2 | none | 17 / 50 (34 %) | **0 / 50** | 17 mm / 46 mm |
+| 2 | CBF | 3 / 50 (6 %) | **0 / 50** | 25 mm / 44 mm |
 
-Over all 50 episodes the mesh clearance exceeded the capsule clearance by 23–65 mm (median 42 mm).
+**Not one of the 300 episodes contains a real mesh collision.** The published "36 % out-of-
+distribution collisions" (54/150) and "5 %" (8/150) are, in the physical sense, **false positives
+of the conservative capsule model**: the arm never touched the wall — the *safety envelope* did,
+by 2 to 6 cm.
 
-So the published "36 % out-of-distribution collisions" are, in the physical sense, **false positives
-of the conservative capsule model**: the arm never touched the wall — the *safety envelope* did.
-The success rates are unaffected, and the envelope-based comparison is still a meaningful
-engineering comparison (keeping a conservative envelope clear IS a design goal), but the wording
-has to say which event is being counted. From now on the number that goes into the paper is the
-**mesh** clearance, with the capsule clearance reported alongside it.
+The success rates are unaffected, and the envelope comparison is still a meaningful engineering
+comparison (keeping a conservative envelope clear IS a design goal, and it is the quantity the
+filter actually controls). But the wording has to say which event is being counted. From now on
+the number that goes into the paper is the **mesh** clearance, with the capsule (envelope) clearance
+reported alongside it — and the headline claim becomes *"the filter keeps the safety envelope off
+the wall"*, not *"the filter prevents the arm from colliding"*.
+
+**One caveat of the mesh checker, stated for completeness.** It detects surface intersections and
+the containment of individual mesh points. A box lying entirely inside a link's volume, touching no
+surface point, would not be detected. For these scenes it cannot happen (the obstacle boxes are
+40–75 cm thick/large and the links are 60–150 mm in radius), but the limitation is real and is
+part of why the two checkers are reported side by side rather than one replacing the other.
 
 **The independent checker is trustworthy, and that had to be proven.** A wrong frame in the checker
 would produce exactly the same "no collision everywhere" answer, so the checker was validated

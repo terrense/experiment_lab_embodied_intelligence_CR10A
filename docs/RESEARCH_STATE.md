@@ -109,8 +109,11 @@ Reading: free-space reaching is solved by a 5-line classical controller (so it i
 reason to use RL). RL beats APF on the fixed/random wall; APF beats RL out of distribution;
 the CBF safety filter removes most of the RL policy's OOD collisions (36 % → 5 %) and raises its
 OOD success from 21 % to 31 % (+10 points, +48 % relative — **not** a doubling, and still below
-APF's 50 %). All of these numbers come from the *legacy* collision evaluator; the audited
-defects and the corrected protocol are in `docs/RESEARCH_PLAN.md`.
+APF's 50 %). All of these numbers come from the *legacy* collision evaluator, and the collision
+metric itself counts the conservative safety **envelope** (the enclosing link capsules), not the
+arm: an independent mesh-geometry checker finds no real contact in any of the 300 evaluated
+episodes. The audited defects, the corrected protocol and the Week-1 gate result are in
+`docs/RESEARCH_PLAN.md` and `docs/EVALUATOR_AUDIT.md`.
 
 ---
 
@@ -155,8 +158,13 @@ defects and the corrected protocol are in `docs/RESEARCH_PLAN.md`.
      **36 % → 5 %** and OOD success **21 % → 31 %**, with **no in-distribution cost**
      (77 → 81 %, 4 → 0 %). This is the best current OOD result.
    - The CBF is a *practical* layer, not a proof of safety: it is a single-constraint
-     closed-form projection (with a saturation caveat when clipped to the command bound), not
-     a full QP over all link pairs + joint limits.
+     closed-form projection, not a full QP over all link pairs + joint limits. (The projection is
+     now solved on the *intersection* of the command box with the barrier half-space, because the
+     original project-then-clip could violate its own constraint.)
+   - **⚠ The collision metric is the conservative safety ENVELOPE (the enclosing link capsules),
+     not the arm.** An independent mesh-geometry checker finds **no real contact in any of the
+     300 evaluated episodes** — the arm never touched the wall; the envelope came within 2–6 cm.
+     What the filter demonstrably controls is *how far the envelope stays from the wall*.
 
 ### Things we tried that did **not** work (so the reader does not re-suggest them)
 - DLS straight line on any wall scene → collides (4 % / 96 % on the fixed wall).
