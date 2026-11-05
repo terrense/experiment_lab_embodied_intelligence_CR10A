@@ -125,7 +125,8 @@ def cbf_policy_legacy(env, base_policy: Callable, margin: float = 0.02, alpha: f
 
 
 def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float = 5.0,
-                  d_max: float = 0.30, rho: float = 0.0, stats: Optional[Dict] = None) -> Callable:
+                  d_max: float = 0.30, rho: float = 0.0, stats: Optional[Dict] = None,
+                  trace: Optional[list] = None) -> Callable:
     """Bounded ALL-PAIR kinematic QP (the B3 baseline of the research plan).
 
     Unlike `cbf_policy`, which constrains only the single closest obstacle, this one builds a
@@ -140,6 +141,10 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
     that is satisfiable at all - no post-hoc clipping. Infeasibility, solver time and the
     constraint residuals are collected in `stats`; a relaxed constraint is reported as a violation,
     never as a certificate.
+
+    `trace` (optional list) collects one record per control step - the constraints, the solution
+    and the residuals - so an external diagnostic can check the filter's own safety claim against
+    what the plant actually did (see evaluation/execution_gap.py).
     """
     import mujoco
     from .qp_filter import solve_bounded_qp
@@ -147,14 +152,18 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
     state = {"prev": None}
 
     def act(obs):
-        a = np.asarray(base_policy(obs), float).copy()
+        a_base = np.asarray(base_policy(obs), float).copy()
+        a = a_base.copy()
         constraints = []
+        pairs = []
         for d, p, n, body in env.repulsion_points(d_max):
             mujoco.mj_jac(env.m, env.d, jp, None, p, body)
             c = n @ jp[:, env.dadr]
             if float(c @ c) < 1e-12:
                 continue
             constraints.append((c, -alpha * (d - margin) / env.cfg.max_joint_speed))
+            pairs.append((float(d), c))
+        info = {"feasible": True, "residuals": np.zeros(0), "time_s": 0.0}
         if constraints:
             x, info = solve_bounded_qp(a, constraints, x_prev=state["prev"], rho=rho)
             state["prev"] = x
@@ -165,6 +174,11 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
                                              float(np.max(info["residuals"])) if len(info["residuals"]) else 0.0)
                 stats["solve_time_s_median"] = info["time_s"]
             a = x
+        if trace is not None:
+            trace.append({"a_base": a_base.copy(),
+                          "a": np.clip(a, -1.0, 1.0).copy(),
+                          "pairs": pairs, "residuals": np.asarray(info["residuals"], float),
+                          "feasible": bool(info["feasible"])})
         return np.clip(a, -1.0, 1.0)
     return act
 
@@ -172,7 +186,7 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
 def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02,
                      d_max: float = 0.30, horizon: int = 5, sample_every: int = 2,
                      rho: float = 0.0, account_execution: bool = True,
-                     stats: Optional[Dict] = None) -> Callable:
+                     stats: Optional[Dict] = None, trace: Optional[list] = None) -> Callable:
     """B5: the EXECUTION-AWARE safety filter (SIMULATION ONLY).
 
     The kinematic filters (`cbf_policy`, `cbf_policy_qp`) constrain the COMMAND. They assume
@@ -222,7 +236,8 @@ def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02
     state = {"prev": None}
 
     def act(obs):
-        a = np.clip(np.asarray(base_policy(obs), float), -1.0, 1.0)
+        a_base = np.clip(np.asarray(base_policy(obs), float), -1.0, 1.0)
+        a = a_base.copy()
         # the pairs, with the rigorous lower-bound clearance
         d_all, pts, nrm = env.pair_distances(conservative=True)
         idx = np.where(d_all < d_max)[0]
@@ -235,6 +250,9 @@ def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02
                 rows.append((float(d_all[i]), c))
         if not rows:
             state["prev"] = a
+            if trace is not None:
+                trace.append({"a_base": a_base.copy(), "a": a.copy(), "pairs": [],
+                              "residuals": np.zeros(0), "feasible": True})
             return a
 
         # the predicted motion, affine in the command
@@ -257,5 +275,9 @@ def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02
             stats["solve_time_s_median"] = info["time_s"]
             stats["interventions"] = stats.get("interventions", 0) + int(np.linalg.norm(x - a) > 1e-9)
             stats["steps"] = stats.get("steps", 0) + 1
+        if trace is not None:
+            trace.append({"a_base": a_base.copy(), "a": np.clip(x, -1.0, 1.0).copy(),
+                          "pairs": rows, "residuals": np.asarray(info.get("residuals", np.zeros(0)), float),
+                          "feasible": bool(info.get("feasible", True))})
         return np.clip(x, -1.0, 1.0)
     return act

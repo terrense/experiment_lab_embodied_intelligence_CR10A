@@ -18,6 +18,8 @@ Methods
              published filter, including its defect
   qp         the bounded ALL-PAIR kinematic QP with the fixed margin chosen on the tuning seeds
              (the B3/B4 baseline of the research plan)
+  exec       the EXECUTION-AWARE filter (B5): it constrains the predicted motion, coast included,
+             with the margin chosen on the tuning seeds
   apf        the classical potential field (deterministic, a reference, not a competitor)
 
     cd learning && ~/ex_rlenv/bin/python ../evaluation/final_benchmark.py
@@ -56,8 +58,17 @@ def main(argv=None) -> int:
     ap.add_argument("--episodes", type=int, default=50)
     ap.add_argument("--qp-margin", type=float, default=0.04,
                     help="the margin chosen on the TUNING seeds (docs/LEARNING.md, the B4 frontier)")
+    ap.add_argument("--exec-margin", type=float, default=0.005,
+                    help="the margin of the execution-aware filter, chosen on the TUNING seeds")
     ap.add_argument("--cbf-margin", type=float, default=0.05)
     ap.add_argument("--cbf-alpha", type=float, default=5.0)
+    ap.add_argument("--methods", nargs="*", default=["raw", "cbf_legacy", "qp"],
+                    choices=["raw", "cbf_legacy", "qp", "qp0", "exec"])
+    ap.add_argument("--qp0-margin", type=float, default=0.0,
+                    help="the second QP operating point (margin 0 = the proportional approach "
+                         "barrier, the best completion on the tuning seeds)")
+    ap.add_argument("--exec-report", type=Path,
+                    default=ROOT / "data" / "reports" / "learning" / "execution_channel.json")
     ap.add_argument("--independent-stride", type=int, default=5)
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "learning" / "final_benchmark.json")
     a = ap.parse_args(argv)
@@ -70,23 +81,39 @@ def main(argv=None) -> int:
     from independent_collision import IndependentCollisionChecker
     checker = IndependentCollisionChecker()
 
+    exec_model = None
+    if "exec" in a.methods:
+        from ex_learning.execution_model import ServoExecutionModel
+        m = json.loads(a.exec_report.read_text())["identification"]["model"]
+        exec_model = ServoExecutionModel(omega=m["omega"], zeta=m["zeta"], v_gain=m["v_gain"],
+                                         dt=m["dt"], sub=m.get("sub", 10))
+
     man = build_manifest(tuple(a.tasks))
     out: Dict = {
         "protocol": "frozen test range, three detectors, legacy policy behaviour",
         "episode_manifest_hash": manifest_hash(man),
         "split": "test", "seed_start": seed, "seed_end_exclusive": seed + a.episodes,
         "episodes": a.episodes, "tasks": a.tasks, "policy_seeds": a.seeds,
-        "qp_margin": a.qp_margin, "cbf_margin": a.cbf_margin, "cbf_alpha": a.cbf_alpha,
+        "methods": a.methods,
+        "qp_margin": a.qp_margin, "qp0_margin": a.qp0_margin, "cbf_margin": a.cbf_margin, "cbf_alpha": a.cbf_alpha,
+        "exec_margin": a.exec_margin,
         "independent_stride": a.independent_stride, "rows": [],
     }
 
-    def make_filtered(env, base, method):
+    def make_filtered(env, base, method, stats=None):
         if method == "raw":
             return base(env)
         if method == "cbf_legacy":
             return cbf_policy_legacy(env, base(env), margin=a.cbf_margin, alpha=a.cbf_alpha)
         if method == "qp":
-            return cbf_policy_qp(env, base(env), margin=a.qp_margin, alpha=a.cbf_alpha, rho=0.0)
+            return cbf_policy_qp(env, base(env), margin=a.qp_margin, alpha=a.cbf_alpha, rho=0.0,
+                                 stats=stats)
+        if method == "qp0":
+            return cbf_policy_qp(env, base(env), margin=a.qp0_margin, alpha=a.cbf_alpha, rho=0.0,
+                                 stats=stats)
+        if method == "exec":
+            from ex_learning.safety_filter import cbf_policy_exec
+            return cbf_policy_exec(env, base(env), exec_model, margin=a.exec_margin, stats=stats)
         raise ValueError(method)
 
     print(f"{'seed':>4} {'task':9} {'method':11} {'legacy':>15} {'corrected':>11} {'mesh':>8} {'self':>7} "
@@ -95,11 +122,13 @@ def main(argv=None) -> int:
         model = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
         for task in a.tasks:
             base = ppo_policy_factory(model, task)
-            for method in ("raw", "cbf_legacy", "qp"):
+            for method in a.methods:
                 t0 = time.time()
                 legacy_env = _make(task, False)
                 corrected_env = _make(task, True)
-                rec = run_and_record(legacy_env, lambda e: make_filtered(e, base, method), a.episodes, seed)
+                stats: Dict = {}
+                rec = run_and_record(legacy_env, lambda e: make_filtered(e, base, method, stats),
+                                     a.episodes, seed)
                 corr = [replay(corrected_env, r["actions"], r["seed"]) for r in rec]
 
                 mesh = {"collision_rate": None, "min_clearance_m_median": None,
@@ -124,6 +153,7 @@ def main(argv=None) -> int:
                        "legacy_collision_rate": sum(r["collision"] for r in rec) / len(rec),
                        "corrected_collision_rate": sum(c["collision"] for c in corr) / len(corr),
                        "final_dist_m_median": float(np.median([r["final_dist_m"] for r in rec])),
+                       "filter_stats": {k: v for k, v in stats.items()},
                        "mesh": mesh, "wall_s": round(time.time() - t0, 1)}
                 out["rows"].append(row)
                 print(f"{s:>4} {task:9} {method:11} "

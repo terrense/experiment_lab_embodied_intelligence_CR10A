@@ -255,6 +255,25 @@ not "the filter prevents the arm from colliding".
 
 ## 5 Proposed execution-aware filter
 
+### 5.0 What was implemented, and what it is not
+
+The method of this section was **implemented and measured in simulation** before it was written
+up, and the measurement changed the claim. The implementation is the B5 arm of the plan
+(`learning/ex_learning/execution_model.py`, `safety_filter.cbf_policy_exec`); the results are
+§7.4–§7.6. Three things are true of it and are stated here so that no reader infers more than
+the evidence supports:
+
+1. the **execution model is the simulated plant's own channel**, identified from the simulator
+   (§7.4). It is not a model of the real CR10A command interface, and nothing here transfers to
+   it without a hardware characterization;
+2. the filter's constraint is a **look-ahead on the predicted motion**, not a rate condition on
+   the command. The ablation in §7.6 separates the two contributions, and the result is that the
+   look-ahead carries almost all of the benefit — a finding that qualifies the method rather
+   than supporting it;
+3. there is **no hardware result and no safety certificate**. The filter's claim is empirical:
+   on the simulated plant, with a stated model error, its own constraint held in 99.4 % of the
+   control steps of the episodes we measured.
+
 ### 5.1 State and predictor
 
 Let `x_t` comprise measured joint position `q_t`, velocity `v_t`, reference tracking error `e_t`,
@@ -500,7 +519,110 @@ configuration and 30 s of execution against the reactive policies' 6 s. Under a 
 The conclusion survives the matching: on the narrow passage, planning reaches the goal in 38 % of
 the episodes and every reactive method in 0–8 %, even with five times more time.
 
-### 7.4 Supporting evidence and scope
+### 7.4 The command channel of the simulated plant
+
+The plant does not execute a command; it executes a *channel*. The command is integrated into a
+position reference at the physics rate, the reference is clipped at the joint limits, and a
+bandwidth-limited servo tracks it (`omega_n = 2*pi*8 rad/s`, `zeta = 0.9`, with gravity and
+Coriolis feed-forward). Two consequences are measurable on the simulator:
+
+| commanded velocity | coast after the command is cut | coast per rad/s of command |
+|---|---|---|
+| 0.25 rad/s | 8.2 mrad | 0.033 rad |
+| 0.50 rad/s | 10.4 mrad | 0.021 rad |
+| 0.75 rad/s | 12.7 mrad | 0.017 rad |
+| 1.00 rad/s | **14.9 mrad** | 0.015 rad |
+
+At the maximum command the arm travels a further 14.9 mrad after the command is cut — 8.9 mm of
+extra travel for a link 0.6 m from the base. A second-order model of the channel, identified from
+the simulator (`omega = 37.7 rad/s`, `zeta = 0.90`, `v_gain = 0.80`), predicts the joint position
+over five policy steps with an RMS error of **4.6 mrad**. That error is flat within ±20 % of the
+identified `omega`, so a filter built on the model does not require an exact plant
+identification — but 4.6 mrad is a third of the coast it is meant to predict, which is the first
+hint that the model, not the coast, is where the error budget goes.
+
+### 7.5 The execution gap: the kinematic filter's own claim fails in execution
+
+This is the measurement the study was built around. At every control step of a real episode we
+ask two questions: was the filter's *own* reasoning satisfied, and did the plant then end the
+step below the clearance margin? Out-of-distribution walls, 20 episodes, 6000 control steps,
+2 cm margin:
+
+| filter | the filter's own constraint violations | steps where the filter was satisfied but the margin was breached | rate | gap: actual − command-level prediction (median / worst) |
+|---|---|---|---|---|
+| bounded kinematic QP | 0 | **553** | **9.2 %** | −12.0 mm / −146.5 mm |
+| execution-aware, no coast (ablation) | 1 | **10** | **0.2 %** | 0.0 mm / −135.6 mm |
+| execution-aware with coast | 1 | **37** | **0.6 %** | 0.0 mm / −135.6 mm |
+
+The kinematic filter issues a command that satisfies every one of its constraints, and the arm
+still ends the step 12 mm below where the command said it would be — 9 % of the time it ends the
+step below the margin the filter was enforcing. The gap is not noise: its median is −12 mm and
+its worst case is −146 mm. **The filter's guarantee is a statement about the command, and the
+command is not the motion.**
+
+Sweeping the margin shows the failure is not a property of one operating point:
+
+| margin | bounded kinematic QP | execution-aware, no coast | execution-aware with coast |
+|---|---|---|---|
+| 0.5 cm | 3.6 % | 0.1 % | 0.6 % |
+| 1 cm | 8.0 % | 0.1 % | 0.4 % |
+| 2 cm | 9.2 % | 0.2 % | 0.6 % |
+| 4 cm | **32.4 %** | 1.3 % | 4.8 % |
+
+The kinematic filter's own claim fails more often the *more conservative* it is set: a larger
+barrier margin starts the rate condition earlier, further from the motion that actually
+happens. The look-ahead formulation is nearly flat.
+
+And the *honest* attribution is that this is the look-ahead structure, not the plant model:
+dropping the coast term from the constraint changes the frontier not at all and makes the
+filter's own claim consistently *more* valid at every margin (0.1 % against 0.6 %, 0.1 % against
+0.4 %, 0.2 % against 0.6 %, 1.3 % against 4.8 %). The coast is real and measured (§7.4), but it
+is not what carries the result. What carries the result is replacing a rate condition on the
+command with a position condition on the predicted motion. That is a smaller claim than the one
+the project started with, and it points the remaining effort at the predictor's error budget
+rather than at a more elaborate plant model. The most likely reason the coast term *hurts* is
+that a tighter constraint makes the filter intervene more often, and every intervention moves
+the command away from the "held constant" assumption the prediction rests on — an interaction
+that a longer, better-identified model would have to be checked against.
+
+### 7.6 The frontier with the execution-aware filter
+
+On the out-of-distribution walls, tuning seeds 0–19, 3 policy seeds, 20 episodes per cell
+(Figure 5):
+
+| method | margin | completion | envelope collisions | max relaxed constraint | infeasible solves |
+|---|---|---|---|---|---|
+| unfiltered policy | – | 15 % | **42 %** | – | – |
+| bounded all-pair QP | 0 cm | **35 %** | 0 % | – | 0 |
+| bounded all-pair QP | 2 cm | 28 % | 0 % | – | 0 |
+| bounded all-pair QP | 6 cm | 18 % | 0 % | – | 0 |
+| bounded all-pair QP | 10 cm | 5 % | 0 % | – | 42 |
+| execution-aware | 0.5 cm | 30 % | 0 % | 0.00 mm | 0 |
+| execution-aware | 1 cm | 30 % | 0 % | 0.00 mm | 0 |
+| execution-aware | 2 cm | 28 % | 0 % | 3.25 mm | 3 |
+| execution-aware | 4 cm | 25 % | 0 % | 23.25 mm | 24 |
+| execution-aware | 6 cm | 13 % | 0 % | 43.25 mm | 64 |
+| execution-aware, no coast (ablation) | 0.5–6 cm | identical | identical | identical | identical |
+
+Two honest readings. First, the execution-aware filter reaches 0 % envelope collisions at every
+margin including 5 mm, and below a 2 cm margin it never needed a relaxed constraint — the
+relaxation column shows the violations it did have at larger margins, which are reported, not
+hidden. Second, and against our own expectation, **it does not improve the safety–completion
+trade-off**: the bounded QP at margin 0 reaches 35 % completion with 0 % collisions, and the
+execution-aware filter's best is 30 %. On this metric the envelope is already far from the arm
+(§4.5), so both filters are operating in a regime where the collision axis carries little
+information. The demonstrated advantage of the execution-aware filter is §7.5, not the frontier.
+
+### 7.7 The confirmatory benchmark on the frozen test range
+
+The seeds 1000–1049 that produced the published table have been inspected, so they are now
+historical **dev** data and the confirmatory range is **20000–20199**. Every episode of the
+confirmatory run is judged by three detectors — the legacy envelope detector, the corrected
+detector, and the independent mesh checker — and the policy behaviour is the archived one, so
+only the detector differs. The full table is `data/reports/learning/final_benchmark_full.json`;
+the per-cell numbers are in `docs/RESULTS.md` §8.
+
+### 7.8 Supporting evidence and scope
 
 | Evidence item | Archived observation | Interpretation |
 |---|---|---|
