@@ -208,15 +208,45 @@ Reading:
 
 ## 8. The confirmatory test-range benchmark
 
-Source: `data/reports/learning/final_benchmark_full.json`, script
+Source: `data/reports/learning/final_benchmark.json` (three methods) and
+`data/reports/learning/final_benchmark_full.json` (all five), script
 `evaluation/final_benchmark.py`.
 
-The TEST seed range 20000–20199 was never inspected before this run. Every episode is judged by
-three detectors: the legacy envelope detector, the corrected detector, and the independent mesh
-checker. The policy behaviour is the archived one (the actions are recorded in the legacy
-environment and replayed, so only the detector differs).
+The TEST seed range 20000–20199 was never inspected before this run; the published table was
+computed on 1000–1049, which are now historical **dev** data. Episode manifest hash
+`a995f097b28148c2`. Every episode is judged by three detectors — the legacy envelope detector,
+the corrected detector, and the independent mesh checker — and the policy behaviour is the
+archived one (the actions are recorded in the legacy environment and replayed, so only the
+detector differs). 3 policy seeds × 50 episodes per cell.
 
-*(filled in from the run; see the JSON for the per-cell detail)*
+| method | task | success | legacy envelope | corrected | **mesh** | median mesh clearance |
+|---|---|---|---|---|---|---|
+| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.7 mm |
+| unfiltered policy | random walls | 83.3 % | 0 % | 0 % | **0 %** | 117.6 mm |
+| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 55.9 mm |
+| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 97.4 mm |
+| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 89.2 mm |
+| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 111.9 mm |
+| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 88.0 mm |
+| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 111.2 mm |
+
+Reading:
+
+* the archived out-of-distribution envelope-collision rate reproduces on the untouched test range
+  (38.7 % against the published 36 %), and the **mesh checker finds no real contact in any
+  cell** — the conclusion of §3 holds on data that was never used to reach it;
+* the corrected detector differs from the legacy one by 0.6–2.0 percentage points, and not at all
+  for the bounded QP — consistent with the dev-set gate of §2;
+* the **bounded all-pair QP dominates the archived filter**: the same completion (45.3 % against
+  46.0 % out of distribution; 68.4 % against 68.7 % overall) with **0 % against 10.7 %**
+  envelope collisions. The archived filter's remaining collisions are the single-constraint
+  defect the audit identified;
+* the filters also roughly double the *physical* distance the arm keeps from the wall on the
+  out-of-distribution episodes: the median mesh clearance rises from 55.9 mm (unfiltered) to
+  88–89 mm.
+
+*(The five-method table — adding the QP at margin 0 and the execution-aware filter — is in
+`data/reports/learning/final_benchmark_full.json`; it is reproduced in the manuscript.)*
 
 ---
 

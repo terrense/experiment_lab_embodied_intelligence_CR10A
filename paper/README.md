@@ -55,6 +55,7 @@ Figures are generated from the committed JSON reports, never hand-drawn:
 | Figure | Script | Output |
 |---|---|---|
 | Safety–completion frontier (Fig. 5) | `evaluation/plot_frontier.py` | `assets/learning/frontier.png` |
+| The execution gap (Fig. 6) | `evaluation/plot_execution_gap.py` | `assets/learning/execution_gap.png` |
 | Per-stage plots | `evaluation/plot_*.py` | `assets/learning/*.png` |
 
 Regenerating a figure after a re-run is a two-line command; the numbers in the caption are read
@@ -62,7 +63,21 @@ from the same JSON that produced the picture.
 
 ## Related documents
 
+- `docs/RESULTS.md` — **every number in one place**, with the script that produced it
 - `docs/RESEARCH_PLAN.md` — the working plan, the method ladder, the falsification criteria
 - `docs/EVALUATOR_AUDIT.md` — the Week-1 gate report (the audit behind Section 4)
 - `docs/LEARNING.md` — the learning pipeline, the matched protocol, the envelope caveat
 - `docs/PROGRESS.md` — the dated work log; every claim in the paper traces back to an entry
+
+## What the paper does NOT claim
+
+Read this before quoting any number from it:
+
+- **The execution-aware filter does not improve the safety–completion trade-off** on the
+  out-of-distribution walls: the bounded all-pair QP matches it on collision rate and does not
+  lose on completion. This triggered falsification criterion 1 of the research plan.
+- **The improvement in the filter's own consistency comes from the look-ahead structure, not from
+  the explicit plant model.** The ablation (`account_execution=False`) shows it.
+- **The collision axis of the historical table counts the conservative safety envelope, not the
+  arm.** An independent mesh checker finds no real contact in any of the 300 evaluated episodes.
+- **No hardware result exists.** Every number in the paper is simulated.

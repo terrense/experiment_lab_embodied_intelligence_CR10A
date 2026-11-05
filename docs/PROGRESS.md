@@ -387,3 +387,29 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - The manuscript (paper/manuscript.md) is updated: abstract, 5.0 (what was implemented and what
   it is not), 7.4-7.7, discussion and limitations all reflect the measured results, including the
   parts that weaken the proposed method.
+
+## 2026-11-05 (late): the CONFIRMATORY run on the frozen test range
+- The test range 20000-20199 (never inspected before) is now measured with THREE detectors per
+  episode: the legacy envelope detector, the corrected detector, and the independent mesh
+  checker. Script: evaluation/final_benchmark.py; report:
+  data/reports/learning/final_benchmark.json; episode manifest hash a995f097b28148c2. 3 policy
+  seeds x 50 episodes per cell.
+    method                       task          succ   legacy  corrected   mesh   mesh clearance
+    unfiltered                   fixed wall   78.0%    0.0%      0.0%   0.0%        118.7 mm
+    unfiltered                   random walls 83.3%    0.0%      0.0%   0.0%        117.6 mm
+    unfiltered                   OOD walls     36.0%   38.7%     40.7%   0.0%         55.9 mm
+    archived single-constraint   OOD walls     46.0%   10.7%     11.3%   0.0%         89.2 mm
+    bounded all-pair QP (4 cm)   OOD walls     45.3%    0.0%      0.0%   0.0%         88.0 mm
+    bounded all-pair QP (4 cm)   all           68.4%    0.0%      0.0%   0.0%        111.2 mm
+- The archived OOD envelope-collision rate REPRODUCES on untouched data (38.7 % against the
+  published 36 %), and the mesh checker finds NO real contact in any cell - the collision-metric
+  finding holds on data that was never used to reach it.
+- The bounded all-pair QP DOMINATES the archived filter: the same completion (45.3 % against
+  46.0 % out of distribution) with 0 % against 10.7 % envelope collisions. Removing the
+  single-constraint defect costs nothing in completion.
+- The filters also roughly double the physical distance the arm keeps from the wall out of
+  distribution (median mesh clearance 55.9 mm unfiltered -> 88-89 mm filtered).
+- The independent checker was optimised (one pass over the link pairs instead of two, each link's
+  world points transformed once per configuration). The optimisation was verified to be BIT-IDENTICAL
+  against the previous implementation on real trajectories (max numeric difference 0.000e+00, all
+  booleans and pairs equal); the speed-up is 1.2x.

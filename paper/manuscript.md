@@ -70,9 +70,13 @@ case where the project's own collision metric turned out to measure a different 
 than the one its wording suggested. Second, we specify an execution-aware filtering method with
 measurable assumptions and explicit failure handling. Third, we define matched comparisons against
 bounded kinematic filtering, fixed-margin filtering, and classical planning, so that any future
-gain can be attributed to the proposed mechanism. The first deliverable is supported by the audited
-implementation and archived records; the latter two constitute the proposed study and must not be
-presented as completed experiments.
+gain can be attributed to the proposed mechanism. All three have now been carried out **in
+simulation**, and the result of the second is not the one the project set out to obtain: the
+execution-aware filter does not improve the safety–completion trade-off, and an ablation shows
+that the benefit comes from the constraint structure rather than from the plant model. What the
+study does establish is a narrower and more useful claim — that a kinematic filter's guarantee is
+a statement about the command, and that on this plant the command is not the motion. Sections 7.5
+and 8 give the measurement and the honest reading of it.
 
 ## 2 Related work and positioning
 
@@ -555,7 +559,7 @@ hint that the model, not the coast, is where the error budget goes.
 This is the measurement the study was built around. At every control step of a real episode we
 ask two questions: was the filter's *own* reasoning satisfied, and did the plant then end the
 step below the clearance margin? Out-of-distribution walls, 20 episodes, 6000 control steps,
-2 cm margin:
+2 cm margin (Figure 6):
 
 | filter | the filter's own constraint violations | steps where the filter was satisfied but the margin was breached | rate | gap: actual − command-level prediction (median / worst) |
 |---|---|---|---|---|
@@ -631,8 +635,34 @@ The seeds 1000–1049 that produced the published table have been inspected, so 
 historical **dev** data and the confirmatory range is **20000–20199**. Every episode of the
 confirmatory run is judged by three detectors — the legacy envelope detector, the corrected
 detector, and the independent mesh checker — and the policy behaviour is the archived one, so
-only the detector differs. The full table is `data/reports/learning/final_benchmark_full.json`;
-the per-cell numbers are in `docs/RESULTS.md` §8.
+only the detector differs. 3 policy seeds × 50 episodes per cell; episode manifest hash
+`a995f097b28148c2`.
+
+| method | task | completion | legacy envelope | corrected | **mesh** | median mesh clearance |
+|---|---|---|---|---|---|---|
+| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.7 mm |
+| unfiltered policy | random walls | 83.3 % | 0 % | 0 % | **0 %** | 117.6 mm |
+| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 55.9 mm |
+| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 97.4 mm |
+| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 89.2 mm |
+| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 111.9 mm |
+| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 88.0 mm |
+| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 111.2 mm |
+
+Four things are worth stating about this table.
+
+1. The archived out-of-distribution envelope-collision rate **reproduces on data that was never
+   used to reach it** (38.7 % against the published 36 %), and the mesh checker finds **no real
+   contact in any cell**. The collision-metric finding of §4.5 is therefore not an artefact of
+   the development set.
+2. The corrected detector differs from the legacy one by 0.6–2.0 percentage points, and not at
+   all for the bounded QP — the audit gate of §2 holds on the test range as well.
+3. The **bounded all-pair QP dominates the archived filter**: the same completion (45.3 % against
+   46.0 % out of distribution; 68.4 % against 68.7 % overall) with **0 % against 10.7 %**
+   envelope collisions. The archived filter's residual collisions are the single-constraint
+   defect the audit identified, and removing them costs nothing.
+4. The filters also roughly double the *physical* distance the arm keeps from the wall out of
+   distribution: the median mesh clearance rises from 55.9 mm (unfiltered) to 88–89 mm.
 
 ### 7.8 Supporting evidence and scope
 

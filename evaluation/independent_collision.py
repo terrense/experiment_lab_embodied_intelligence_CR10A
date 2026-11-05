@@ -159,12 +159,19 @@ class IndependentCollisionChecker:
         return c @ R.T + self.d.xpos[b]
 
     # ------------------------------------------------------------------ obstacles
-    def box_clearance(self, boxes: List[Dict], ignore: bool = True) -> Tuple[float, Optional[Tuple[str, str]]]:
+    def box_clearance(self, boxes: List[Dict], ignore: bool = True,
+                      world_cache: Optional[Dict[str, np.ndarray]] = None
+                      ) -> Tuple[float, Optional[Tuple[str, str]]]:
         """(minimum clearance to the scene boxes, the closest (link, box) pair).
 
         The clearance is the distance from the link SURFACE to the box. A sample can miss the true
         closest surface point by up to half the sampling spacing, so the honest bound is this
         value minus spacing/2.
+
+        `world_cache` (optional) holds the world-frame surface points per link. The transform is
+        the expensive part of the check, so the caller transforms each link ONCE per
+        configuration and passes the cache in; the broad phase still decides which links are
+        transformed at all.
         """
         worst = float("inf")
         worst_pair = None
@@ -178,7 +185,12 @@ class IndependentCollisionChecker:
                 sphere_d = float(_point_aabb_distance(c[None, :], lo, hi)[0]) - r
                 if sphere_d > worst:          # broad phase: cannot be the closest pair
                     continue
-                pts = self.link_points_world(link)
+                if world_cache is None:
+                    pts = self.link_points_world(link)
+                else:
+                    if link not in world_cache:
+                        world_cache[link] = self.link_points_world(link)
+                    pts = world_cache[link]
                 d = float(_point_aabb_distance(pts, lo, hi).min())
                 if d < worst:
                     worst, worst_pair = d, (link, b["name"])
@@ -209,6 +221,47 @@ class IndependentCollisionChecker:
                     worst, worst_pair = d, (a, b)
         return worst, worst_pair
 
+    def _self_distances(self, world_cache: Optional[Dict[str, np.ndarray]] = None
+                        ) -> Tuple[float, Optional[Tuple[str, str]],
+                                   float, Optional[Tuple[str, str]]]:
+        """One pass over the SRDF-enabled pairs, returning BOTH minima.
+
+        (a) the closest pair over all SRDF-enabled pairs, and
+        (b) the closest pair that is NOT permanently adjacent (base_link / Link2).
+
+        The permanently adjacent pair is reported separately because it is a property of the robot
+        (the shoulder housing sits on the base) and not of the motion.
+
+        The two queries used to be two separate passes over the same pairs, which doubled the most
+        expensive part of the check; they are the same distances, so one pass gives both.
+        `world_cache` holds the world-frame downsampled clouds, transformed once per link.
+        """
+        from scipy.spatial import cKDTree
+        worst = worst_adj = float("inf")
+        worst_pair = adj_pair = None
+        for i, a in enumerate(ARM_LINKS):
+            for b in ARM_LINKS[i + 1:]:
+                if (a, b) in SRDF_DISABLED or (b, a) in SRDF_DISABLED:
+                    continue
+                if world_cache is None:
+                    pa = self.link_points_world(a, self.self_clouds)
+                    pb = self.link_points_world(b, self.self_clouds)
+                else:
+                    if a not in world_cache:
+                        world_cache[a] = self.link_points_world(a, self.self_clouds)
+                    if b not in world_cache:
+                        world_cache[b] = self.link_points_world(b, self.self_clouds)
+                    pa, pb = world_cache[a], world_cache[b]
+                if len(pa) == 0 or len(pb) == 0:
+                    continue
+                d = float(cKDTree(pa).query(pb, k=1)[0].min())
+                if d < worst:
+                    worst, worst_pair = d, (a, b)
+                if not ((a, b) in PERMANENTLY_ADJACENT or (b, a) in PERMANENTLY_ADJACENT):
+                    if d < worst_adj:
+                        worst_adj, adj_pair = d, (a, b)
+        return worst, worst_pair, worst_adj, adj_pair
+
     def self_clearance(self) -> Tuple[float, Optional[Tuple[str, str]]]:
         """(minimum distance between the link SURFACES, the closest pair) over the SRDF-enabled
         pairs.
@@ -216,46 +269,16 @@ class IndependentCollisionChecker:
         Measured on the mesh surface samples (voxel-downsampled for speed). The distance between
         two sampled point sets is an OVER-estimate of the true surface-to-surface distance (a
         dropped surface point lies within voxel*sqrt(3)/2 of a kept one), so the value is an upper
-        bound and `self_coverage_radius` is the slack to subtract when deciding whether the links
-        actually touch.
+        bound and `self_margin` is the slack to subtract when deciding whether the links actually
+        touch.
         """
-        from scipy.spatial import cKDTree
-        worst = float("inf")
-        worst_pair = None
-        for i, a in enumerate(ARM_LINKS):
-            for b in ARM_LINKS[i + 1:]:
-                if (a, b) in SRDF_DISABLED or (b, a) in SRDF_DISABLED:
-                    continue
-                pa, pb = self.link_points_world(a, self.self_clouds), self.link_points_world(b, self.self_clouds)
-                if len(pa) == 0 or len(pb) == 0:
-                    continue
-                d = float(cKDTree(pa).query(pb, k=1)[0].min())
-                if d < worst:
-                    worst, worst_pair = d, (a, b)
+        worst, worst_pair, _a, _b = self._self_distances()
         return worst, worst_pair
 
     def self_collision_distance(self) -> Tuple[float, Optional[Tuple[str, str]]]:
-        """The closest pair that is NOT permanently adjacent (base_link / Link2).
-
-        The permanently adjacent pair is measured too and reported separately, because it is a
-        property of the robot (the shoulder housing sits on the base) and not of the motion.
-        """
-        from scipy.spatial import cKDTree
-        worst = float("inf")
-        worst_pair = None
-        for i, a in enumerate(ARM_LINKS):
-            for b in ARM_LINKS[i + 1:]:
-                if (a, b) in SRDF_DISABLED or (b, a) in SRDF_DISABLED:
-                    continue
-                if (a, b) in PERMANENTLY_ADJACENT or (b, a) in PERMANENTLY_ADJACENT:
-                    continue
-                pa, pb = self.link_points_world(a, self.self_clouds), self.link_points_world(b, self.self_clouds)
-                if len(pa) == 0 or len(pb) == 0:
-                    continue
-                d = float(cKDTree(pa).query(pb, k=1)[0].min())
-                if d < worst:
-                    worst, worst_pair = d, (a, b)
-        return worst, worst_pair
+        """The closest pair that is NOT permanently adjacent (base_link / Link2)."""
+        _w, _wp, worst_adj, adj_pair = self._self_distances()
+        return worst_adj, adj_pair
 
     # ------------------------------------------------------------------ trajectory
     def check_trajectory(self, trajectory: Sequence[Sequence[float]], boxes: List[Dict],
@@ -276,18 +299,21 @@ class IndependentCollisionChecker:
         min_adj, adj_pair = float("inf"), None
         for k, q in enumerate(trajectory):
             self.set_q(q)
-            d, pair = self.box_clearance(boxes)
+            world_full: Dict[str, np.ndarray] = {}
+            world_self: Dict[str, np.ndarray] = {}
+            d, pair = self.box_clearance(boxes, world_cache=world_full)
             if d < min_clear:
                 min_clear = d
             if d < margin and first_hit is None:
                 first_hit, hit_pair = k, pair
             if check_self:
-                ds, sp = self.self_collision_distance()
-                if ds < min_self:
-                    min_self, self_pair = ds, sp
-                da, ap = self.self_clearance()
-                if da < min_adj:
-                    min_adj, adj_pair = da, ap
+                # _self_distances returns (closest over ALL SRDF-enabled pairs, its pair,
+                # closest over the pairs that are not permanently adjacent, its pair)
+                d_all, p_all, d_nonadj, p_nonadj = self._self_distances(world_self)
+                if d_nonadj < min_self:
+                    min_self, self_pair = d_nonadj, p_nonadj
+                if d_all < min_adj:
+                    min_adj, adj_pair = d_all, p_all
         return {"min_clearance_m": min_clear, "first_contact_step": first_hit, "contact_pair": hit_pair,
                 "min_self_clearance_m": min_self if check_self else None,
                 "self_contact_pair": self_pair,
