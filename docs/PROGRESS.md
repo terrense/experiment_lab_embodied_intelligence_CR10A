@@ -269,3 +269,27 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   (safety_filter.cbf_policy_qp) with 5 regression tests; it never returns a violating command
   and fits inside the 50 Hz control rate.
 - 199 tests pass.
+
+## 2026-11-05: Week-1 gate PASSED - the published M5 table is not an artefact of the evaluator
+- Every defect of the 2026-11-02 external review was independently re-derived and MEASURED; the
+  full report is docs/EVALUATOR_AUDIT.md.
+- The gate: evaluation/compare_evaluators.py replays the RECORDED ACTIONS of every episode
+  through the corrected environment, so the physics is identical and only the detector differs
+  (the driver asserts this - replaying in the legacy env must reproduce the legacy verdict).
+  Result over 3 seeds x 3 tasks x {raw, CBF} x 50 dev episodes: the corrected evaluator changes
+  the verdict in at most 5/50 episodes, and only in the raw-policy OOD cells; 16 of 18 cells are
+  identical. The published table stands.
+- The audit harness was validated by reproducing the archived gen_safe JSON EXACTLY (success
+  0.30, collision 0.04, final dist 0.0289 m): the audited code IS the code that produced the
+  published numbers.
+- Two of my own conclusions were corrected by the independent measurements: P0-C DOES flip the
+  collision sign, but only in 0.33 % of near-boundary configurations (0.03 % at the filter's
+  2 cm margin, 0 % at 5 cm); and P1-c's leakage moves the held-out VAF by <= 0.1 points, not by
+  3-5 (my earlier number was an artefact of a transcription error of mine, now caught by a
+  reproducibility test).
+- A finding the review did not anticipate: the collision detector is sound but LOOSE - it answers
+  "did the enclosing capsule touch the wall", and the capsule can be in contact while the mesh is
+  still 13 cm away. The same looseness is in the M2 planning metric (up to 25 mm of sampling
+  error, larger than the 1-2 cm path margin the M2 report quotes), so the real-robot padding
+  conclusion must be recomputed in the direction of MORE margin.
+- 199 unit tests pass.

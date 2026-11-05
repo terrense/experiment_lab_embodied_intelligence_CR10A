@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "learning"))
 
 from ex_learning.envs import make_env  # noqa: E402
-from ex_learning.envs.cr10a_reach_wall import WallConfig, load_scene  # noqa: E402
+from ex_learning.envs.cr10a_reach_wall import WallConfig  # noqa: E402
 
 TASKS = ("wall_obs", "wall_rand", "wall_ood")
 SEEDS = (0, 1, 2)
@@ -46,6 +46,19 @@ def _make(task: str, corrected: bool):
     if not corrected:
         return make_env(task)
     return make_env(task, conservative_geometry=True, substep_collision_check=True)
+
+
+def _boxes_from_env(env) -> List[Dict]:
+    """The scene boxes AS THEY ARE for the current episode.
+
+    This matters: the random-wall tasks move the wall at every reset, so a checker fed the static
+    scene file would test the trajectory against the WRONG obstacle.
+    """
+    out = []
+    for i, name in enumerate(env.box_names):
+        lo, hi = np.asarray(env.box_lo[i], float), np.asarray(env.box_hi[i], float)
+        out.append({"name": name, "center": 0.5 * (lo + hi), "size": hi - lo})
+    return out
 
 
 def run_and_record(env, make_policy, episodes: int, seed: int) -> List[Dict]:
@@ -59,6 +72,7 @@ def run_and_record(env, make_policy, episodes: int, seed: int) -> List[Dict]:
     results: List[Dict] = []
     for ep in range(episodes):
         obs, info = env.reset(seed=seed + ep)
+        boxes = _boxes_from_env(env)          # the obstacles of THIS episode
         policy = make_policy(env)
         actions: List[np.ndarray] = []
         traj: List[np.ndarray] = []
@@ -75,7 +89,7 @@ def run_and_record(env, make_policy, episodes: int, seed: int) -> List[Dict]:
                 break
         traj.append(env.q().copy())
         results.append({"episode": ep, "seed": seed + ep, "success": success, "collision": collided,
-                        "actions": actions, "trajectory": traj})
+                        "actions": actions, "trajectory": traj, "boxes": boxes})
     return results
 
 
@@ -127,7 +141,9 @@ def main(argv=None) -> int:
                          "are NOT overwritten by this run.",
                  "rows": []}
     checker = IndependentCollisionChecker()
-    scenes = {t: load_scene("wall")[0] for t in a.tasks}
+    # the obstacles are read from the ENVIRONMENT per episode, not from the static scene file:
+    # the random-wall tasks move the wall at every reset, so a static box list would test the
+    # trajectory against the wrong obstacle
 
     def make_filtered(env, base, filt):
         if filt == "raw":
@@ -170,7 +186,7 @@ def main(argv=None) -> int:
                     idx = list(range(0, len(rec), a.independent_episode_stride))
                     coll, mins, selfmins, selfcoll = 0, [], [], 0
                     for i in idx:
-                        res = checker.check_trajectory(rec[i]["trajectory"], scenes[task])
+                        res = checker.check_trajectory(rec[i]["trajectory"], rec[i]["boxes"])
                         coll += int(res["collision"])
                         mins.append(res["min_clearance_m"])
                         selfmins.append(res["min_self_clearance_m"])

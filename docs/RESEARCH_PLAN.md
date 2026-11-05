@@ -168,6 +168,12 @@ allowed to stop the project.
 re-derived *before* any new training. If the detection itself is still not trustworthy, no training
 happens in week 2 either.
 
+> **Gate result (2026-11-05): PASSED.** The corrected evaluator changes the verdict in at most
+> **5 of 50** episodes, and only in the raw-policy out-of-distribution cells; 16 of the 18 cells
+> are bit-identical. The published table is not an artefact of the evaluator. Full report, with
+> the measured effect of every audited defect and the two bugs of my own that the reproducibility
+> checks exposed: **`docs/EVALUATOR_AUDIT.md`**.
+
 ### Week 2 — bounded kinematic baseline (B3, B4)
 
 - ⬜ the all-pair QP with the command bounds and joint limits **inside** the optimisation; the

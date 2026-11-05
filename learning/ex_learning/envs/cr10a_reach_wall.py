@@ -4,8 +4,15 @@ Start and goal sit on opposite sides of the wall (around the M2 query sweep_60, 
 sides swapped at random), so the straight Cartesian path is blocked. Collision is DETECTED, not
 simulated: robot geoms stay visual-only (as in M4).
 
-Clearance = signed distance between the M2 link capsules (each CONTAINS its link mesh, so the
-clearance is a conservative lower bound) and the scene's axis-aligned boxes, computed in numpy.
+Clearance = signed distance between the M2 link capsules and the scene's axis-aligned boxes,
+computed in numpy. Each capsule CONTAINS its link mesh, so the distance to the capsule surface is
+a lower bound on the distance to the mesh - but the capsule-to-box distance is itself computed by
+sampling the capsule axis, and a sampled minimum is an UPPER bound on the continuous minimum.
+The reported clearance is therefore an upper bound by up to L/(2(N-1)) (12 mm for Link2) unless
+`WallConfig.conservative_geometry` is set, which subtracts that sampling error and makes the
+value a rigorous lower bound. Measured against an exact segment-AABB reference, the uncorrected
+value misses a contact in 0.33 % of near-boundary configurations (0.03 % at the filter's 2 cm
+margin) with an error of 0.06-0.42 mm.
 Not `mj_geomDistance` on the meshes: on this model it returned a spurious exact 0.0 for 3.3 % of
 mesh-box queries (GJK failures), changing the CCD options crashed MuJoCo 3.3.7, and its `fromto`
 endpoints came back swapped for mesh-vs-box pairs (found 2026-10-28, see docs/LEARNING.md).
@@ -284,7 +291,8 @@ class ReachWallEnv(ReachEnv):
         n = self._unit_away(seg, box, centre)
         r = self.cap_r[self._pi]
         d = dist[idx, k]
-        if self.cfg.conservative_geometry if conservative is None else conservative:
+        use_conservative = self.cfg.conservative_geometry if conservative is None else conservative
+        if use_conservative:
             seg_len = np.linalg.norm(B - A, axis=1)[self._pi]
             d = d - seg_len / (2.0 * (SEG_SAMPLES - 1))   # == segment_box_distance_bound per pair
         return d - r, seg - n * r[:, None], n
