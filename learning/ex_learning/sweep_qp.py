@@ -37,6 +37,9 @@ def main(argv=None) -> int:
     ap.add_argument("--mode", choices=("qp", "single"), default="qp",
                     help="'qp' = bounded all-pair QP (B3/B4), 'single' = the single-constraint filter")
     ap.add_argument("--corrected-evaluator", action="store_true")
+    ap.add_argument("--include-raw", action="store_true",
+                    help="also evaluate the UNFILTERED policy on the same seeds, as the reference "
+                         "point of the frontier")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args(argv)
 
@@ -48,6 +51,11 @@ def main(argv=None) -> int:
         return make_env(a.task, conservative_geometry=True, substep_collision_check=True)
 
     rows = []
+    raw = None
+    if a.include_raw:
+        raw = evaluate(env_for(), lambda e: base_factory(e), a.episodes, a.seed)
+        print(f"{'raw':>7} {raw['success_rate']*100:7.0f}% {raw['collision_rate']*100:9.0f}% "
+              f"{raw['final_dist_m_median']*1000:9.0f}        -")
     print(f"{'margin':>7} {'success':>8} {'collision':>10} {'dist mm':>9} {'solve ms':>9}")
     for margin in [float(x) for x in a.margins.split(",")]:
         stats = {}
@@ -65,9 +73,13 @@ def main(argv=None) -> int:
               f"{rep['final_dist_m_median']*1000:9.0f} {stats.get('solve_time_s_median', 0.0)*1000:9.2f}")
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
-        a.out.write_text(json.dumps({"task": a.task, "model": str(a.model), "mode": a.mode,
-                                     "alpha": a.alpha, "episodes": a.episodes, "seed": a.seed,
-                                     "rows": rows}, indent=1))
+        out = {"task": a.task, "model": str(a.model), "mode": a.mode,
+               "alpha": a.alpha, "episodes": a.episodes, "seed": a.seed,
+               "rows": rows}
+        if raw is not None:
+            out["raw"] = {"success_rate": raw["success_rate"], "collision_rate": raw["collision_rate"],
+                          "final_dist_m_median": raw["final_dist_m_median"]}
+        a.out.write_text(json.dumps(out, indent=1))
         print(f"wrote {a.out}")
     return 0
 

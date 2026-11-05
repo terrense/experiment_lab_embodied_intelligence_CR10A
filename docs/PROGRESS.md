@@ -293,3 +293,26 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   error, larger than the 1-2 cm path margin the M2 report quotes), so the real-robot padding
   conclusion must be recomputed in the direction of MORE margin.
 - 199 unit tests pass.
+
+## 2026-11-05 (later): the collision METRIC turns out to be the biggest finding of the audit
+- The independent mesh-based checker, validated against MuJoCo's own compiled mesh vertices
+  (0.000 mm agreement - the earlier "inside its capsule" check was NOT sufficient, because it
+  transforms the capsule axis and the mesh points with the same frame and a wrong frame cancels
+  out), reports on the real OOD-wall episodes:
+    * the legacy evaluator calls a collision in 19/50 episodes (38 %);
+    * the mesh checker calls a collision in 0/50;
+    * in those 19 episodes the MESH was still 24-65 mm away (median 45 mm).
+  So the published "36 % out-of-distribution collisions" are, physically, false positives of the
+  conservative capsule model: the arm never touched the wall, the safety ENVELOPE did. The
+  success rates are unaffected; the wording has to change, and the mesh clearance is now the
+  number that goes into the paper.
+- The window comparison, MATCHED (same env, collision model, pools, success criterion, 30 s
+  deadline for everybody, and the Cartesian goal for everybody - the planner realises the goal
+  itself instead of using the privileged q_goal): DLS 8 %/70 %, APF 0 %/6 %, RRT-Connect 38 %/6 %.
+  The conclusion survives the matching.
+- B4 baseline sweep (the bounded all-pair QP with a fixed margin, tuning seeds 0-19, 3 policy
+  seeds). On the OOD walls the QP has 0 % collisions at every margin >= 2 cm, while the
+  single-constraint projection still collides (3.3 % at 2 cm) and gets MORE dangerous as it
+  becomes more conservative (3.3 % at 10 cm): a single constraint can only push away from the
+  closest obstacle and may push the arm into another one. In distribution the QP is insensitive
+  to the margin up to 6 cm (72-73 %) and degrades at 15 cm (43 %).

@@ -52,9 +52,25 @@ M2 `window` scene: a wall at x = −0.90 m with a 0.50 × 0.40 m window; start T
 | PPO seed 0, 5 M steps | 0 % | 0 % | gets closer than APF (median 216 mm), never through |
 | **RRT-Connect** (joint space, same collision model, 5 mm margin, ≤ 60k checks) + path following | **38 %** | 2 % | 40 % planned (median 21 s); 19/20 plans executed, 1 grazed (−2 mm); needs 30 s execution |
 
+**⚠ The table above is NOT a controlled comparison** (audit P0-E): the planner was given the goal
+**joint configuration** (its own docstring calls it "privileged information the RL policy does not
+get") and 30 s of execution against the reactive policies' 6 s. The **matched** protocol — same
+environment, collision model, start/goal pools, success criterion, **execution deadline** and
+**goal information** (the Cartesian goal, which the planner must realise itself) for every method —
+gives (`learning/ex_learning/matched_window.py`, 50 episodes, 30 s deadline for everybody):
+
+| Method (matched, 50 episodes, 30 s deadline) | Success | Collisions | Note |
+|---|---|---|---|
+| DLS straight line | 8 % | 70 % | |
+| APF | 0 % | 6 % | |
+| **RRT-Connect** (goal realised from the Cartesian goal: nearest pool TCP, error 0.0 mm) | **38 %** | 6 % | 48 % planned, median 12 s of planning (reported separately, not hidden in the execution time) |
+
 Reading:
+- **The conclusion survives the matching**: on the narrow passage, planning reaches the goal in 38 %
+  of the episodes and every reactive method reaches 0–8 %. Giving the reactive methods 5× more
+  time and the planner the same goal information does not change the ranking.
 - Narrow passages are where sampling-based planning wins and reactive methods (APF, the PPO policy) fail.
-- The window episodes are solvable (40 % within the check budget), just rare and long.
+- The window episodes are solvable (48 % within the check budget), just rare and long.
 - This matches M2, where MoveIt's RRTConnect solved 14/15 window queries with exact mesh collision checking and µs-level checks.
 
 ## Generalisation: does it still avoid the wall when the wall moves?

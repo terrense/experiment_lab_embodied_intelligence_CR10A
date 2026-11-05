@@ -91,6 +91,36 @@ def test_independent_checker_reports_no_self_collision_at_the_home_pose(checker)
     assert d > 0.0, f"the arm touches itself at the home pose: {d} ({pair})"
 
 
+def test_the_checker_geometry_matches_mujocos_own_mesh_vertices(checker):
+    # THE decisive validation of the checker: its surface samples must coincide with MuJoCo's own
+    # compiled mesh vertices. The containment check ("every mesh point lies inside its capsule")
+    # does NOT catch a wrong frame - it transforms the capsule axis and the mesh points with the
+    # SAME frame, so a wrong frame would cancel out. This test compares against an independent
+    # source, and it is what makes "the checker reports no collision" a trustworthy statement.
+    import mujoco
+    from scipy.spatial import cKDTree
+    env = ReachWallEnv(WallConfig(max_steps=4))
+    rng = np.random.default_rng(11)
+    for _ in range(2):
+        env.reset(seed=int(rng.integers(0, 9999)))
+        q = env.q() + rng.uniform(-0.3, 0.3, 6)
+        env._set_q(q)
+        checker.set_q(q)
+        for gid in range(checker.m.ngeom):
+            if checker.m.geom_type[gid] != mujoco.mjtGeom.mjGEOM_MESH:
+                continue
+            mid = checker.m.geom_dataid[gid]
+            adr, num = checker.m.mesh_vertadr[mid], checker.m.mesh_vertnum[mid]
+            verts = checker.m.mesh_vert[adr:adr + num]
+            R = checker.d.geom_xmat[gid].reshape(3, 3)
+            world = verts @ R.T + checker.d.geom_xpos[gid]
+            best = np.inf
+            for link in checker.clouds:
+                d = cKDTree(checker.link_points_world(link)).query(world, k=1)[0].min()
+                best = min(best, float(d))
+            assert best < 0.006, f"the checker geometry is {best*1000:.2f} mm away from MuJoCo's own mesh"
+
+
 def test_environment_collisions_are_confirmed_by_the_independent_checker(checker, boxes):
     # the environment's capsule CONTAINS the mesh, so its clearance is a lower bound: every
     # configuration the environment calls a collision must also be a collision for the mesh

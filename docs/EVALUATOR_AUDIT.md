@@ -71,11 +71,30 @@ capsule touch the wall?"*, not *"did the arm touch the wall?"*. The CR10A's link
 radii of 61–150 mm, so the capsule can be in contact while the mesh is still **13 cm** away
 (measured at the home pose: capsule clearance 0.054 m, mesh clearance 0.130 m).
 
-This is not a reason to distrust the published numbers — the capsule bound is a valid *lower*
-bound on the mesh distance, so it never misses a real contact. It is a reason to state precisely
-what the published collision rates measure, and to use the independent mesh-based checker
-(`evaluation/independent_collision.py`) whenever the question is "did the arm actually touch
-something".
+**On the real episodes this is not a small effect.** Out-of-distribution walls, policy seed 0, the
+unfiltered policy, 50 episodes:
+
+| | count |
+|---|---|
+| the legacy evaluator calls a collision | **19 / 50 (38 %)** |
+| the independent mesh checker calls a collision | **0 / 50** |
+| the mesh was still away, in those 19 episodes | **24 – 65 mm** (median 45 mm) |
+
+Over all 50 episodes the mesh clearance exceeded the capsule clearance by 23–65 mm (median 42 mm).
+
+So the published "36 % out-of-distribution collisions" are, in the physical sense, **false positives
+of the conservative capsule model**: the arm never touched the wall — the *safety envelope* did.
+The success rates are unaffected, and the envelope-based comparison is still a meaningful
+engineering comparison (keeping a conservative envelope clear IS a design goal), but the wording
+has to say which event is being counted. From now on the number that goes into the paper is the
+**mesh** clearance, with the capsule clearance reported alongside it.
+
+**The independent checker is trustworthy, and that had to be proven.** A wrong frame in the checker
+would produce exactly the same "no collision everywhere" answer, so the checker was validated
+against an *independent* source: MuJoCo's own compiled mesh vertices, transformed with each geom's
+world pose. The two agree to **0.000 mm** (`test_the_checker_geometry_matches_mujocos_own_mesh_vertices`).
+The earlier "every mesh point lies inside its capsule" check was **not** sufficient — it transforms
+the capsule axis and the mesh points with the *same* frame, so a wrong frame cancels out.
 
 The same looseness appears in the **M2 planning metric** (`ex_planning_lab/core/capsules.py`,
 16 samples along the capsule axis): the sampling error there reaches `L/30 ≈ 25 mm` for Link2,
@@ -83,6 +102,22 @@ which is **larger than the 1–2 cm path margin the M2 report quotes**. `capsule
 offers `conservative=True` (the default stays legacy so the archived M2 numbers reproduce), and
 `docs/M2_PLANNING_LAB.md` flags that the real-robot padding conclusion has to be recomputed with
 the corrected value — in the direction of **more** margin, not less.
+
+### 4.1 The window comparison, matched
+
+The "RRT-Connect 38 % vs PPO 0 %" comparison was not budget- or privilege-matched (P0-E). Under
+the **matched** protocol — same environment, collision model, start/goal pools, success criterion,
+execution deadline (30 s for everybody) and goal information (the Cartesian goal; the planner
+realises it itself by taking the pool member with the closest TCP, error 0.0 mm) — 50 episodes:
+
+| Method (matched) | Success | Collisions |
+|---|---|---|
+| DLS straight line | 8 % | 70 % |
+| APF | 0 % | 6 % |
+| **RRT-Connect** | **38 %** | 6 % |
+
+**The conclusion survives the matching.** Planning reaches the goal in 38 % of the narrow-passage
+episodes and every reactive method in 0–8 %, even when the reactive methods get 5× more time.
 
 ## 5. Two bugs of my own, found by the reproducibility checks
 
