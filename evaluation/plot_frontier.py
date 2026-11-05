@@ -44,6 +44,8 @@ SERIES = [
     ("exec", "execution-aware (B5)", "#d64550", "^", "-"),
     ("exec_nocoast", "execution-aware, no coast (ablation)", "#d64550", "v", "--"),
 ]
+# short tags for the in-plot point labels, so two series with the same margin stay distinguishable
+TAG = {"single": "single", "qp": "QP", "exec": "exec", "exec_nocoast": "exec"}
 TASK_LABEL = {"wall_ood": "out-of-distribution walls (taller + wider)",
                "wall_rand": "random walls (training range)",
                "wall_obs": "the original fixed wall"}
@@ -142,7 +144,8 @@ def main(argv=None) -> int:
                         edgecolor=color, linewidth=1.6, zorder=3)
             if k in label_idx:
                 dy = 10 if k == 0 else -15
-                ax1.annotate(f"{r['margin']*100:g} cm", (x, y), textcoords="offset points",
+                ax1.annotate(f"{TAG.get(key, key)} {r['margin']*100:g} cm", (x, y),
+                             textcoords="offset points",
                              xytext=(9, dy), fontsize=8, color=MUTED)
     if raw.get(task):
         rx = [r["collision_rate"] * 100 for r in raw[task]]

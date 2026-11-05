@@ -166,15 +166,20 @@ Out-of-distribution walls, 20 episodes per cell:
 | unfiltered policy | – | 15 % | **42 %** | – | – |
 | single-constraint projection | 0 cm | 30 % | 5.0 % | – | 0 |
 | single-constraint projection | 2 cm | 28 % | 3.3 % | – | 0 |
+| single-constraint projection | 4 cm | 28 % | 1.7 % | – | 0 |
 | single-constraint projection | 6 cm | 22 % | 0.0 % | – | 0 |
 | single-constraint projection | 10 cm | 8 % | **3.3 %** | – | 0 |
-| bounded all-pair QP | 0 cm | **35 %** | 0.0 % | – | 0 |
+| single-constraint projection | 15 cm | 5 % | 1.7 % | – | 0 |
+| bounded all-pair QP | 0 cm | 30 % | **3.3 %** | – | 0 |
+| bounded all-pair QP | 0.5 cm | 28 % | 0.0 % | – | 0 |
+| bounded all-pair QP | 1 cm | 28 % | 0.0 % | – | 0 |
 | bounded all-pair QP | 2 cm | 28 % | 0.0 % | – | 0 |
+| bounded all-pair QP | 4 cm | 28 % | 0.0 % | – | 0 |
 | bounded all-pair QP | 6 cm | 18 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 10 cm | 5 % | 0.0 % | – | 42 |
-| bounded all-pair QP | 15 cm | 0 % | 0.0 % | – | 631 |
-| execution-aware (B5) | 0.5 cm | 30 % | 0.0 % | 0.00 mm | 0 |
-| execution-aware (B5) | 1 cm | 30 % | 0.0 % | 0.00 mm | 0 |
+| bounded all-pair QP | 10 cm | 5 % | 0.0 % | – | 107 |
+| bounded all-pair QP | 15 cm | 0 % | 0.0 % | – | 1666 |
+| execution-aware (B5) | 0.5 cm | **30 %** | 0.0 % | 0.00 mm | 0 |
+| execution-aware (B5) | 1 cm | **30 %** | 0.0 % | 0.00 mm | 0 |
 | execution-aware (B5) | 2 cm | 28 % | 0.0 % | 3.25 mm | 3 |
 | execution-aware (B5) | 4 cm | 25 % | 0.0 % | 23.25 mm | 24 |
 | execution-aware (B5) | 6 cm | 13 % | 0.0 % | 43.25 mm | 64 |
@@ -183,15 +188,21 @@ Out-of-distribution walls, 20 episodes per cell:
 Reading:
 
 * the single-constraint projection becomes **more** dangerous as it grows more conservative
-  (3.3 % collisions at a 10 cm margin): one constraint can only push the arm away from the
-  closest obstacle and may push it into another one it cannot see;
-* the bounded all-pair QP has 0 % collisions at every margin, and its completion is flat up to a
-  4 cm margin;
-* the execution-aware filter also has 0 % collisions at every margin, including 5 mm, and it
-  never needed a relaxed (violated) constraint below a 2 cm margin;
+  (3.3 % collisions at a 10 cm margin, after 0 % at 6 cm): one constraint can only push the arm
+  away from the closest obstacle and may push it into another one it cannot see;
+* the bounded all-pair QP is collision-free from a 5 mm margin upwards, but **not** at margin 0,
+  where it collides in 3.3 % of the episodes; its completion is flat at 28 % from 5 mm to 4 cm;
+* the execution-aware filter is collision-free from a 5 mm margin as well, at 30 % completion —
+  one episode more than the QP out of 60, which is noise — and it never needed a relaxed
+  (violated) constraint below a 2 cm margin;
 * **the execution-aware filter does not improve the envelope-level safety–completion trade-off
-  in this setting** — the bounded QP at margin 0 reaches 35 % completion with 0 % collisions.
-  Its demonstrated advantage is §6, not the frontier.
+  in this setting.** Its demonstrated advantage is §6, not the frontier.
+
+> A note on a number that was wrong at first: an earlier version of this table reported the
+> bounded QP at margin 0 as "35 % completion, 0 % collisions". That came from a summary that
+> mixed freshly-written and stale sweep files. The sweep was re-run with one consistent margin
+> list for all three policy seeds; the corrected numbers are above, and the QP at margin 0 does
+> collide.
 
 ---
 

@@ -219,6 +219,42 @@ topic exists at all; it is not a formality.
 If it is badly under-covered on held-out sessions, the near-obstacle hardware stage does not
 proceed.
 
+#### What was completed in Week 4 WITHOUT the robot (2026-11-05)
+
+The command-channel identification and the hardware stages need the owner on site, so the
+simulation-only part of Week 4 was done first. It is recorded here because it **triggered
+falsification criterion 1**.
+
+- ✅ the channel of the SIMULATED plant is measured: the arm coasts **14.9 mrad** at a 1 rad/s
+  command after the command is cut (`evaluation/measure_execution.py`,
+  `data/reports/learning/execution_channel.json`);
+- ✅ a second-order execution model is identified on that plant (ω = 37.7 rad/s, ζ = 0.90,
+  v_gain = 0.80) with a **4.6 mrad RMS** prediction error over 5 policy steps, flat within ±20 %
+  of the identified ω;
+- ✅ the execution-aware filter (B5) is implemented as a look-ahead on the predicted motion, with
+  the command bounds inside one bounded program and an explicit relaxation report for the
+  infeasible case;
+- ✅ the **execution gap** is measured on real episodes: the bounded kinematic QP's own
+  constraints were satisfied while the arm ended the control step below the enforced margin in
+  9.2 % of the steps at a 2 cm margin (32.4 % at 4 cm), median prediction error −12 mm. The
+  look-ahead formulation reduces this to 0.1–1.3 %;
+- ✅ the **ablation** (`account_execution=False`, the coast term removed) shows that the
+  improvement comes from the **look-ahead structure**, not from the explicit execution model: the
+  frontier is identical, and the filter's own claim is *more* valid without the coast;
+- ❌ **the stopping rollout, the separated uncertainty budget and the hardware session are not
+  done** — they need the robot.
+
+**Consequence for the plan.** Falsification criterion 1 is **triggered**: the bounded all-pair
+QP matches the execution-aware filter on collision rate (both 0 % on the out-of-distribution
+walls), does not lose on completion (28 % against 30 %, one episode in sixty), and is an order of magnitude cheaper
+per step. *The execution-model contribution does not hold as a safety–completion result.* What
+survives is a narrower and still useful claim: **a filter that reasons about the command is not
+reasoning about the motion**, and replacing the rate condition with a position condition over a
+short horizon is what fixes that — the plant model is not needed for the fix, only a prediction
+of the motion. The next work item is therefore the *predictor's* error budget (a shorter horizon,
+an error-aware margin, and a predictor that is valid under the commands the filter actually
+issues), not a more elaborate plant identification.
+
 ### Week 5 — planner guidance and the value of RL (B6, B7)
 
 - ⬜ a waypoint follower as the primary nominal controller (B6)
@@ -257,12 +293,24 @@ here so that a negative outcome cannot be quietly reinterpreted later.
 
 1. If a **tuned fixed-margin bounded QP (B4)** matches the proposed method on collision rate,
    completion and latency → *the execution-model contribution does not hold.*
+   **TRIGGERED (2026-11-05, simulation only).** The bounded QP matches the execution-aware
+   filter on collision rate (0 % on the out-of-distribution walls), does not lose on completion
+   (28 % against 30 %, one episode in sixty), and is ~8× cheaper per control step. The ablation then shows *why*: the
+   benefit comes from the look-ahead structure, not from the execution model. The claim that
+   survives is narrower — that a command-level guarantee is not a motion-level guarantee — and
+   the paper says exactly that.
 2. If a **route follower (B6)** matches the residual learner (B7) → *RL is not a contribution of
    this paper.*
 3. If the predictor's held-out coverage is poor, especially in the braking tail → *the method
    does not advance to the near-obstacle hardware stage.*
+   **Partially triggered (2026-11-05).** The identified model has a 4.6 mrad RMS error over
+   five policy steps — a third of the coast it represents — and the prediction assumes the
+   command is held constant, an assumption every filter intervention violates. The near-obstacle
+   hardware stage should not proceed on this predictor.
 4. If the corrected evaluator changes the archived conclusion → *the archived table is withdrawn
    and re-derived before anything new is claimed.*
+   **NOT triggered.** The verdict changes in at most 5 of 50 episodes and not at all in 16 of the
+   18 cells; the table stands, with the collision axis re-labelled as the safety envelope.
 5. Zero collisions in N independent trials is **not** a guarantee: 50 independent trials still
    permit a one-sided 95 % upper bound of ≈ 5.8 %. Reusing the same 50 scenes across 3 training
    seeds is 150 policy–episode evaluations, **not** 150 independent scenes, and the paper says so.

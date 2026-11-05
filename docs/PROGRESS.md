@@ -346,9 +346,44 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   * the ablation `account_execution=False` drops the coast term and keeps the lookahead, so the
     paper can say whether the result comes from the lookahead structure or from the execution
     model.
-- 211 unit tests pass (7 new: the coast, the affine expansion, the relaxed solver, the bounded
+- 207 unit tests pass (65 learning + 77 ex_robot_state + 32 ex_dobot_motion + 17 ex_planning_lab +
+  16 ex_mujoco_sim; 7 new in learning: the coast, the affine expansion, the relaxed solver, the bounded
   command of the filter, and the coast-aware filter being at least as conservative as the
   execution-blind one).
 - RUNNING (results appended below when they land): the frozen-range final benchmark
   (3 seeds x 3 tasks x {raw, cbf_legacy, qp} x 50 test episodes, three detectors) and the B5
   margin sweep on the TUNING seeds 0-19.
+
+## 2026-11-05 (night): the execution gap is measured, and falsification criterion 1 is TRIGGERED
+- The measurement behind the main line (`evaluation/execution_gap.py`): at every control step of a
+  real episode, was the filter's OWN reasoning satisfied, and did the plant then end the step
+  below the enforced clearance margin? Out-of-distribution walls, 20 episodes, 6000 control steps:
+    margin   bounded kinematic QP   exec-aware (no coast)   exec-aware (coast)
+      0.5 cm        3.6 %                 0.1 %                0.6 %
+      1.0 cm        8.0 %                 0.1 %                0.4 %
+      2.0 cm        9.2 %                 0.2 %                0.6 %
+      4.0 cm       32.4 %                 1.3 %                4.8 %
+  The kinematic filter's constraints hold while the arm still ends the step below the margin; the
+  command-level prediction is optimistic by 12 mm in the median and 146 mm in the worst step, and
+  the MORE conservative the filter is set, the MORE often its own claim fails.
+- The attribution is against our expectation and is recorded as such: the gain comes from the
+  LOOK-AHEAD structure (constraining the predicted motion over a horizon instead of the command's
+  rate), NOT from the explicit execution model. Dropping the coast term changes the frontier not
+  at all and makes the filter's own claim consistently MORE valid.
+- **Falsification criterion 1 of docs/RESEARCH_PLAN.md is TRIGGERED**: the bounded all-pair QP
+  matches the execution-aware filter on collision rate (both 0 % from a 5 mm margin), does not
+  lose on completion (28 % against 30 %, one episode in sixty) and is ~8x cheaper per step. The
+  claim that survives is narrower and is what the manuscript now says: a command-level guarantee
+  is not a motion-level guarantee, and the fix is the constraint structure, not the plant model.
+- The QP frontier sweep was RE-RUN with one consistent margin list for all three policy seeds,
+  because an earlier summary mixed freshly written and stale sweep files. The corrected numbers:
+  the QP at margin 0 collides in 3.3 % of the episodes (it is NOT safe with no fixed clearance),
+  and is collision-free from 5 mm upwards at 28 % completion; the single-constraint projection is
+  non-monotonic (0 % at a 6 cm margin, 3.3 % again at 10 cm). The corrected table is in
+  docs/RESULTS.md section 7; the stale "35 % / 0 %" claim is withdrawn there and in the
+  manuscript.
+- 207 unit tests pass (65 learning + 77 ex_robot_state + 32 ex_dobot_motion + 17 ex_planning_lab
+  + 16 ex_mujoco_sim).
+- The manuscript (paper/manuscript.md) is updated: abstract, 5.0 (what was implemented and what
+  it is not), 7.4-7.7, discussion and limitations all reflect the measured results, including the
+  parts that weaken the proposed method.

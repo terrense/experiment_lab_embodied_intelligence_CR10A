@@ -76,6 +76,18 @@ The arm moved under program control: owner on site at the e-stop, unit authoriza
 
 Window scene (narrow passage, forearm must go through a 0.5 × 0.4 m window): APF 0 %, PPO 0 %, RRT-Connect + path following 38 % (2 % collisions). Here sampling-based planning wins clearly — but the comparison is **not budget- or privilege-matched**: the planner is given the goal joint configuration and 30 s of execution, the reactive policies 6 s and only a Cartesian goal. A matched protocol is the first item on the research plan.
 
+### M5.5: the command channel, and what a safety filter actually guarantees (simulation)
+
+![execution gap](assets/learning/execution_gap.png)
+*The plant does not execute a command, it executes a channel: the command is integrated into a position reference, the reference is clipped at the joint limits, and a bandwidth-limited servo tracks it. Measured on the simulator, the arm coasts **14.9 mrad** after a 1 rad/s command is cut. The left panel is the finding that matters: at every control step of a real episode we ask whether the filter's OWN reasoning was satisfied and whether the arm then ended the step below the enforced margin. The bounded kinematic QP's constraints hold while the arm still ends below the margin in 9 % of the steps at a 2 cm margin (32 % at 4 cm), with a median prediction error of 12 mm. **A kinematic filter's guarantee is a statement about the command, and the command is not the motion.** The look-ahead formulation fixes it (0.1–1.3 %).*
+
+![frontier](assets/learning/frontier.png)
+*The safety–completion frontier on the out-of-distribution walls. A single-constraint projection gets *more* dangerous as it grows more conservative (3.3 % collisions at a 10 cm margin): one constraint can only push the arm away from the closest obstacle and may push it into another one it cannot see. The bounded all-pair QP and the execution-aware filter are both collision-free at every margin tested.*
+
+The honest part: the ablation shows the gain comes from the **look-ahead structure**, not from the explicit plant model — dropping the coast term from the constraint changes the frontier not at all, and the execution-aware filter does **not** improve the safety–completion trade-off here (30 % against the bounded QP's 28 %). That triggered falsification criterion 1 of the [research plan](docs/RESEARCH_PLAN.md), and the plan records it rather than rephrasing the claim.
+
+The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
+
 Failures found and fixed on the way (all documented with regression tests):
 - PPO learned to **crash on purpose** under a −distance reward.
 - MuJoCo mesh distance queries returned swapped endpoints and spurious zeros.

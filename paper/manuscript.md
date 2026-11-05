@@ -21,9 +21,18 @@ capsules), not the arm: across 300 evaluated out-of-distribution episodes the ar
 the wall, while the envelope came within 17–65 mm of it. We therefore reformulate the claim and
 report a bounded all-pair kinematic QP as a strong baseline, on the frozen, untouched test range.
 
+On that baseline we measure the premise directly. A kinematic filter's guarantee is a statement
+about the *command*, and the command is not the motion: the bounded QP's own constraints were
+satisfied while the arm ended the control step below the enforced margin in 9 % of the steps at a
+2 cm margin and 32 % at a 4 cm margin, with a median prediction error of 12 mm. An execution-aware
+filter that constrains the predicted motion instead removes the failure (0.1–1.3 %). We also
+report the attribution honestly: the improvement comes from the look-ahead structure, not from the
+explicit plant model, and the execution-aware filter does **not** improve the envelope-level
+safety–completion trade-off on this task.
+
 The manuscript states the method, the conditional geometric reasoning and the evaluation protocol.
-Implementation of the proposed execution-aware extension and closed-loop hardware experiments
-remain pending; no performance improvement or physical safety guarantee is claimed for it.
+All results are simulated; closed-loop hardware experiments remain pending, and no performance
+improvement or physical safety guarantee is claimed for the proposed filter.
 
 **Keywords:** robot motion planning; safety filtering; sim-to-real; reinforcement learning;
 collaborative manipulators.
@@ -593,25 +602,28 @@ On the out-of-distribution walls, tuning seeds 0–19, 3 policy seeds, 20 episod
 | method | margin | completion | envelope collisions | max relaxed constraint | infeasible solves |
 |---|---|---|---|---|---|
 | unfiltered policy | – | 15 % | **42 %** | – | – |
-| bounded all-pair QP | 0 cm | **35 %** | 0 % | – | 0 |
+| bounded all-pair QP | 0 cm | 30 % | **3.3 %** | – | 0 |
+| bounded all-pair QP | 0.5 cm | 28 % | 0 % | – | 0 |
 | bounded all-pair QP | 2 cm | 28 % | 0 % | – | 0 |
 | bounded all-pair QP | 6 cm | 18 % | 0 % | – | 0 |
-| bounded all-pair QP | 10 cm | 5 % | 0 % | – | 42 |
-| execution-aware | 0.5 cm | 30 % | 0 % | 0.00 mm | 0 |
-| execution-aware | 1 cm | 30 % | 0 % | 0.00 mm | 0 |
+| bounded all-pair QP | 10 cm | 5 % | 0 % | – | 107 |
+| execution-aware | 0.5 cm | **30 %** | 0 % | 0.00 mm | 0 |
+| execution-aware | 1 cm | **30 %** | 0 % | 0.00 mm | 0 |
 | execution-aware | 2 cm | 28 % | 0 % | 3.25 mm | 3 |
 | execution-aware | 4 cm | 25 % | 0 % | 23.25 mm | 24 |
 | execution-aware | 6 cm | 13 % | 0 % | 43.25 mm | 64 |
 | execution-aware, no coast (ablation) | 0.5–6 cm | identical | identical | identical | identical |
 
-Two honest readings. First, the execution-aware filter reaches 0 % envelope collisions at every
-margin including 5 mm, and below a 2 cm margin it never needed a relaxed constraint — the
-relaxation column shows the violations it did have at larger margins, which are reported, not
-hidden. Second, and against our own expectation, **it does not improve the safety–completion
-trade-off**: the bounded QP at margin 0 reaches 35 % completion with 0 % collisions, and the
-execution-aware filter's best is 30 %. On this metric the envelope is already far from the arm
-(§4.5), so both filters are operating in a regime where the collision axis carries little
-information. The demonstrated advantage of the execution-aware filter is §7.5, not the frontier.
+Two honest readings. First, the execution-aware filter reaches 0 % envelope collisions from a
+5 mm margin upwards and never needed a relaxed constraint below a 2 cm margin — the relaxation
+column shows the violations it did have at larger margins, which are reported, not hidden.
+Second, and against our own expectation, **it does not improve the safety–completion
+trade-off**: the bounded QP reaches the same 0 % collision rate from the same 5 mm margin, at
+28 % completion against 30 % — one episode in sixty, which is noise. Note also that the bounded
+QP is *not* safe at margin 0 (3.3 % collisions): a barrier with no fixed clearance still lets the
+arm through. On this metric the envelope is already far from the arm (§4.5), so both filters
+operate in a regime where the collision axis carries little information. The demonstrated
+advantage of the execution-aware filter is §7.5, not the frontier.
 
 ### 7.7 The confirmatory benchmark on the frozen test range
 
@@ -643,16 +655,36 @@ and that **the project's own collision metric was measuring a conservative envel
 the robot** — a distinction that changes what the headline number means without changing the
 number itself.
 
+The second observation is more specific and, for this project, more useful: **a kinematic safety
+filter's guarantee is a statement about the command, and the command is not the motion.** On the
+simulated plant the bounded QP's own constraints were satisfied while the arm ended the control
+step below the enforced margin in 9 % of the steps at a 2 cm margin and 32 % at a 4 cm margin, with
+a median prediction error of 12 mm. The more conservative the filter was set, the more often its
+own claim failed. Whatever else this project produces, that is a defensible finding: it was
+measured on real episodes, it is reproducible from a committed script, and it is the kind of thing
+that a safety argument cannot be built on without noticing.
+
+The honest qualification is equally important. The fix is **not** the sophisticated part. Almost
+all of the benefit comes from replacing a rate condition on the command with a position condition
+on the predicted motion over a short horizon; the explicit execution model — the coast, the part
+that motivated the project — contributes nothing to the safety–completion frontier, and adding it
+to the constraint slightly *reduces* the validity of the filter's own claim. The coast is real
+(14.9 mrad at full command) and it is measured, but at the margins tested it is smaller than the
+other errors in the loop. A reader should take from this study the warning about command-level
+reasoning, not a demonstration that plant identification is the key to safety filtering.
+
+That also says where the remaining effort belongs. The identified model's own error (4.6 mrad over
+five policy steps) is a third of the coast it is meant to represent, and the prediction assumes
+the command is held constant — an assumption every filter intervention violates. A predictor that
+is accurate on short horizons *under the commands the filter will actually issue*, with an
+explicit error budget added to the margin, is the next thing to build. Whether that is worth
+building is an open empirical question, and the honest answer from this study is "not yet
+demonstrated".
+
 The repository offers unusually useful ingredients for studying this boundary: real feedback,
 controller-consistent geometry, a local dynamics record, and policy failures under a controlled
-shift in wall size.
-
-There are three possible outcomes of the proposed study. If the execution-aware filter outperforms
-the best fixed-margin bounded QP at comparable completion and latency, the measured execution model
-is useful. If a fixed margin performs equally well, the simpler method should be preferred and the
-predictor claim rejected. If planner following with either filter matches residual RL, the paper
-should focus on filtering and execution rather than force an RL contribution. Negative results
-remain informative when they identify which complexity is unnecessary.
+shift in wall size. It also offers a rare example of a project that has already had to revise its
+own headline number — and that the revision survived.
 
 Hardware constraints are central. An asynchronous training job can generate data or optimize a
 small policy, but network-connected inference should not sit in a safety-critical control path.
@@ -661,22 +693,36 @@ resolve an unverified command interface, missing geometry, or an inadequate stop
 
 ## 9 Limitations and conclusion
 
-The existing learning results use known geometry, a simplified servo, no physical contact response,
-a detector whose geometric looseness is now measured, and position-only success. The proposed
-filter is not yet implemented, its uncertainty tube is not validated, and learned policies have not
-been deployed on the CR10A. One hardware unit cannot establish cross-robot generalization. Torque
-signal units, independent physical accuracy, and command cancellation behavior require direct
-verification. The archived out-of-distribution collision rates measure a safety envelope, not
-contact with the arm, and the narrow-passage comparison required a matched protocol to be
-meaningful at all.
+The learning results use known geometry, a simplified servo, no physical contact response, a
+detector whose geometric looseness is now measured, and position-only success. The filter
+proposed here was implemented and measured **in simulation only**: its execution model is the
+simulator's own channel, identified from the simulator, and none of it has been exercised
+against the real CR10A command interface. Its uncertainty tube is not validated, and no learned
+policy has been deployed on the robot. One hardware unit cannot establish cross-robot
+generalization. Torque signal units, independent physical accuracy, and command cancellation
+behavior require direct verification. The archived out-of-distribution collision rates measure a
+safety envelope, not contact with the arm, and the narrow-passage comparison required a matched
+protocol to be meaningful at all.
 
-The archived evidence establishes a concrete motivation for execution-aware filtering, and the
-source audit identifies why the current projection cannot be treated as a safety guarantee. The
-proposed study connects corrected geometric evaluation, bounded optimization, measured command
-execution, and explicit stopping verification. Its final scientific contribution will depend on
-matched experiments demonstrating an advantage over strong fixed-margin and planning baselines.
-Until those measurements exist, this manuscript supports a reproducible research programme and a
-preliminary empirical analysis, not a completed deployment claim.
+Two further limits on what §7.5 establishes. The look-ahead constraint is linearised around the
+current configuration, so its accuracy degrades with the horizon; the horizons tested are short
+enough that the measured error is small, but the method is not a geometric proof and no such claim
+is made. And the measurement is of the *filter's own* consistency with the plant — of the 0.1–1.3 %
+residual failure rate, some share is model error and some share is the linearisation, and the two
+were not separated.
+
+What the study establishes is concrete. The source audit identifies why the current projection
+cannot be treated as a safety guarantee and shows that the published numbers survive the
+correction. The collision metric is re-defined and the physical event it counts is named. The
+matched comparison shows that a classical planner wins on a narrow passage under equal
+information and equal time. And the execution gap is measured: a filter that reasons about the
+command is not reasoning about the motion, and on this plant that difference is 12 mm in the
+median and 9 % of the control steps. The proposed study connects corrected geometric evaluation,
+bounded optimization, measured command execution, and explicit stopping verification; its final
+scientific contribution still depends on matched experiments demonstrating an advantage over
+strong fixed-margin and planning baselines. Until those measurements exist, this manuscript
+supports a reproducible research programme and a preliminary empirical analysis, not a completed
+deployment claim.
 
 ---
 
