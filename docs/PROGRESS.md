@@ -413,3 +413,41 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   world points transformed once per configuration). The optimisation was verified to be BIT-IDENTICAL
   against the previous implementation on real trajectories (max numeric difference 0.000e+00, all
   booleans and pairs equal); the speed-up is 1.2x.
+
+## 2026-11-06: the confirmatory run CHANGES the conclusion - and the write-up with it
+- The five-method confirmatory run on the frozen test range (20000-20199, 3 seeds x 50 episodes
+  per cell, three detectors) landed: data/reports/learning/final_benchmark_full.json.
+    method                       OOD succ   OOD legacy  OOD corrected   mesh   ALL succ
+    unfiltered                    36.0%       38.7%         40.7%       0.0%      65.8%
+    archived single-constraint    46.0%       10.7%         11.3%       0.0%      68.7%
+    bounded all-pair QP (4 cm)    45.3%        0.0%          0.0%       0.0%      68.4%
+    bounded all-pair QP (0 cm)    54.0%        8.0%         19.3%       0.0%      71.8%
+    execution-aware (1 cm)        54.0%        0.0%          0.0%       0.0%      71.8%
+- **Per policy seed (OOD, 50 episodes each):**
+      seed 0:  QP(4cm) 50 % / 0 %    QP(0cm) 72 % / 22 %    exec 72 % / 0 %
+      seed 1:  QP(4cm) 44 % / 0 %    QP(0cm) 46 % / 20 %    exec 46 % / 0 %
+      seed 2:  QP(4cm) 42 % / 0 %    QP(0cm) 44 % / 16 %    exec 44 % / 0 %
+  So in EVERY seed the execution-aware filter reaches exactly the completion of the
+  unconstrained-margin QP while that QP collides in 16-22 % of the episodes - that is the
+  established result. Its completion advantage over the SAFE fixed-margin QP (+22/+2/+2 points
+  against an 8-point between-seed spread) is NOT established and is not claimed.
+- **This reverses the conclusion I recorded earlier today** ("falsification criterion 1 is
+  TRIGGERED"). It was based on the 20-episode tuning sweep, which was underpowered: the sweeps
+  were re-run with 50 episodes per cell and the single-constraint projection was added, and the
+  criterion is now recorded as PARTIALLY triggered (collision rate matched, completion not
+  separated, latency against the method, and the execution-model mechanism unsupported by the
+  ablation). The plan, the manuscript's abstract/discussion/limitations and RESULTS.md are all
+  corrected to match.
+- **A protocol flaw found and documented:** the TUNING seeds 0-19 lie inside the TRAINING range
+  0-999, so the operating points were chosen on scenarios the policies have already seen. On
+  those seeds the two filters are indistinguishable (32.0 % against 31.3 %); the confirmatory
+  test range is where they separate. The manifest and the plan now say so, and a future protocol
+  must place the tuning split outside the training range.
+- The 50-episode sweeps confirm the single-constraint projection's NON-MONOTONICITY (5.3 % ->
+  1.3 % -> 4.7 % collisions at 0, 6 and 10 cm) and show the bounded QP is collision-free from a
+  5 mm margin upwards.
+- Robustness on the IDENTIFIED plant (--dynamics identified_run02: 40.6 kg of link mass against
+  the placeholder's 24.8 kg, matching the datasheet): the same pattern, exec 54.7 % against the
+  QP's 45.3 % out of distribution, both collision-free, mesh 0 % everywhere.
+- Figure 5 (assets/learning/frontier.png) is redrawn from the 50-episode sweeps; the ablation is
+  no longer drawn (it lies exactly on the B5 curve) and the note in the panel says so.

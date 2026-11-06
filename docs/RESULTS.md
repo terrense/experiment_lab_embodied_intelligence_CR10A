@@ -156,53 +156,52 @@ constant" assumption the prediction rests on.
 
 ## 7. The safety–completion frontier (tuning seeds 0–19, 3 policy seeds)
 
-Sources: `data/reports/learning/frontier_*_s*_wall_ood.json`, scripts
-`learning/ex_learning/sweep_qp.py` and `learning/ex_learning/sweep_exec.py`.
+Sources: `data/reports/learning/tune50_*_s*_wall_ood.json` (50 episodes per cell) and
+`data/reports/learning/frontier_*_s*_wall_ood.json` (the earlier 20-episode sweep), scripts
+`learning/ex_learning/sweep_exec.py` and `learning/ex_learning/sweep_qp.py`.
 
-Out-of-distribution walls, 20 episodes per cell:
+**A note on the split, because it matters for how these numbers relate to §8:** the tuning seeds
+0–19 lie INSIDE the training range 0–999, so the policies have already seen these scenarios.
+The confirmatory test range 20000–20199 is where the two filters separate (§8).
+
+Out-of-distribution walls, 50 episodes per cell (150 episodes per method):
 
 | method | margin | completion | envelope collisions | max relaxation | infeasible solves |
 |---|---|---|---|---|---|
-| unfiltered policy | – | 15 % | **42 %** | – | – |
-| single-constraint projection | 0 cm | 30 % | 5.0 % | – | 0 |
-| single-constraint projection | 2 cm | 28 % | 3.3 % | – | 0 |
-| single-constraint projection | 4 cm | 28 % | 1.7 % | – | 0 |
-| single-constraint projection | 6 cm | 22 % | 0.0 % | – | 0 |
-| single-constraint projection | 10 cm | 8 % | **3.3 %** | – | 0 |
-| single-constraint projection | 15 cm | 5 % | 1.7 % | – | 0 |
-| bounded all-pair QP | 0 cm | 30 % | **3.3 %** | – | 0 |
-| bounded all-pair QP | 0.5 cm | 28 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 1 cm | 28 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 2 cm | 28 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 4 cm | 28 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 6 cm | 18 % | 0.0 % | – | 0 |
-| bounded all-pair QP | 10 cm | 5 % | 0.0 % | – | 107 |
-| bounded all-pair QP | 15 cm | 0 % | 0.0 % | – | 1666 |
-| execution-aware (B5) | 0.5 cm | **30 %** | 0.0 % | 0.00 mm | 0 |
-| execution-aware (B5) | 1 cm | **30 %** | 0.0 % | 0.00 mm | 0 |
-| execution-aware (B5) | 2 cm | 28 % | 0.0 % | 3.25 mm | 3 |
-| execution-aware (B5) | 4 cm | 25 % | 0.0 % | 23.25 mm | 24 |
-| execution-aware (B5) | 6 cm | 13 % | 0.0 % | 43.25 mm | 64 |
-| execution-aware, no coast (ablation) | 0.5–6 cm | identical to B5 | 0.0 % | identical | ≈ identical |
+| unfiltered policy | – | 18 % | **35 %** | – | – |
+| single-constraint projection | 0 cm | 32.0 % | 5.3 % | – | 0 |
+| single-constraint projection | 2 cm | 31.3 % | 2.7 % | – | 0 |
+| single-constraint projection | 4 cm | 30.0 % | 2.0 % | – | 0 |
+| single-constraint projection | 6 cm | 28.7 % | 1.3 % | – | 0 |
+| single-constraint projection | 10 cm | 13.3 % | **4.7 %** | – | 0 |
+| single-constraint projection | 15 cm | 7.3 % | 4.0 % | – | 0 |
+| bounded all-pair QP | 0.5 cm | 31.3 % | 0.0 % | – | 0 |
+| bounded all-pair QP | 1 cm | 31.3 % | 0.0 % | – | 0 |
+| bounded all-pair QP | 2 cm | 31.3 % | 0.0 % | – | 0 |
+| bounded all-pair QP | 4 cm | 28.7 % | 0.0 % | – | 0 |
+| execution-aware (B5) | 0.5 cm | **32.0 %** | 0.0 % | 0.00 mm | 0 |
+| execution-aware (B5) | 1 cm | **32.0 %** | 0.0 % | 0.00 mm | 0 |
+| execution-aware (B5) | 2 cm | 31.3 % | 0.0 % | 9.92 mm | 24 |
+| execution-aware (B5) | 4 cm | 28.7 % | 0.0 % | 29.92 mm | 83 |
+| execution-aware, no coast (ablation) | 0.5–4 cm | identical to B5 | 0.0 % | identical | identical |
+
+The earlier 20-episode sweep (60 episodes per method) reported 30 % against 28.3 % for the same
+two filters at the same margins, and reported a margin-0 QP with "35 % completion, 0 %
+collisions". The first number was noise; the second came from a summary that mixed freshly
+written and stale sweep files. Both were re-run, and the table above is the consistent version.
 
 Reading:
 
-* the single-constraint projection becomes **more** dangerous as it grows more conservative
-  (3.3 % collisions at a 10 cm margin, after 0 % at 6 cm): one constraint can only push the arm
-  away from the closest obstacle and may push it into another one it cannot see;
+* on the tuning seeds the two filters are **indistinguishable** (32.0 % against 31.3 %, one
+  episode in 150);
+* the ablation is **exact**: dropping the coast term changes the frontier not at all;
+* the single-constraint projection is **non-monotonic** — it becomes *more* dangerous as it grows
+  more conservative (0 % collisions at a 6 cm margin, 3.3 % again at 10 cm): one constraint can
+  only push the arm away from the closest obstacle and may push it into another one it cannot
+  see. That is the defect the audit identified, and it is the reason the bounded all-pair QP
+  exists;
 * the bounded all-pair QP is collision-free from a 5 mm margin upwards, but **not** at margin 0,
-  where it collides in 3.3 % of the episodes; its completion is flat at 28 % from 5 mm to 4 cm;
-* the execution-aware filter is collision-free from a 5 mm margin as well, at 30 % completion —
-  one episode more than the QP out of 60, which is noise — and it never needed a relaxed
-  (violated) constraint below a 2 cm margin;
-* **the execution-aware filter does not improve the envelope-level safety–completion trade-off
-  in this setting.** Its demonstrated advantage is §6, not the frontier.
-
-> A note on a number that was wrong at first: an earlier version of this table reported the
-> bounded QP at margin 0 as "35 % completion, 0 % collisions". That came from a summary that
-> mixed freshly-written and stale sweep files. The sweep was re-run with one consistent margin
-> list for all three policy seeds; the corrected numbers are above, and the QP at margin 0 does
-> collide.
+  where it collides. A barrier with no fixed clearance is not a safety setting.
 
 ---
 
@@ -221,32 +220,70 @@ detector differs). 3 policy seeds × 50 episodes per cell.
 
 | method | task | success | legacy envelope | corrected | **mesh** | median mesh clearance |
 |---|---|---|---|---|---|---|
-| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.7 mm |
+| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.6 mm |
 | unfiltered policy | random walls | 83.3 % | 0 % | 0 % | **0 %** | 117.6 mm |
-| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 55.9 mm |
-| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 97.4 mm |
-| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 89.2 mm |
-| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 111.9 mm |
-| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 88.0 mm |
-| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 111.2 mm |
+| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 62.2 mm |
+| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 99.5 mm |
+| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 86.0 mm |
+| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 109.5 mm |
+| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 86.3 mm |
+| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 109.2 mm |
+| bounded all-pair QP (0 cm) | OOD walls | 54.0 % | 8.0 % | **19.3 %** | **0 %** | 69.2 mm |
+| bounded all-pair QP (0 cm) | all | 71.8 % | 2.7 % | 6.4 % | **0 %** | 102.1 mm |
+| **execution-aware (1 cm)** | OOD walls | **54.0 %** | **0 %** | **0 %** | **0 %** | 69.0 mm |
+| **execution-aware (1 cm)** | all | **71.8 %** | **0 %** | **0 %** | **0 %** | 101.8 mm |
+
+The per-seed breakdown, out-of-distribution walls, 50 episodes per cell:
+
+| policy seed | QP (4 cm) | QP (0 cm) | execution-aware (1 cm) |
+|---|---|---|---|
+| 0 | 50 % / 0 % | 72 % / **22 %** | **72 % / 0 %** |
+| 1 | 44 % / 0 % | 46 % / **20 %** | **46 % / 0 %** |
+| 2 | 42 % / 0 % | 44 % / **16 %** | **44 % / 0 %** |
 
 Reading:
 
-* the archived out-of-distribution envelope-collision rate reproduces on the untouched test range
-  (38.7 % against the published 36 %), and the **mesh checker finds no real contact in any
-  cell** — the conclusion of §3 holds on data that was never used to reach it;
-* the corrected detector differs from the legacy one by 0.6–2.0 percentage points, and not at all
-  for the bounded QP — consistent with the dev-set gate of §2;
+* **Established, in all three seeds:** the execution-aware filter reaches *exactly* the
+  completion of the unconstrained-margin QP while that QP pays 16–22 % collisions under the
+  corrected detector. The look-ahead constraint buys the margin-0 completion without the
+  margin-0 collisions. This is the positive result, and §6 shows it belongs to the constraint
+  structure, not to the plant model;
+* **NOT established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
+  The per-seed differences are +22, +2 and +2 points against a between-seed spread of 8 points.
+  Three training seeds cannot separate an 8-point mean from an 8-point spread, so the two are
+  reported as indistinguishable at equal safety;
+* the archived out-of-distribution envelope-collision rate **reproduces on the untouched test
+  range** (38.7 % against the published 36 %), and the **mesh checker finds no real contact in
+  any cell** — the conclusion of §3 holds on data that was never used to reach it;
+* the corrected detector changes the verdict by 0.6–2.0 percentage points for the weak filters
+  and by **11 points** for the QP at margin 0 (8.0 % legacy → 19.3 % corrected). A margin of zero
+  is not a safety setting, and the corrected detector is what shows it;
 * the **bounded all-pair QP dominates the archived filter**: the same completion (45.3 % against
   46.0 % out of distribution; 68.4 % against 68.7 % overall) with **0 % against 10.7 %**
-  envelope collisions. The archived filter's remaining collisions are the single-constraint
-  defect the audit identified;
+  envelope collisions. The archived filter's residual collisions are the single-constraint
+  defect the audit identified, and removing them costs nothing;
 * the filters also roughly double the *physical* distance the arm keeps from the wall on the
-  out-of-distribution episodes: the median mesh clearance rises from 55.9 mm (unfiltered) to
-  88–89 mm.
+  out-of-distribution episodes: the median mesh clearance rises from 62 mm (unfiltered) to 86 mm
+  with the archived filter and the 4 cm QP.
 
-*(The five-method table — adding the QP at margin 0 and the execution-aware filter — is in
-`data/reports/learning/final_benchmark_full.json`; it is reproduced in the manuscript.)*
+### 8.1 Robustness: the same policies on the IDENTIFIED plant
+
+Source: `data/reports/learning/robustness_identified_dynamics.json`, script
+`evaluation/final_benchmark.py --dynamics identified_run02`.
+
+The archived policies are policies on the **placeholder** plant (24.8 kg of simulated link
+mass); the identified preset is the one fitted on the real CR10A (40.6 kg, matching the
+datasheet). Re-running them on the identified plant is a robustness check on the conclusions, not
+a new training.
+
+| method | OOD success | OOD envelope | mesh | all-task success |
+|---|---|---|---|---|
+| unfiltered policy | 36.0 % | 39.3 % | **0 %** | 65.8 % |
+| bounded all-pair QP (4 cm) | 45.3 % | **0 %** | **0 %** | 68.9 % |
+| **execution-aware (1 cm)** | **54.7 %** | **0 %** | **0 %** | **72.0 %** |
+
+The pattern is unchanged on the identified plant: the execution-aware filter is ahead of the QP
+by the same margin, both are collision-free, and the mesh checker again finds no real contact.
 
 ---
 

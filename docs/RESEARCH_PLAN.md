@@ -267,17 +267,25 @@ falsification criterion 1**.
   frontier is identical, and the filter's own claim is *more* valid without the coast;
 - ❌ **the stopping rollout, the separated uncertainty budget and the hardware session are not
   done** — they need the robot.
+- ✅ the **confirmatory run on the frozen test range** (20000–20199, never inspected before) with
+  three detectors per episode: the execution-aware filter reproduces the completion of an
+  **unconstrained-margin** QP (54.0 % out of distribution) with **0 % collisions**, where that QP
+  collides in 16–22 % of the same episodes — in all three training seeds. Its completion
+  advantage over the *safe* fixed-margin QP is **not** established (+22/+2/+2 points against an
+  8-point between-seed spread);
+- ✅ the **robustness check on the identified plant** (`--dynamics identified_run02`: 40.6 kg
+  instead of the placeholder's 24.8 kg): the same pattern and the same numbers to within a point.
 
-**Consequence for the plan.** Falsification criterion 1 is **triggered**: the bounded all-pair
-QP matches the execution-aware filter on collision rate (both 0 % on the out-of-distribution
-walls), does not lose on completion (28 % against 30 %, one episode in sixty), and is an order of magnitude cheaper
-per step. *The execution-model contribution does not hold as a safety–completion result.* What
-survives is a narrower and still useful claim: **a filter that reasons about the command is not
-reasoning about the motion**, and replacing the rate condition with a position condition over a
-short horizon is what fixes that — the plant model is not needed for the fix, only a prediction
-of the motion. The next work item is therefore the *predictor's* error budget (a shorter horizon,
-an error-aware margin, and a predictor that is valid under the commands the filter actually
-issues), not a more elaborate plant identification.
+**Consequence for the plan.** Falsification criterion 1 is **partially triggered** (see §6). The
+completion advantage over the safe fixed-margin QP does not survive the between-seed spread, the
+latency cost of the method is real, and the ablation removes the execution model from the
+explanation. What survives is narrower and still useful: **a filter that reasons about the command
+is not reasoning about the motion**, and replacing the rate condition with a position condition
+over a short horizon is what fixes that — the plant model is not needed for the fix, only a
+prediction of the motion. The next work items are therefore the *predictor's* error budget (a
+shorter horizon, an error-aware margin, and a predictor that is valid under the commands the
+filter actually issues) and a **tuning split outside the training range**, since the current one
+(seeds 0–19, inside the training range 0–999) cannot resolve the differences the method produces.
 
 ### Week 5 — planner guidance and the value of RL (B6, B7)
 
@@ -317,12 +325,24 @@ here so that a negative outcome cannot be quietly reinterpreted later.
 
 1. If a **tuned fixed-margin bounded QP (B4)** matches the proposed method on collision rate,
    completion and latency → *the execution-model contribution does not hold.*
-   **TRIGGERED (2026-11-05, simulation only).** The bounded QP matches the execution-aware
-   filter on collision rate (0 % on the out-of-distribution walls), does not lose on completion
-   (28 % against 30 %, one episode in sixty), and is ~8× cheaper per control step. The ablation then shows *why*: the
-   benefit comes from the look-ahead structure, not from the execution model. The claim that
-   survives is narrower — that a command-level guarantee is not a motion-level guarantee — and
-   the paper says exactly that.
+   **PARTIALLY TRIGGERED (2026-11-06, simulation only).** The three parts come out differently:
+   * **collision rate — MATCHED.** Both the QP at 4 cm and the execution-aware filter are at
+     0 % envelope collisions on the frozen test range, in all three training seeds;
+   * **completion — NOT SEPARATED.** Out of distribution the execution-aware filter reaches
+     54.0 % against the QP's 45.3 %, but the per-seed differences are +22, +2 and +2 points
+     against a between-seed spread of 8 points. Three training seeds cannot resolve an 8-point
+     mean from an 8-point spread, so the paper reports the two as **indistinguishable on
+     completion at equal safety**, not as a win;
+   * **latency — TRIGGERED AGAINST THE METHOD.** The execution-aware filter costs ~8× more per
+     control step than the QP (a 14-way batched prediction and a larger constrained program);
+   * and the **execution-model mechanism itself is not supported**: the ablation removes the
+     coast term and changes nothing, so the benefit belongs to the look-ahead constraint
+     structure, not to the plant model.
+
+   What *is* established, in all three seeds, is a different and narrower statement: the
+   look-ahead constraint reproduces the completion of an **unconstrained-margin** QP (54.0 %)
+   while that QP collides in 16–22 % of the same episodes. The paper claims that, and not the
+   completion advantage over the safe fixed-margin QP.
 2. If a **route follower (B6)** matches the residual learner (B7) → *RL is not a contribution of
    this paper.*
 3. If the predictor's held-out coverage is poor, especially in the braking tail → *the method

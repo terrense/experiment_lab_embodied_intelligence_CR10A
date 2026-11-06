@@ -14,11 +14,18 @@ Design notes:
     reading and a greyscale print. The palette was validated with evaluation/validate_palette.py
     (OKLab separation and simulated deuteranopia/protanopia/tritanopia: the smallest pair
     separation is 12.1, above the floor of 8);
-  * the ablation (the execution-aware filter with the coast term removed) shares the hue of the
-    full method and is separated by a DASHED line and a different marker - it is a variant of
-    the same method, not a fourth category;
-  * the margin labels are placed alternately above and below the points so they cannot collide;
+  * the ablation (the execution-aware filter with the coast term removed) is NOT drawn: it lies
+    exactly on the execution-aware curve, so a second line would be a duplicate. The note in the
+    right panel says so instead of drawing it;
+  * the figure is drawn from the 50-episode-per-cell sweeps (`tune50_*`), so every series has
+    the same statistical weight; the earlier 20-episode sweeps are kept in the repository for
+    traceability;
+  * only the series whose collision rate actually varies is labelled in the left panel - the
+    bounded QP and the execution-aware filter both sit at 0 % collisions, so their labels would
+    pile up on the y-axis. The right panel gives every point's margin;
   * the unfiltered policy is a single reference POINT (it has no margin), drawn in the ink colour;
+    when it falls outside the collision axis it is shown as an arrow off the plot with its numbers,
+    so the axis keeps the resolution where the interesting part is;
   * the grid and the axes are recessive, the ink is not.
 
     python3 evaluation/plot_frontier.py data/reports/learning --out assets/learning/frontier.png
@@ -42,7 +49,6 @@ SERIES = [
     ("single", "single-constraint projection", "#efb118", "s", "-"),
     ("qp", "bounded all-pair QP", "#4269d0", "D", "-"),
     ("exec", "execution-aware (B5)", "#d64550", "^", "-"),
-    ("exec_nocoast", "execution-aware, no coast (ablation)", "#d64550", "v", "--"),
 ]
 # short tags for the in-plot point labels, so two series with the same margin stay distinguishable
 TAG = {"single": "single", "qp": "QP", "exec": "exec", "exec_nocoast": "exec"}
@@ -54,10 +60,23 @@ FRONTIER_TASK = "wall_ood"
 MODE_KEY = {"qp": "qp", "single": "single", "exec": "exec", "exec_nocoast": "exec_nocoast"}
 
 
+def _paths(root: Path) -> List[Path]:
+    """The sweep files, preferring the 50-episode-per-cell runs over the earlier 20-episode ones.
+
+    Both are kept in the repository: the 20-episode sweep is what the earlier write-up used and
+    it is kept for traceability, but the figure is drawn from the 50-episode runs so that every
+    series has the same statistical weight.
+    """
+    fifty = sorted(root.glob("tune50_*_s*_*.json"))
+    if fifty:
+        return fifty
+    return sorted(root.glob("frontier_*_s*_*.json"))
+
+
 def load(root: Path) -> Dict[str, Dict[str, List[dict]]]:
     """{task: {series: [sweep rows]}} from the frontier JSONs written by sweep_qp.py / sweep_exec.py."""
     out: Dict[str, Dict[str, List[dict]]] = {}
-    for path in sorted(root.glob("frontier_*_s*_*.json")):
+    for path in _paths(root):
         rep = json.loads(path.read_text())
         task = rep["task"]
         key = MODE_KEY.get(rep.get("mode", "qp"))
@@ -70,7 +89,7 @@ def load(root: Path) -> Dict[str, Dict[str, List[dict]]]:
 def load_raw(root: Path) -> Dict[str, List[dict]]:
     """The unfiltered-policy reference points, one per (task, policy seed)."""
     out: Dict[str, List[dict]] = {}
-    for path in sorted(root.glob("frontier_*_s*_*.json")):
+    for path in _paths(root):
         rep = json.loads(path.read_text())
         if "raw" in rep:
             out.setdefault(rep["task"], []).append(rep["raw"])
@@ -135,17 +154,17 @@ def main(argv=None) -> int:
         ys = [r["success_rate"] * 100 for r in rows]
         eff = pareto(rows)
         ax1.plot(xs, ys, color=color, lw=1.4, ls=ls, zorder=2, alpha=0.9)
-        # only the two extremes of each series are labelled: the filtered methods all sit at
-        # 0 % collisions, so labelling every point would pile the labels on top of each other.
-        # The right panel gives the margin of every point.
-        label_idx = {0, len(rows) - 1}
+        # Only the series whose collision rate actually varies is labelled: the QP and the
+        # execution-aware filter sit at 0 % collisions, so their points would pile up on the
+        # y-axis. The right panel gives every point's margin.
+        varies = (max(xs) - min(xs)) > 0.5
+        label_idx = {0, len(rows) - 1} if varies else set()
         for k, (x, y, r, e) in enumerate(zip(xs, ys, rows, eff)):
             ax1.scatter([x], [y], marker=marker, s=64, facecolor=color if e else "white",
                         edgecolor=color, linewidth=1.6, zorder=3)
             if k in label_idx:
                 dy = 10 if k == 0 else -15
-                ax1.annotate(f"{TAG.get(key, key)} {r['margin']*100:g} cm", (x, y),
-                             textcoords="offset points",
+                ax1.annotate(f"{r['margin']*100:g} cm", (x, y), textcoords="offset points",
                              xytext=(9, dy), fontsize=8, color=MUTED)
     if raw.get(task):
         rx = [r["collision_rate"] * 100 for r in raw[task]]
@@ -169,6 +188,10 @@ def main(argv=None) -> int:
     ax1.set_title("the trade-off: " + TASK_LABEL[task], loc="left", fontweight="bold", color=INK, fontsize=10)
     ax1.set_xlim(-2.5, 9)
     ax1.set_ylim(-4, 46)
+    ax1.annotate("the single constraint gets MORE dangerous\nas it grows more conservative:\n"
+                 "5.3 % -> 1.3 % -> 4.7 % collisions",
+                 (0.30, 0.99), xycoords="axes fraction", fontsize=8.5, color=MUTED,
+                 ha="left", va="top")
 
     # ---- RIGHT: what conservatism costs --------------------------------------------------
     for key, label, color, marker, ls in SERIES:
@@ -184,6 +207,9 @@ def main(argv=None) -> int:
     ax2.set_ylabel("completion (success) [%]")
     ax2.set_title("what a bigger margin costs", loc="left", fontweight="bold", color=INK, fontsize=10)
     ax2.set_ylim(-4, 46)
+    ax2.annotate("the ablation with the coast term removed\nlies exactly on the B5 curve",
+                 (0.97, 0.06), xycoords="axes fraction", fontsize=8, color=MUTED,
+                 style="italic", ha="right", va="bottom")
 
     for ax in (ax1, ax2):
         ax.grid(color=GRID, lw=0.8)
@@ -197,8 +223,9 @@ def main(argv=None) -> int:
                               markeredgecolor=INK, label="no filter"))
     fig.legend(handles=handles, frameon=False, ncol=3, loc="lower center", bbox_to_anchor=(0.5, -0.08),
                fontsize=9)
-    fig.suptitle("A fixed margin buys safety and costs completion.  CR10A MuJoCo, tuning seeds 0-19, "
-                 "3 policy seeds (SIMULATED)", x=0.01, ha="left", color=INK, fontweight="bold")
+    fig.suptitle("A fixed margin buys safety and costs completion.\n"
+                 "CR10A MuJoCo, tuning seeds 0-19, 3 policy seeds, 50 episodes per cell (SIMULATED)",
+                 x=0.01, ha="left", color=INK, fontweight="bold", fontsize=10)
     fig.tight_layout(rect=(0, 0.05, 1, 1))
     a.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(a.out, dpi=120, bbox_inches="tight")

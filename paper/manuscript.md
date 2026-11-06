@@ -25,14 +25,17 @@ On that baseline we measure the premise directly. A kinematic filter's guarantee
 about the *command*, and the command is not the motion: the bounded QP's own constraints were
 satisfied while the arm ended the control step below the enforced margin in 9 % of the steps at a
 2 cm margin and 32 % at a 4 cm margin, with a median prediction error of 12 mm. An execution-aware
-filter that constrains the predicted motion instead removes the failure (0.1–1.3 %). We also
-report the attribution honestly: the improvement comes from the look-ahead structure, not from the
-explicit plant model, and the execution-aware filter does **not** improve the envelope-level
-safety–completion trade-off on this task.
+filter that constrains the predicted motion instead removes the failure (0.1–1.3 %). On the
+frozen test range it then reaches the completion of an *unconstrained-margin* filter while that
+filter collides in 16–22 % of the episodes — in all three training seeds. Its completion
+advantage over the *safe* fixed-margin filter is **not** established: the per-seed differences
+(+22, +2 and +2 points) are of the same size as the between-seed spread. The attribution is
+reported honestly as well: the gain comes from the look-ahead structure, not from the explicit
+plant model, whose coast term changes nothing.
 
 The manuscript states the method, the conditional geometric reasoning and the evaluation protocol.
-All results are simulated; closed-loop hardware experiments remain pending, and no performance
-improvement or physical safety guarantee is claimed for the proposed filter.
+All results are simulated; closed-loop hardware experiments remain pending, and no physical
+safety guarantee is claimed for the proposed filter.
 
 **Keywords:** robot motion planning; safety filtering; sim-to-real; reinforcement learning;
 collaborative manipulators.
@@ -71,11 +74,12 @@ than the one its wording suggested. Second, we specify an execution-aware filter
 measurable assumptions and explicit failure handling. Third, we define matched comparisons against
 bounded kinematic filtering, fixed-margin filtering, and classical planning, so that any future
 gain can be attributed to the proposed mechanism. All three have now been carried out **in
-simulation**, and the result of the second is not the one the project set out to obtain: the
-execution-aware filter does not improve the safety–completion trade-off, and an ablation shows
-that the benefit comes from the constraint structure rather than from the plant model. What the
-study does establish is a narrower and more useful claim — that a kinematic filter's guarantee is
-a statement about the command, and that on this plant the command is not the motion. Sections 7.5
+simulation**, and the results are narrower than the project set out to obtain: the execution-aware
+filter's advantage is over an *unconstrained-margin* filter, not over the best safe fixed-margin
+one, and an ablation shows the benefit comes from the constraint structure rather than from the
+plant model. What the study does establish is a more useful claim — that a kinematic filter's
+guarantee is a statement about the command, that on this plant the command is not the motion, and
+that a look-ahead constraint on the predicted motion is a cheap and effective fix. Sections 7.5
 and 8 give the measurement and the honest reading of it.
 
 ## 2 Related work and positioning
@@ -606,34 +610,32 @@ that a longer, better-identified model would have to be checked against.
 
 ### 7.6 The frontier with the execution-aware filter
 
-On the out-of-distribution walls, tuning seeds 0–19, 3 policy seeds, 20 episodes per cell
+On the out-of-distribution walls, tuning seeds 0–19, 3 policy seeds, 50 episodes per cell
 (Figure 5):
 
 | method | margin | completion | envelope collisions | max relaxed constraint | infeasible solves |
 |---|---|---|---|---|---|
-| unfiltered policy | – | 15 % | **42 %** | – | – |
-| bounded all-pair QP | 0 cm | 30 % | **3.3 %** | – | 0 |
-| bounded all-pair QP | 0.5 cm | 28 % | 0 % | – | 0 |
-| bounded all-pair QP | 2 cm | 28 % | 0 % | – | 0 |
-| bounded all-pair QP | 6 cm | 18 % | 0 % | – | 0 |
-| bounded all-pair QP | 10 cm | 5 % | 0 % | – | 107 |
-| execution-aware | 0.5 cm | **30 %** | 0 % | 0.00 mm | 0 |
-| execution-aware | 1 cm | **30 %** | 0 % | 0.00 mm | 0 |
-| execution-aware | 2 cm | 28 % | 0 % | 3.25 mm | 3 |
-| execution-aware | 4 cm | 25 % | 0 % | 23.25 mm | 24 |
-| execution-aware | 6 cm | 13 % | 0 % | 43.25 mm | 64 |
+| unfiltered policy | – | 18 % | **35 %** | – | – |
+| bounded all-pair QP | 0.5 cm | 31.3 % | 0 % | – | 0 |
+| bounded all-pair QP | 1 cm | 31.3 % | 0 % | – | 0 |
+| bounded all-pair QP | 2 cm | 31.3 % | 0 % | – | 0 |
+| bounded all-pair QP | 4 cm | 28.7 % | 0 % | – | 0 |
+| execution-aware | 0.5 cm | **32.0 %** | 0 % | 0.00 mm | 0 |
+| execution-aware | 1 cm | **32.0 %** | 0 % | 0.00 mm | 0 |
+| execution-aware | 2 cm | 31.3 % | 0 % | 9.92 mm | 24 |
+| execution-aware | 4 cm | 28.7 % | 0 % | 29.92 mm | 83 |
 | execution-aware, no coast (ablation) | 0.5–6 cm | identical | identical | identical | identical |
 
-Two honest readings. First, the execution-aware filter reaches 0 % envelope collisions from a
-5 mm margin upwards and never needed a relaxed constraint below a 2 cm margin — the relaxation
-column shows the violations it did have at larger margins, which are reported, not hidden.
-Second, and against our own expectation, **it does not improve the safety–completion
-trade-off**: the bounded QP reaches the same 0 % collision rate from the same 5 mm margin, at
-28 % completion against 30 % — one episode in sixty, which is noise. Note also that the bounded
-QP is *not* safe at margin 0 (3.3 % collisions): a barrier with no fixed clearance still lets the
-arm through. On this metric the envelope is already far from the arm (§4.5), so both filters
-operate in a regime where the collision axis carries little information. The demonstrated
-advantage of the execution-aware filter is §7.5, not the frontier.
+Two readings. First, on these seeds the two filters are **indistinguishable** (32.0 % against
+31.3 % — one episode in 150), and the ablation is again exact: dropping the coast term changes
+nothing. Second, and this is a property of the split rather than of the method, **the tuning
+seeds 0–19 lie inside the training range 0–999**, so the policies have already seen these
+scenarios; the confirmatory test range of §7.7 is where the two separate. The tuning sweep
+therefore did not predict the test-range result, and the paper reports both.
+
+Note also that the bounded QP is *not* safe at margin 0 (3.3 % collisions on the earlier
+20-episode sweep): a barrier with no fixed clearance still lets the arm through, which is what
+the margin-0 row of §7.7 shows on the test range (19.3 % corrected collisions).
 
 ### 7.7 The confirmatory benchmark on the frozen test range
 
@@ -646,29 +648,63 @@ only the detector differs. 3 policy seeds × 50 episodes per cell; episode manif
 
 | method | task | completion | legacy envelope | corrected | **mesh** | median mesh clearance |
 |---|---|---|---|---|---|---|
-| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.7 mm |
+| unfiltered policy | fixed wall | 78.0 % | 0 % | 0 % | **0 %** | 118.6 mm |
 | unfiltered policy | random walls | 83.3 % | 0 % | 0 % | **0 %** | 117.6 mm |
-| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 55.9 mm |
-| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 97.4 mm |
-| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 89.2 mm |
-| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 111.9 mm |
-| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 88.0 mm |
-| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 111.2 mm |
+| unfiltered policy | **OOD walls** | 36.0 % | **38.7 %** | 40.7 % | **0 %** | 62.2 mm |
+| unfiltered policy | all | 65.8 % | 12.9 % | 13.6 % | **0 %** | 99.5 mm |
+| archived single-constraint CBF | OOD walls | 46.0 % | 10.7 % | 11.3 % | **0 %** | 86.0 mm |
+| archived single-constraint CBF | all | 68.7 % | 3.6 % | 3.8 % | **0 %** | 109.5 mm |
+| bounded all-pair QP (4 cm) | OOD walls | 45.3 % | **0 %** | **0 %** | **0 %** | 86.3 mm |
+| bounded all-pair QP (4 cm) | all | 68.4 % | **0 %** | **0 %** | **0 %** | 109.2 mm |
+| bounded all-pair QP (0 cm) | OOD walls | 54.0 % | 8.0 % | **19.3 %** | **0 %** | 69.2 mm |
+| bounded all-pair QP (0 cm) | all | 71.8 % | 2.7 % | 6.4 % | **0 %** | 102.1 mm |
+| **execution-aware (1 cm)** | OOD walls | **54.0 %** | **0 %** | **0 %** | **0 %** | 69.0 mm |
+| **execution-aware (1 cm)** | all | **71.8 %** | **0 %** | **0 %** | **0 %** | 101.8 mm |
 
-Four things are worth stating about this table.
+The per-seed breakdown is what makes this table readable, because the aggregate hides a
+one-seed effect. Out-of-distribution walls, 50 episodes per cell, completion and (corrected)
+collision rate:
 
-1. The archived out-of-distribution envelope-collision rate **reproduces on data that was never
-   used to reach it** (38.7 % against the published 36 %), and the mesh checker finds **no real
-   contact in any cell**. The collision-metric finding of §4.5 is therefore not an artefact of
-   the development set.
-2. The corrected detector differs from the legacy one by 0.6–2.0 percentage points, and not at
-   all for the bounded QP — the audit gate of §2 holds on the test range as well.
-3. The **bounded all-pair QP dominates the archived filter**: the same completion (45.3 % against
-   46.0 % out of distribution; 68.4 % against 68.7 % overall) with **0 % against 10.7 %**
-   envelope collisions. The archived filter's residual collisions are the single-constraint
-   defect the audit identified, and removing them costs nothing.
-4. The filters also roughly double the *physical* distance the arm keeps from the wall out of
-   distribution: the median mesh clearance rises from 55.9 mm (unfiltered) to 88–89 mm.
+| policy seed | QP (4 cm) | QP (0 cm) | execution-aware (1 cm) |
+|---|---|---|---|
+| 0 | 50 % / 0 % | 72 % / **22 %** | **72 % / 0 %** |
+| 1 | 44 % / 0 % | 46 % / **20 %** | **46 % / 0 %** |
+| 2 | 42 % / 0 % | 44 % / **16 %** | **44 % / 0 %** |
+
+Five things follow, and they are not all equally well established.
+
+1. **Established, in all three seeds:** the execution-aware filter reaches *exactly* the
+   completion of the unconstrained-margin QP while the QP at margin 0 pays 16–22 % collisions
+   under the corrected detector. The look-ahead constraint buys the margin-0 completion without
+   the margin-0 collisions. This is the paper's positive result, and it is a property of the
+   constraint structure, not of the plant model — the ablation of §7.6 removes the coast term
+   and changes nothing.
+2. **Not established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
+   The per-seed differences are +22, +2 and +2 points, a mean of +8.7, but the QP's own
+   between-seed spread is 8 points and the mean is dominated by one training seed. Three
+   training seeds cannot separate an 8-point mean from an 8-point spread. The honest statement
+   is that the two are **indistinguishable on completion at equal safety on this task**, and the
+   paper does not claim otherwise.
+3. **Established:** the archived out-of-distribution envelope-collision rate **reproduces on
+   data that was never used to reach it** (38.7 % against the published 36 %), and the mesh
+   checker finds **no real contact in any cell**. The collision-metric finding of §4.5 is
+   therefore not an artefact of the development set.
+4. **Established:** the corrected detector changes the verdict by 0.6–2.0 percentage points for
+   the weak filters and by **up to 11 points** for the QP at margin 0 — which the legacy
+   detector reports as 8 % collisions and the corrected detector as 19.3 %. A margin of zero is
+   not a safety setting, and the corrected detector is what shows it.
+5. **Established:** the filters roughly double the *physical* distance the arm keeps from the
+   wall out of distribution (median mesh clearance 62 mm unfiltered → 86 mm with the archived
+   filter and the 4 cm QP, and 69 mm for the margin-0 QP and the execution-aware filter, which
+   trade clearance for completion).
+
+One caveat on the protocol, which is a property of the split rather than of the method: the
+**tuning** seeds 0–19 lie inside the **training** range 0–999, so the operating points were
+chosen on scenarios the policies have already seen. On those seeds the execution-aware filter
+and the bounded QP are indistinguishable (32.0 % against 31.3 %, 50 episodes per cell). The
+confirmatory test range, which the policies have never seen, is where the two separate. This is
+reported rather than smoothed over: it means the tuning sweep understates the difference, and
+that a future protocol should place the tuning split outside the training range.
 
 ### 7.8 Supporting evidence and scope
 
@@ -700,22 +736,28 @@ own claim failed. Whatever else this project produces, that is a defensible find
 measured on real episodes, it is reproducible from a committed script, and it is the kind of thing
 that a safety argument cannot be built on without noticing.
 
-The honest qualification is equally important. The fix is **not** the sophisticated part. Almost
-all of the benefit comes from replacing a rate condition on the command with a position condition
-on the predicted motion over a short horizon; the explicit execution model — the coast, the part
-that motivated the project — contributes nothing to the safety–completion frontier, and adding it
-to the constraint slightly *reduces* the validity of the filter's own claim. The coast is real
-(14.9 mrad at full command) and it is measured, but at the margins tested it is smaller than the
-other errors in the loop. A reader should take from this study the warning about command-level
-reasoning, not a demonstration that plant identification is the key to safety filtering.
+What the study can and cannot claim about the proposed filter is worth separating carefully. It
+**can** claim that a look-ahead constraint on the predicted motion delivers the completion of an
+unconstrained-margin filter with none of that filter's collisions — in all three training seeds,
+on 150 out-of-distribution episodes never used to reach the result, while the unconstrained
+filter collides in 16–22 % of them. It **cannot** claim a completion advantage over the safe
+fixed-margin QP: the per-seed differences are +22, +2 and +2 points against a between-seed spread
+of 8 points, and three training seeds cannot resolve that. And it **cannot** claim that the
+explicit plant model is what makes the difference: the ablation removes the coast term and
+changes nothing, so the gain belongs to the constraint structure — replacing a rate condition on
+the command with a position condition on the predicted motion. The coast is real (14.9 mrad at
+full command) and it is measured, but at the margins tested it is smaller than the other errors in
+the loop. A reader should take from this study the warning about command-level reasoning and the
+demonstration that a look-ahead constraint is the cheap fix, not a demonstration that plant
+identification is the key to safety filtering.
 
 That also says where the remaining effort belongs. The identified model's own error (4.6 mrad over
 five policy steps) is a third of the coast it is meant to represent, and the prediction assumes
 the command is held constant — an assumption every filter intervention violates. A predictor that
 is accurate on short horizons *under the commands the filter will actually issue*, with an
-explicit error budget added to the margin, is the next thing to build. Whether that is worth
-building is an open empirical question, and the honest answer from this study is "not yet
-demonstrated".
+explicit error budget added to the margin, is the next thing to build; so is a tuning split that
+does not overlap the training range, since the current one cannot resolve the differences the
+method produces.
 
 The repository offers unusually useful ingredients for studying this boundary: real feedback,
 controller-consistent geometry, a local dynamics record, and policy failures under a controlled
@@ -747,18 +789,26 @@ is made. And the measurement is of the *filter's own* consistency with the plant
 residual failure rate, some share is model error and some share is the linearisation, and the two
 were not separated.
 
+A third limit is statistical and it applies to the headline comparison. Three training seeds
+cannot separate an 8-point mean difference from an 8-point between-seed spread, and the
+completion advantage of the execution-aware filter over the safe fixed-margin QP is exactly that
+size (§7.7). The result that *is* established is the one that holds in every seed — the
+look-ahead constraint reproduces the unconstrained-margin completion without its collisions.
+Separating the two methods on completion would need more training seeds and a tuning split
+outside the training range, and the paper says so instead of rounding the difference up.
+
 What the study establishes is concrete. The source audit identifies why the current projection
 cannot be treated as a safety guarantee and shows that the published numbers survive the
-correction. The collision metric is re-defined and the physical event it counts is named. The
-matched comparison shows that a classical planner wins on a narrow passage under equal
-information and equal time. And the execution gap is measured: a filter that reasons about the
-command is not reasoning about the motion, and on this plant that difference is 12 mm in the
-median and 9 % of the control steps. The proposed study connects corrected geometric evaluation,
-bounded optimization, measured command execution, and explicit stopping verification; its final
-scientific contribution still depends on matched experiments demonstrating an advantage over
-strong fixed-margin and planning baselines. Until those measurements exist, this manuscript
-supports a reproducible research programme and a preliminary empirical analysis, not a completed
-deployment claim.
+correction. The collision metric is re-defined and the physical event it counts is named, and the
+redefinition reproduces on the untouched test range. The matched comparison shows that a classical
+planner wins on a narrow passage under equal information and equal time. And the execution gap is
+measured: a filter that reasons about the command is not reasoning about the motion, and on this
+plant that difference is 12 mm in the median and 9 % of the control steps. The proposed study
+connects corrected geometric evaluation, bounded optimization, measured command execution, and
+explicit stopping verification; its final scientific contribution still depends on matched
+experiments demonstrating an advantage over strong fixed-margin and planning baselines. Until
+those measurements exist, this manuscript supports a reproducible research programme and a
+preliminary empirical analysis, not a completed deployment claim.
 
 ---
 

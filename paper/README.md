@@ -73,11 +73,18 @@ from the same JSON that produced the picture.
 
 Read this before quoting any number from it:
 
-- **The execution-aware filter does not improve the safety–completion trade-off** on the
-  out-of-distribution walls: the bounded all-pair QP matches it on collision rate and does not
-  lose on completion. This triggered falsification criterion 1 of the research plan.
+- **The execution-aware filter's completion advantage over the SAFE fixed-margin QP is not
+  established.** On the frozen test range it reaches 54.0 % out of distribution against the QP's
+  45.3 %, but the per-seed differences are +22, +2 and +2 points against a between-seed spread
+  of 8 points. Three training seeds cannot resolve that, and the paper says the two are
+  indistinguishable at equal safety.
+- **What IS established, in all three seeds:** the look-ahead constraint reproduces the
+  completion of an *unconstrained-margin* QP (54.0 %) while that QP collides in 16–22 % of the
+  same episodes.
 - **The improvement in the filter's own consistency comes from the look-ahead structure, not from
-  the explicit plant model.** The ablation (`account_execution=False`) shows it.
+  the explicit plant model.** The ablation (`account_execution=False`) shows it: dropping the
+  coast term changes the frontier not at all.
 - **The collision axis of the historical table counts the conservative safety envelope, not the
-  arm.** An independent mesh checker finds no real contact in any of the 300 evaluated episodes.
+  arm.** An independent mesh checker finds no real contact in any of the 300 evaluated episodes,
+  and none in any cell of the confirmatory run.
 - **No hardware result exists.** Every number in the paper is simulated.
