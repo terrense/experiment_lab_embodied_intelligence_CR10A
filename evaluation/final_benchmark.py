@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "learning"))
 sys.path.insert(0, str(ROOT / "evaluation"))
 
 from compare_evaluators import _make, replay, run_and_record  # noqa: E402
-from episode_manifest import SPLITS, manifest_hash, build_manifest  # noqa: E402
+from episode_manifest import manifest_hash, build_manifest, splits_for  # noqa: E402
 
 TASKS = ("wall_obs", "wall_rand", "wall_ood")
 SEEDS = (0, 1, 2)
@@ -56,6 +56,11 @@ def main(argv=None) -> int:
     ap.add_argument("--tasks", nargs="*", default=list(TASKS))
     ap.add_argument("--seeds", nargs="*", type=int, default=list(SEEDS))
     ap.add_argument("--episodes", type=int, default=50)
+    ap.add_argument("--split", default="test", choices=sorted(splits_for()),
+                    help="which manifest split to evaluate on: 'test' (the confirmatory range) or "
+                         "'replication' (a second untouched range, manifest v2)")
+    ap.add_argument("--manifest-version", type=int, default=None,
+                    help="the manifest version whose split boundaries are used (default: current)")
     ap.add_argument("--qp-margin", type=float, default=0.04,
                     help="the margin chosen on the TUNING seeds (docs/LEARNING.md, the B4 frontier)")
     ap.add_argument("--exec-margin", type=float, default=0.005,
@@ -77,10 +82,13 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "learning" / "final_benchmark.json")
     a = ap.parse_args(argv)
 
-    test_start, test_end = SPLITS["test"]
+    splits = splits_for(a.manifest_version) if a.manifest_version else splits_for()
+    if a.split not in splits:
+        raise SystemExit(f"unknown split {a.split!r}; known: {sorted(splits)}")
+    test_start, test_end = splits[a.split]
     seed = test_start
     if seed + a.episodes > test_end:
-        raise SystemExit(f"{a.episodes} episodes from {seed} would run past the frozen test range")
+        raise SystemExit(f"{a.episodes} episodes from {seed} would run past the {a.split} range")
 
     from independent_collision import IndependentCollisionChecker
     checker = IndependentCollisionChecker()
@@ -92,11 +100,13 @@ def main(argv=None) -> int:
         exec_model = ServoExecutionModel(omega=m["omega"], zeta=m["zeta"], v_gain=m["v_gain"],
                                          dt=m["dt"], sub=m.get("sub", 10))
 
-    man = build_manifest(tuple(a.tasks))
+    man = build_manifest(tuple(a.tasks), a.manifest_version) if a.manifest_version \
+        else build_manifest(tuple(a.tasks))
     out: Dict = {
         "protocol": "frozen test range, three detectors, legacy policy behaviour",
         "episode_manifest_hash": manifest_hash(man),
-        "split": "test", "seed_start": seed, "seed_end_exclusive": seed + a.episodes,
+        "episode_manifest_version": man["version"],
+        "split": a.split, "seed_start": seed, "seed_end_exclusive": seed + a.episodes,
         "episodes": a.episodes, "tasks": a.tasks, "policy_seeds": a.seeds,
         "methods": a.methods,
         "qp_margin": a.qp_margin, "qp0_margin": a.qp0_margin, "cbf_margin": a.cbf_margin, "cbf_alpha": a.cbf_alpha,

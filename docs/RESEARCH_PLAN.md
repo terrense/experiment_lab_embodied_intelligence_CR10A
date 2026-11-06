@@ -142,6 +142,32 @@ and if it buys the same thing, the execution model is decoration.
 
 ## 5. Six weeks
 
+### The compute rule (standing, from 2026-11-06)
+
+**Every experiment gets a compute assessment before it is designed**, and the decision is written
+into `docs/PROGRESS.md` with the experiment: *does this need more than the laptop?* If the
+laptop is enough, the experiment runs on the laptop.
+
+An NVIDIA H20 server is available over SSH (the owner's infrastructure; the target lives in the
+git-ignored `scripts/remote/remote_config.local.sh`). The assessment and the procedure are in
+`docs/REMOTE_COMPUTE.md`; the scripts are in `scripts/remote/`.
+
+The assessment so far: the H20's **VRAM is not the binding constraint anywhere in this plan** —
+the MuJoCo plant is CPU-bound and the policies are small MLPs, so the server's value is its core
+count (many training seeds in parallel), which is exactly what the statistical weakness of the
+headline comparison needs. The one place a GPU genuinely matters is the residual-RL arm (B7) in
+Week 5. The server runs **simulation only**; the motion-capable package is deliberately not
+copied there.
+
+### Week 5 prerequisite added: the seed count
+
+The confirmatory run showed that **three training seeds cannot separate an 8-point mean
+difference from an 8-point between-seed spread**. The plan therefore adds a compute item: train
+enough additional seeds to make the spread an estimate rather than an anecdote — 6 locally, and
+12 more on the server when the owner connects it.
+
+---
+
 Each week has a **checkable deliverable** and a **decision gate**. The gate is the point: it is
 allowed to stop the project.
 

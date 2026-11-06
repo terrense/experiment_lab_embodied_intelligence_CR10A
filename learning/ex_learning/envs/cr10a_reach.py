@@ -42,15 +42,42 @@ DESC = ROOT / "ros2_ws" / "src" / "ex_description"
 
 
 def expanded_urdf_text(calibrated: bool = True) -> str:
+    """The xacro-expanded URDF.
+
+    The expansion is CACHED on disk. Two reasons:
+
+    * it is deterministic, so the cached file is identical to what xacro would produce, and the
+      cache is regenerated if it is missing;
+    * the expansion costs about a second, and it happens for EVERY environment construction -
+      which is every episode of a sweep and every cell of a benchmark. With the cache, a remote
+      compute node does not need a ROS installation (or even the `xacro` package) at all: the
+      expanded URDF is just a file that can be synced.
+
+    The cache lives in `data/cache/`, which is part of the repository, so the exact description
+    the results were produced with travels with them.
+    """
+    cache = ROOT / "data" / "cache"
+    path = cache / f"ex_cr10_calibrated_{int(calibrated)}.urdf"
+    try:
+        if path.exists():
+            return path.read_text()
+    except OSError:
+        pass
     import xacro
     text = (DESC / "urdf" / "ex_cr10.urdf.xacro").read_text().replace("$(find ex_description)", str(DESC))
     with tempfile.NamedTemporaryFile("w", suffix=".xacro", delete=False) as f:
         f.write(text)
         tmp = f.name
     try:
-        return xacro.process_file(tmp, mappings={"calibrated": "true" if calibrated else "false"}).toxml()
+        out = xacro.process_file(tmp, mappings={"calibrated": "true" if calibrated else "false"}).toxml()
     finally:
         os.unlink(tmp)
+    try:
+        cache.mkdir(parents=True, exist_ok=True)
+        path.write_text(out)
+    except OSError:
+        pass          # a read-only checkout is not an error: the cache is an optimisation
+    return out
 
 
 def mjcf_text(urdf: str, dyn: Optional[DynamicsAssumptions] = None) -> str:

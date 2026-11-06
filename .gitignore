@@ -17,3 +17,6 @@ data/live/
 data/live_tmp/
 data/sessions/
 data/hands_on/
+
+# the owner's remote compute infrastructure (SSH target, remote paths) - never committed
+scripts/remote/remote_config.local.sh
