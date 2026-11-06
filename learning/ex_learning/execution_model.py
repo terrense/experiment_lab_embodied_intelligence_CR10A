@@ -12,9 +12,10 @@ The learning plant executes a joint-velocity command through a CHANNEL, not dire
 A kinematic safety filter treats the REQUESTED velocity as the EXECUTED velocity. It therefore
 omits exactly the dynamics that dominate braking. For this plant the omission has a closed form:
 the servo tracks a velocity ramp with a constant lag of ``2*zeta*v/omega`` rad, so when the
-command drops to zero the arm coasts a further ``2*zeta*v/omega`` rad before it stops. At the
-maximum command (1 rad/s) and the 8 Hz bandwidth that is **0.036 rad**, which is 2.1 cm of extra
-travel for a link 0.6 m from the base - the difference between "at the margin" and "through it".
+command drops to zero the arm coasts a further distance before it stops. The closed form gives
+0.036 rad at the maximum command and the 8 Hz bandwidth; the coast **measured on the simulator**
+is **14.9 mrad** (0.015 rad) - see ``evaluation/measure_execution.py`` - so the analytic value is
+an over-estimate, and the measured one is what the results use.
 
 This module provides
 
@@ -34,8 +35,8 @@ Honesty notes
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from dataclasses import dataclass
+from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -87,7 +88,7 @@ class ServoExecutionModel:
         times   (H*sub + 1,) [s]
         Q       (B, H*sub + 1, 6) predicted joint positions
 
-        The batch dimension exists because the affine decomposition needs 13 predictions (the
+        The batch dimension exists because the affine decomposition needs 14 predictions (the
         nominal, the zero command and 6 central differences) at every control step; running
         them as one array keeps the prediction inside the 20 ms control budget.
         """
@@ -138,7 +139,7 @@ class ServoExecutionModel:
         displacement to the command, obtained by central finite differences (the reference
         clipping makes the response only piecewise affine, so the FD is local).
 
-        All 13 predictions run as one batch.
+        All 14 predictions run as one batch.
 
         Returns
         -------

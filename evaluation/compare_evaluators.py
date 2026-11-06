@@ -25,7 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
+
 from pathlib import Path
 from typing import Dict, List
 
@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "learning"))
 
 from ex_learning.envs import make_env  # noqa: E402
-from ex_learning.envs.cr10a_reach_wall import WallConfig  # noqa: E402
+
 
 TASKS = ("wall_obs", "wall_rand", "wall_ood")
 SEEDS = (0, 1, 2)

@@ -48,7 +48,7 @@ SEEDS = (0, 1, 2)
 
 
 def main(argv=None) -> int:
-    from ex_learning.baselines import apf_policy
+
     from ex_learning.eval_ppo import ppo_policy_factory
     from ex_learning.safety_filter import cbf_policy_legacy, cbf_policy_qp
 

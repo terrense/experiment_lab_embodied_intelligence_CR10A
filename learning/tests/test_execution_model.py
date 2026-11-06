@@ -23,7 +23,7 @@ pytest.importorskip("scipy")
 
 from ex_learning.envs.cr10a_reach_wall import ReachWallEnv, WallConfig  # noqa: E402
 from ex_learning.execution_model import ServoExecutionModel  # noqa: E402
-from ex_learning.qp_filter import solve_bounded_qp, solve_bounded_qp_relaxed  # noqa: E402
+from ex_learning.qp_filter import solve_bounded_qp_relaxed  # noqa: E402
 from ex_learning.safety_filter import cbf_policy_exec  # noqa: E402
 
 

@@ -37,6 +37,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Dict
 
 import numpy as np
 
@@ -75,7 +76,6 @@ def _run(env, make_policy, episodes: int, seed: int, margin: float) -> Dict:
         trace: list = []
         policy = make_policy(env, trace)
         for _ in range(env.cfg.max_steps):
-            d_before = float(env.clearance(conservative=True))
             a = policy(obs)
             rec = trace[-1] if trace else {"feasible": True, "pairs": [], "a": a}
             obs, _, term, trunc, info = env.step(a)
