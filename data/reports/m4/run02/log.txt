@@ -1,0 +1,53 @@
+[m4] plan reference trajectory on the mock plant
+[m4]   mock_s1.0_r1           ok=False code=-4 tcp rms 222.53 max 411.82 mm  sat=None
+[m4]   mock_s1.0_r2           ok=True code=1 tcp rms 3.00 max 13.20 mm  sat=None
+[m4]   mock_s1.0_r3           ok=True code=1 tcp rms 3.07 max 12.98 mm  sat=None
+[m4]   mock_s1.8_r1           ok=True code=1 tcp rms 6.18 max 35.54 mm  sat=None
+[m4]   mock_s1.8_r2           ok=True code=1 tcp rms 5.11 max 20.27 mm  sat=None
+[m4]   mock_s1.8_r3           ok=True code=1 tcp rms 5.90 max 22.06 mm  sat=None
+[m4] MuJoCo bandwidth 4 Hz payload 0 kg
+[m4]   mj_bw4_pl0_s1.0_r1     ok=False code=-4 tcp rms 13.56 max 40.88 mm  sat=[0, 0, 0, 0, 0, 0]
+[m4]   mj_bw4_pl0_s1.0_r2     ok=False code=-4 tcp rms 17.13 max 57.30 mm  sat=[0, 0, 0, 0, 0, 0]
+[m4]   mj_bw4_pl0_s1.0_r3     ok=False code=-4 tcp rms 20.30 max 61.27 mm  sat=[0, 0, 0, 0, 0, 0]
+[m4]   mj_bw4_pl0_s1.8_r1     ok=False code=-4 tcp rms 472.63 max 850.37 mm  sat=[8, 0, 0, 0, 0, 0]
+[m4]   mj_bw4_pl0_s1.8_r2     NO REPORT (exit 0): unsupported format string passed to NoneType.__format__
+[m4]   mj_bw4_pl0_s1.8_r3     ok=False code=-6 tcp rms 23.25 max 56.01 mm  sat=[0, 0, 3, 0, 0, 0]
+[m4] MuJoCo bandwidth 4 Hz payload 5 kg
+[m4]   mj_bw4_pl5_s1.0_r1     ok=False code=-4 tcp rms 13.02 max 44.38 mm  sat=[0, 0, 53, 0, 0, 0]
+[m4]   mj_bw4_pl5_s1.0_r2     ok=False code=-4 tcp rms 15.12 max 47.64 mm  sat=[0, 0, 69, 0, 0, 0]
+[m4]   mj_bw4_pl5_s1.0_r3     ok=False code=-4 tcp rms 19.15 max 69.46 mm  sat=[0, 0, 53, 0, 0, 0]
+[m4]   mj_bw4_pl5_s1.8_r1     ok=False code=-4 tcp rms 254.49 max 715.74 mm  sat=[37, 11, 136, 0, 0, 0]
+[m4]   mj_bw4_pl5_s1.8_r2     NO REPORT (exit 0): unsupported format string passed to NoneType.__format__
+[m4]   mj_bw4_pl5_s1.8_r3     ok=False code=-6 tcp rms 23.41 max 65.79 mm  sat=[16, 0, 109, 0, 0, 0]
+[m4] MuJoCo bandwidth 4 Hz payload 10 kg
+[m4]   mj_bw4_pl10_s1.0_r1    ok=False code=-4 tcp rms 19.23 max 47.45 mm  sat=[2, 0, 287, 0, 0, 0]
+[m4]   mj_bw4_pl10_s1.0_r2    NO REPORT (exit 0): unsupported format string passed to NoneType.__format__
+[m4]   mj_bw4_pl10_s1.0_r3    ok=False code=-4 tcp rms 260.17 max 532.20 mm  sat=[78, 0, 141, 0, 0, 0]
+[m4]   mj_bw4_pl10_s1.8_r1    NO REPORT (exit 0): unsupported format string passed to NoneType.__format__
+[m4]   mj_bw4_pl10_s1.8_r2    NO REPORT (exit 0): unsupported format string passed to NoneType.__format__
+[m4]   mj_bw4_pl10_s1.8_r3    ok=False code=-4 tcp rms 424.43 max 815.58 mm  sat=[36, 0, 134, 0, 0, 0]
+[m4] MuJoCo bandwidth 8 Hz payload 0 kg
+[m4]   mj_bw8_pl0_s1.0_r1     ok=True code=1 tcp rms 21.05 max 59.47 mm  sat=[12, 0, 14, 0, 0, 0]
+[m4]   mj_bw8_pl0_s1.0_r2     ok=True code=1 tcp rms 21.23 max 65.26 mm  sat=[16, 0, 13, 0, 0, 0]
+[m4]   mj_bw8_pl0_s1.0_r3     ok=False code=-4 tcp rms 223.63 max 678.63 mm  sat=[15, 23, 24, 0, 0, 0]
+[m4]   mj_bw8_pl0_s1.8_r1     ok=False code=-4 tcp rms 424.05 max 779.92 mm  sat=[104, 0, 54, 0, 0, 0]
+[m4]   mj_bw8_pl0_s1.8_r2     ok=False code=-4 tcp rms 422.77 max 773.91 mm  sat=[76, 0, 34, 0, 0, 0]
+[m4]   mj_bw8_pl0_s1.8_r3     ok=False code=-4 tcp rms 458.67 max 848.53 mm  sat=[59, 0, 34, 0, 0, 0]
+[m4] MuJoCo bandwidth 8 Hz payload 5 kg
+[m4]   mj_bw8_pl5_s1.0_r1     ok=False code=-4 tcp rms 149.80 max 319.44 mm  sat=[237, 0, 220, 0, 0, 0]
+[m4]   mj_bw8_pl5_s1.0_r2     ok=False code=-4 tcp rms 96.32 max 375.54 mm  sat=[308, 153, 645, 16, 1, 0]
+[m4]   mj_bw8_pl5_s1.0_r3     ok=False code=-4 tcp rms 68.15 max 251.93 mm  sat=[313, 139, 445, 13, 0, 0]
+[m4]   mj_bw8_pl5_s1.8_r1     ok=False code=-4 tcp rms 387.26 max 814.58 mm  sat=[103, 0, 67, 0, 0, 0]
+[m4]   mj_bw8_pl5_s1.8_r2     ok=False code=-4 tcp rms 501.27 max 842.73 mm  sat=[145, 0, 104, 0, 0, 0]
+[m4]   mj_bw8_pl5_s1.8_r3     ok=False code=-4 tcp rms 402.60 max 804.93 mm  sat=[101, 0, 148, 2, 0, 0]
+[m4] MuJoCo bandwidth 8 Hz payload 10 kg
+[m4]   mj_bw8_pl10_s1.0_r1    ok=False code=-4 tcp rms 70.89 max 360.72 mm  sat=[452, 416, 1182, 0, 0, 0]
+[m4]   mj_bw8_pl10_s1.0_r2    ok=True code=1 tcp rms 25.32 max 67.32 mm  sat=[417, 114, 1062, 0, 0, 0]
+[m4]   mj_bw8_pl10_s1.0_r3    ok=False code=-4 tcp rms 283.62 max 582.84 mm  sat=[100, 0, 143, 4, 0, 0]
+[m4]   mj_bw8_pl10_s1.8_r1    ok=False code=-4 tcp rms 495.78 max 867.41 mm  sat=[144, 0, 156, 5, 6, 0]
+[m4]   mj_bw8_pl10_s1.8_r2    ok=False code=-4 tcp rms 351.36 max 738.49 mm  sat=[293, 1, 487, 1, 0, 0]
+[m4]   mj_bw8_pl10_s1.8_r3    ok=False code=-4 tcp rms 430.17 max 862.26 mm  sat=[248, 4, 288, 7, 0, 0]
+[m4] MuJoCo bandwidth 16 Hz payload 0 kg
+[m4]   mj_bw16_pl0_s1.0_r1    ok=True code=1 tcp rms 21.05 max 82.97 mm  sat=[390, 87, 318, 0, 0, 0]
+[m4]   mj_bw16_pl0_s1.0_r2    ok=True code=1 tcp rms 28.75 max 96.69 mm  sat=[397, 105, 349, 0, 0, 0]
+[m4]   mj_bw16_pl0_s1.0_r3    NO REPORT (exit 124): [Errno 2] No such file or directory: 'data/reports/m4/run02/mj_bw16_pl0_s1.0_r3/execute_report.json'

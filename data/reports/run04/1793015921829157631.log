@@ -1,0 +1,30 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-26-19-58-42-156500-hgdoctor-sx-832
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: [embodied_x] mode=SIMULATION  health log: /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run04/simulation_20261026_195842.jsonl
+[INFO] [robot_state_publisher-1]: process started with pid [835]
+[INFO] [joint_state_adapter-2]: process started with pid [837]
+[INFO] [robot_state_monitor-3]: process started with pid [839]
+[INFO] [mock_joint_publisher-4]: process started with pid [841]
+[robot_state_publisher-1] [0m[INFO] [1793015922.738856036] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739056122] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739112900] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739125918] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739131076] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739135359] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739139016] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739142774] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739146069] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793015922.739149737] [robot_state_publisher]: got segment world[0m
+[joint_state_adapter-2] [0m[INFO] [1793015922.797689120] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[mock_joint_publisher-4] [0m[INFO] [1793015922.799784702] [mock_joint_publisher]: SIMULATED joint source -> /joint_states_robot joints=['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'] amps_deg=[30.0, 20.0, 25.0, 35.0, 30.0, 45.0] fault=jump[0m
+[robot_state_monitor-3] [0m[INFO] [1793015922.923117297] [robot_state_monitor]: health log -> /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run04/simulation_20261026_195842.jsonl[0m
+[joint_state_adapter-2] [31m[ERROR] [1793015927.760320196] [joint_state_adapter]: rejected sample #1: ['JUMP: joint2 moved 19.92 deg in 8.2 ms (allowed 2.76)'][0m
+[joint_state_adapter-2] [31m[ERROR] [1793015927.769430295] [joint_state_adapter]: rejected sample #2: ['JUMP: joint2 moved 19.84 deg in 17.2 ms (allowed 5.81)'][0m
+[joint_state_adapter-2] [31m[ERROR] [1793015927.776936972] [joint_state_adapter]: rejected sample #3: ['JUMP: joint2 moved 19.76 deg in 24.6 ms (allowed 8.31)'][0m
+[joint_state_adapter-2] [31m[ERROR] [1793015927.784243326] [joint_state_adapter]: rejected sample #4: ['JUMP: joint2 moved 19.69 deg in 32.2 ms (allowed 10.85)'][0m
+[joint_state_adapter-2] [31m[ERROR] [1793015927.792913914] [joint_state_adapter]: rejected sample #5: ['JUMP: joint2 moved 19.61 deg in 40.8 ms (allowed 13.77)'][0m
+[robot_state_publisher-1] [0m[INFO] [1793015947.938874039] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 835]
+[INFO] [mock_joint_publisher-4]: process has finished cleanly [pid 841]
+[INFO] [joint_state_adapter-2]: process has finished cleanly [pid 837]
+[INFO] [robot_state_monitor-3]: process has finished cleanly [pid 839]

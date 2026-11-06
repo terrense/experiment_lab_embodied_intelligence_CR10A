@@ -1,0 +1,59 @@
+{
+  "tag": "mj_bw4_pl5_s1.0",
+  "scene": "wall",
+  "query": "sweep_60",
+  "planner": "RRTConnect",
+  "plant": "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)",
+  "speed_scale": 1.0,
+  "loaded_trajectory": true,
+  "execution_ok": false,
+  "moveit_error_code": -4,
+  "torque_saturation_steps_during_move": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "tcp_tracking_rms_mm": 145.83809704860198,
+  "tcp_tracking_max_mm": 452.3019640068702,
+  "planned_duration_s": 4.623068617,
+  "exec_samples": 459,
+  "joint_states_rate_hz": 119.14663531508448,
+  "estimated_start_latency_s": 0.12000000000000055,
+  "tracking_rms_deg_raw": [
+    11.6357,
+    1.8529,
+    0.4581,
+    2.37,
+    3.9533,
+    4.3759
+  ],
+  "tracking_rms_deg_aligned": [
+    10.759,
+    1.9188,
+    0.453,
+    2.2088,
+    3.7103,
+    3.4052
+  ],
+  "tracking_max_deg_aligned": [
+    33.3142,
+    5.217,
+    1.2579,
+    6.4256,
+    10.8341,
+    9.8607
+  ],
+  "final_goal_error_deg": [
+    25.8308,
+    17.9831,
+    4.261,
+    21.438,
+    36.1614,
+    29.0201
+  ],
+  "tcp_path_planned_m": 2.0206755340073075,
+  "tcp_path_executed_m": 1.324500283637308
+}

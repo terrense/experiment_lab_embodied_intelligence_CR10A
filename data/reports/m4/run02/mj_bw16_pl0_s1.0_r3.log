@@ -1,0 +1,20 @@
+[0m[INFO] [1793079503.210822664] [planning_lab_benchmark]: capsule radii (m): base_link=0.097, Link1=0.126, Link2=0.150, Link3=0.110, Link4=0.083, Link5=0.078, Link6=0.061[0m
+[0m[INFO] [1793079503.874240607] [planning_lab_benchmark]: mesh surface samples per link: {'base_link': 87431, 'Link1': 33755, 'Link2': 106139, 'Link3': 90055, 'Link4': 21543, 'Link5': 30794, 'Link6': 24313}; estimate error bound 5.0 mm[0m
+Traceback (most recent call last):
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/ex_planning_lab/execute_demo", line 33, in <module>
+    sys.exit(load_entry_point('ex-planning-lab==0.1.0', 'console_scripts', 'execute_demo')())
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/python3.10/site-packages/ex_planning_lab/nodes/execute_demo.py", line 274, in main
+    node.run()
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/python3.10/site-packages/ex_planning_lab/nodes/execute_demo.py", line 164, in run
+    rclpy.spin_once(self, timeout_sec=0.1)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 208, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 657, in _wait_for_ready_callbacks
+    wait_set = _rclpy.WaitSet(
+rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130

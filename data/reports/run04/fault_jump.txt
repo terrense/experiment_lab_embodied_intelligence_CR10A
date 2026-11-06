@@ -1,0 +1,9 @@
+[PASS] rate        {"rate_hz": 124.64, "samples": 1745, "max_gap_ms": 48.08, "p99_gap_ms": 10.22}
+[PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+[PASS] single_pub  {"min": 1, "max": 1}
+[PASS] tf_frames   {"checked": 9, "missing": []}
+[PASS] tf_vs_fk    {"samples": 16, "max_err_mm": 0.0}
+[PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+[FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+RESULT: FAIL
+[ros2run]: Process exited with failure 1

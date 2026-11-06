@@ -1,0 +1,74 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-26-19-36-25-688391-hgdoctor-sx-604
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: [embodied_x] mode=REPLAY  health log: /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run01/replay_20261026_193625.jsonl
+[INFO] [robot_state_publisher-1]: process started with pid [607]
+[INFO] [joint_state_adapter-2]: process started with pid [609]
+[INFO] [robot_state_monitor-3]: process started with pid [611]
+[INFO] [ros2-4]: process started with pid [613]
+[robot_state_publisher-1] [0m[INFO] [1793014585.788159103] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788276277] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788284246] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788287785] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788290715] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788293294] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788296274] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788298934] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788301423] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793014585.788303963] [robot_state_publisher]: got segment world[0m
+[joint_state_adapter-2] [0m[INFO] [1793014585.986737144] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[ros2-4] stdin is not a terminal device. Keyboard handling disabled.[0m[INFO] [1793014585.991695691] [rosbag2_storage]: Opened database '/mnt/c/Users/HGDOCTOR/embodied-x/data/bags/sim_demo_run01/sim_demo_run01_0.db3' for READ_ONLY.[0m
+[ros2-4] [0m[INFO] [1793014585.991782939] [rosbag2_player]: Set rate to 1[0m
+[ros2-4] [0m[INFO] [1793014585.997760443] [rosbag2_player]: Adding keyboard callbacks.[0m
+[ros2-4] [0m[INFO] [1793014585.997804297] [rosbag2_player]: Press SPACE for Pause/Resume[0m
+[ros2-4] [0m[INFO] [1793014585.997814486] [rosbag2_player]: Press CURSOR_RIGHT for Play Next Message[0m
+[ros2-4] [0m[INFO] [1793014585.997818715] [rosbag2_player]: Press CURSOR_UP for Increase Rate 10%[0m
+[ros2-4] [0m[INFO] [1793014585.997822535] [rosbag2_player]: Press CURSOR_DOWN for Decrease Rate 10%[0m
+[ros2-4] [0m[INFO] [1793014586.006157704] [rosbag2_storage]: Opened database '/mnt/c/Users/HGDOCTOR/embodied-x/data/bags/sim_demo_run01/sim_demo_run01_0.db3' for READ_ONLY.[0m
+[robot_state_monitor-3] [0m[INFO] [1793014586.061355809] [robot_state_monitor]: health log -> /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run01/replay_20261026_193625.jsonl[0m
+[ros2-4] [0m[INFO] [1793014603.112447359] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[robot_state_publisher-1] [0m[INFO] [1793014603.112483785] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[joint_state_adapter-2] Traceback (most recent call last):
+[joint_state_adapter-2]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/joint_state_adapter", line 33, in <module>
+[joint_state_adapter-2]     sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'joint_state_adapter')())
+[joint_state_adapter-2]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/joint_state_adapter.py", line 199, in main
+[joint_state_adapter-2]     rclpy.spin(node)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[joint_state_adapter-2]     executor.spin_once()
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[joint_state_adapter-2]     self._spin_once_impl(timeout_sec)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[joint_state_adapter-2]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[joint_state_adapter-2]     return next(self._cb_iter)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[joint_state_adapter-2]     raise ExternalShutdownException()
+[joint_state_adapter-2] rclpy.executors.ExternalShutdownException
+[robot_state_monitor-3] Traceback (most recent call last):
+[robot_state_monitor-3]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/robot_state_monitor", line 33, in <module>
+[robot_state_monitor-3]     sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'robot_state_monitor')())
+[robot_state_monitor-3]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/robot_state_monitor.py", line 294, in main
+[robot_state_monitor-3]     rclpy.spin(node)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[robot_state_monitor-3]     executor.spin_once()
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[robot_state_monitor-3]     self._spin_once_impl(timeout_sec)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 809, in _spin_once_impl
+[robot_state_monitor-3]     raise handler.exception()
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py", line 309, in _execute_coroutine_step
+[robot_state_monitor-3]     result = coro.send(None)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 488, in handler
+[robot_state_monitor-3]     await call_coroutine(entity, arg)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 396, in _execute_timer
+[robot_state_monitor-3]     await await_or_execute(tmr.callback)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 110, in await_or_execute
+[robot_state_monitor-3]     return callback(*args)
+[robot_state_monitor-3]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/robot_state_monitor.py", line 144, in _fast_tick
+[robot_state_monitor-3]     self.path_pub.publish(self.path)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/publisher.py", line 70, in publish
+[robot_state_monitor-3]     self.__publisher.publish(msg)
+[robot_state_monitor-3] rclpy._rclpy_pybind11.RCLError: Failed to publish: publisher's context is invalid, at ./src/rcl/publisher.c:389
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 607]
+[INFO] [ros2-4]: process has finished cleanly [pid 613]
+[INFO] [launch.user]: [embodied_x] bag finished
+[ERROR] [joint_state_adapter-2]: process has died [pid 609, exit code 1, cmd '/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/joint_state_adapter --ros-args --params-file /tmp/launch_params_ewhh90e5 --params-file /tmp/launch_params_ve1lymtb'].
+[ERROR] [robot_state_monitor-3]: process has died [pid 611, exit code 1, cmd '/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/robot_state_monitor --ros-args --params-file /tmp/launch_params_nd23ts51 --params-file /tmp/launch_params_1shkwpfg --params-file /tmp/launch_params_oc813gb3'].

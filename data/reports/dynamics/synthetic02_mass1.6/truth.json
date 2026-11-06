@@ -1,0 +1,41 @@
+{
+ "SIMULATED": true,
+ "source_trajectory": "/mnt/c/Users/HGDOCTOR/embodied-x/docs/evidence/live/excitation_run02",
+ "payload_kg_at_flange": 0.4,
+ "mass_scale": 1.6,
+ "armature": [
+  0.4,
+  0.4,
+  0.2,
+  0.05,
+  0.05,
+  0.02
+ ],
+ "viscous": [
+  8.0,
+  8.0,
+  5.0,
+  1.0,
+  1.0,
+  0.5
+ ],
+ "coulomb": [
+  3.0,
+  3.0,
+  2.0,
+  0.8,
+  0.8,
+  0.4
+ ],
+ "offset": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "tau_noise_Nm": 0.3,
+ "servo_bandwidth_hz": 16.0,
+ "samples": 10590
+}

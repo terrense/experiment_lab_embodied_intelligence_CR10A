@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793016395
+    nanosec: 289509790
+  frame_id: ''
+status:
+- level: "\0"
+  name: ex/joint_state_adapter
+  message: OK
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: FRESH
+  - key: valid
+    value: 'True'
+  - key: rate_hz
+    value: '125.01'
+  - key: mean_dt_ms
+    value: '8.00'
+  - key: max_dt_ms
+    value: '9.64'
+  - key: age_ms
+    value: '1.6'
+  - key: accepted
+    value: '1500'
+  - key: rejected
+    value: '1250'
+  - key: stamp_latency_ms
+    value: '0.99'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '+28.581'
+  - key: joint2_deg
+    value: '-15.321'
+  - key: joint3_deg
+    value: '+65.036'
+  - key: joint4_deg
+    value: '+13.287'
+  - key: joint5_deg
+    value: '-69.808'
+  - key: joint6_deg
+    value: '+35.238'
+---

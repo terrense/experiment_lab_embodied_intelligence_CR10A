@@ -1,0 +1,31 @@
+[pm] true payload 10 kg, configured 10 kg
+loadavg before start: 0.69 0.27 1.31
+MoveIt ready (1 move_group)
+[pm]   pm_t10_c10_r1      ok=True code=1 tcp max 6.28 rms 3.35 final 0.00 mm sat=[0, 0, 0, 0, 0, 0] lag=1.49
+[pm]   pm_t10_c10_r2      ok=True code=1 tcp max 6.36 rms 3.33 final 0.00 mm sat=[0, 0, 0, 0, 0, 0] lag=1.87
+[pm]   pm_t10_c10_r3      ok=True code=1 tcp max 6.41 rms 3.36 final 0.00 mm sat=[0, 0, 0, 0, 0, 0] lag=2.05
+[pm] true payload 10 kg, configured 5 kg
+loadavg before start: 1.08 0.47 1.33
+MoveIt ready (1 move_group)
+[pm]   pm_t10_c5_r1       POSITIONING FAILED
+[pm]   pm_t10_c5_r2       POSITIONING FAILED
+[pm]   pm_t10_c5_r3       POSITIONING FAILED
+[pm] true payload 10 kg, configured 0 kg
+loadavg before start: 0.62 0.43 1.28
+MoveIt ready (1 move_group)
+[pm]   pm_t10_c0_r1       POSITIONING FAILED
+[pm]   pm_t10_c0_r2       POSITIONING FAILED
+[pm]   pm_t10_c0_r3       POSITIONING FAILED
+[pm] true payload 0 kg, configured 0 kg
+loadavg before start: 0.82 0.49 1.26
+MoveIt ready (1 move_group)
+[pm]   pm_t0_c0_r1        ok=True code=1 tcp max 8.99 rms 5.29 final 0.03 mm sat=[0, 0, 0, 0, 0, 0] lag=1.65
+[pm]   pm_t0_c0_r2        ok=True code=1 tcp max 9.41 rms 5.75 final 0.03 mm sat=[0, 0, 0, 0, 0, 0] lag=1.34
+[pm]   pm_t0_c0_r3        ok=True code=1 tcp max 9.34 rms 5.67 final 0.03 mm sat=[0, 0, 0, 0, 0, 0] lag=1.46
+[pm] true payload 0 kg, configured 10 kg
+loadavg before start: 0.61 0.49 1.22
+MoveIt ready (1 move_group)
+[pm]   pm_t0_c10_r1       POSITIONING FAILED
+[pm]   pm_t0_c10_r2       POSITIONING FAILED
+[pm]   pm_t0_c10_r3       POSITIONING FAILED
+[pm] done

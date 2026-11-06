@@ -33,8 +33,11 @@ reproducibility matter more than polish. Mixed Chinese/English explanations are 
 - After every verified step (tests run, docs updated): commit and `git push origin main`. Never leave
   finished work only on the local disk. A repo-local proxy (`http.https://github.com/.proxy`) is set.
 - Public repo: no credentials, no details of the owner's other projects. The owner approved publishing
-  real-robot data (2026-10-27); still curate it: raw bags stay out of git (size), curated evidence goes to
-  `docs/evidence/`, screenshots are cropped to the app window.
+  real-robot data (2026-10-27), and on 2026-11-06 also ruled that **nothing under `data/` is blocked
+  any more**: the experiment results, the trained policies, the training curves, the
+  dynamics-identification data and the raw robot recordings are all committed, so the analysis can
+  be audited from the repository alone. The curated subset of the robot evidence is mirrored in
+  `docs/evidence/`. Credentials, SSH targets and the owner's other projects never go in.
 
 ## Engineering conventions
 - ROS-free logic in `ex_robot_state/core/` with unit tests; nodes are thin wrappers.

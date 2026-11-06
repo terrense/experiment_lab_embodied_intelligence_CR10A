@@ -1,0 +1,14 @@
+{
+  "tag": "mj_bw4_pl10_s1.8_r2",
+  "scene": "wall",
+  "plant": "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)",
+  "speed_scale": 1.8,
+  "execution_ok": false,
+  "positioning_failed": true,
+  "moveit_error_code": -6,
+  "tcp_tracking_rms_mm": null,
+  "tcp_tracking_max_mm": null,
+  "tracking_rms_deg_aligned": null,
+  "estimated_start_latency_s": null,
+  "torque_saturation_steps_during_move": null
+}

@@ -1,0 +1,70 @@
+{
+ "task": "wall_ood",
+ "model": "../data/reports/learning/ppo_wall_rand_s0",
+ "mode": "single",
+ "alpha": 5.0,
+ "episodes": 20,
+ "seed": 0,
+ "rows": [
+  {
+   "margin": 0.0,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.15,
+   "collision_rate": 0.1,
+   "final_dist_m_median": 0.02668905051387229,
+   "infeasible": 0,
+   "max_violation": 0.0
+  },
+  {
+   "margin": 0.02,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.15,
+   "collision_rate": 0.05,
+   "final_dist_m_median": 0.026079983486090984,
+   "infeasible": 0,
+   "max_violation": 0.0
+  },
+  {
+   "margin": 0.04,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.2,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.027286333155505535,
+   "infeasible": 0,
+   "max_violation": 0.0
+  },
+  {
+   "margin": 0.06,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.15,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.031741327734658424,
+   "infeasible": 0,
+   "max_violation": 0.0
+  },
+  {
+   "margin": 0.1,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.1,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.7863188989059665,
+   "infeasible": 0,
+   "max_violation": 0.0
+  },
+  {
+   "margin": 0.15,
+   "mode": "single",
+   "alpha": 5.0,
+   "success_rate": 0.05,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 1.0873720591327687,
+   "infeasible": 0,
+   "max_violation": 0.0
+  }
+ ]
+}

@@ -1,0 +1,402 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-27-16-17-38-964365-hgdoctor-sx-438
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer URDF from `/home/ex/ex_ws_out/install/ex_moveit_config/share/ex_moveit_config`. -- using config/ex_cr10.urdf[0m
+WARNING:root:[33;21mCannot infer SRDF from `/home/ex/ex_ws_out/install/ex_moveit_config/share/ex_moveit_config`. -- using config/ex_cr10.srdf[0m
+[INFO] [robot_state_publisher-1]: process started with pid [442]
+[INFO] [ros2_control_node-2]: process started with pid [444]
+[INFO] [spawner-3]: process started with pid [446]
+[INFO] [spawner-4]: process started with pid [448]
+[INFO] [move_group-5]: process started with pid [450]
+[robot_state_publisher-1] [0m[INFO] [1793089059.168046785] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168269239] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168278632] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168283182] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168287075] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168290696] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168294255] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168297845] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168301175] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793089059.168304650] [robot_state_publisher]: got segment world[0m
+[ros2_control_node-2] [33m[WARN] [1793089059.179981118] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.180267077] [resource_manager]: Loading hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181280658] [resource_manager]: Initialize hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181357346] [resource_manager]: Successful initialization of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181397818] [resource_manager]: 'configure' hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181405322] [resource_manager]: Successful 'configure' of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181410697] [resource_manager]: 'activate' hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793089059.181415425] [resource_manager]: Successful 'activate' of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.186971780] [controller_manager]: update rate is 100 Hz[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.187022387] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50[0m
+[ros2_control_node-2] [33m[WARN] [1793089059.187158176] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.[0m
+[move_group-5] [0m[INFO] [1793089059.215480186] [moveit_rdf_loader.rdf_loader]: Loaded robot model in 0.00308805 seconds[0m
+[move_group-5] [0m[INFO] [1793089059.215564189] [moveit_robot_model.robot_model]: Loading robot model 'ex_cr10'...[0m
+[move_group-5] [0m[INFO] [1793089059.215577861] [moveit_robot_model.robot_model]: No root/virtual joint specified in SRDF. Assuming fixed joint[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.373134778] [controller_manager]: Loading controller 'joint_state_broadcaster'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.387685016] [controller_manager]: Loading controller 'arm_controller'[0m
+[spawner-3] [0m[INFO] [1793089059.402493162] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m[0m
+[ros2_control_node-2] [33m[WARN] [1793089059.404174991] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.407735878] [controller_manager]: Configuring controller 'joint_state_broadcaster'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.407924967] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published[0m
+[spawner-4] [0m[INFO] [1793089059.421046324] [spawner_arm_controller]: [94mLoaded [1marm_controller[0m[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.438034485] [controller_manager]: Configuring controller 'arm_controller'[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.438239395] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.438259600] [arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.438279252] [arm_controller]: Using 'splines' interpolation method.[0m
+[spawner-3] [0m[INFO] [1793089059.438609337] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.439582811] [arm_controller]: Controller state will be published at 50.00 Hz.[0m
+[ros2_control_node-2] [0m[INFO] [1793089059.441486676] [arm_controller]: Action status changes will be monitored at 20.00 Hz.[0m
+[move_group-5] [0m[INFO] [1793089059.453273585] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'[0m
+[move_group-5] [0m[INFO] [1793089059.453562321] [moveit.ros_planning_interface.moveit_cpp]: Listening to 'joint_states' for joint states[0m
+[move_group-5] [0m[INFO] [1793089059.454417309] [moveit_ros.current_state_monitor]: Listening to joint states on topic 'joint_states'[0m
+[move_group-5] [0m[INFO] [1793089059.454869490] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects[0m
+[move_group-5] [0m[INFO] [1793089059.454903336] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting planning scene monitor[0m
+[move_group-5] [0m[INFO] [1793089059.455275438] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/planning_scene'[0m
+[move_group-5] [0m[INFO] [1793089059.455303679] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.[0m
+[move_group-5] [0m[INFO] [1793089059.455686782] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'collision_object'[0m
+[move_group-5] [0m[INFO] [1793089059.456115972] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry[0m
+[move_group-5] [33m[WARN] [1793089059.456336777] [moveit.ros.occupancy_map_monitor.middleware_handle]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead[0m
+[move_group-5] [31m[ERROR] [1793089059.456368107] [moveit.ros.occupancy_map_monitor.middleware_handle]: No 3D sensor plugin(s) defined for octomap updates[0m
+[spawner-4] [0m[INFO] [1793089059.478642923] [spawner_arm_controller]: [92mConfigured and activated [1marm_controller[0m[0m
+[move_group-5] [0m[INFO] [1793089059.534784987] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'ompl'[0m
+[move_group-5] [0m[INFO] [1793089059.555104996] [moveit.ros_planning.planning_pipeline]: Using planning interface 'OMPL'[0m
+[move_group-5] [0m[INFO] [1793089059.560230846] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.path_tolerance' was not set. Using default value: 0.100000[0m
+[move_group-5] [0m[INFO] [1793089059.560274377] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.resample_dt' was not set. Using default value: 0.100000[0m
+[move_group-5] [0m[INFO] [1793089059.560279282] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.min_angle_change' was not set. Using default value: 0.001000[0m
+[move_group-5] [0m[INFO] [1793089059.560294759] [moveit_ros.fix_workspace_bounds]: Param 'ompl.default_workspace_bounds' was not set. Using default value: 10.000000[0m
+[move_group-5] [0m[INFO] [1793089059.560305457] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_bounds_error' was set to 0.100000[0m
+[move_group-5] [0m[INFO] [1793089059.560309944] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000[0m
+[move_group-5] [0m[INFO] [1793089059.560316311] [moveit_ros.fix_start_state_collision]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000[0m
+[move_group-5] [0m[INFO] [1793089059.560321122] [moveit_ros.fix_start_state_collision]: Param 'ompl.jiggle_fraction' was not set. Using default value: 0.020000[0m
+[move_group-5] [0m[INFO] [1793089059.560324733] [moveit_ros.fix_start_state_collision]: Param 'ompl.max_sampling_attempts' was not set. Using default value: 100[0m
+[move_group-5] [0m[INFO] [1793089059.560331819] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Add Time Optimal Parameterization'[0m
+[move_group-5] [0m[INFO] [1793089059.560335493] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Resolve constraint frames to robot links'[0m
+[move_group-5] [0m[INFO] [1793089059.560337695] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Workspace Bounds'[0m
+[move_group-5] [0m[INFO] [1793089059.560339960] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Bounds'[0m
+[move_group-5] [0m[INFO] [1793089059.560342172] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State In Collision'[0m
+[move_group-5] [0m[INFO] [1793089059.560344468] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Path Constraints'[0m
+[INFO] [spawner-3]: process has finished cleanly [pid 446]
+[move_group-5] [0m[INFO] [1793089059.592098307] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for arm_controller[0m
+[move_group-5] [0m[INFO] [1793089059.592316566] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089059.592333504] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089059.592614141] [moveit_ros.trajectory_execution_manager]: Trajectory execution is managing controllers[0m
+[move_group-5] [0m[INFO] [1793089059.592641276] [move_group.move_group]: MoveGroup debug mode is ON[0m
+[move_group-5] [0m[INFO] [1793089059.609125845] [move_group.move_group]: 
+[move_group-5] 
+[move_group-5] ********************************************************
+[move_group-5] * MoveGroup using: 
+[move_group-5] *     - ApplyPlanningSceneService
+[move_group-5] *     - ClearOctomapService
+[move_group-5] *     - CartesianPathService
+[move_group-5] *     - ExecuteTrajectoryAction
+[move_group-5] *     - GetPlanningSceneService
+[move_group-5] *     - KinematicsService
+[move_group-5] *     - MoveAction
+[move_group-5] *     - MotionPlanService
+[move_group-5] *     - QueryPlannersService
+[move_group-5] *     - StateValidationService
+[move_group-5] ********************************************************
+[move_group-5] [0m
+[move_group-5] [0m[INFO] [1793089059.609159022] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner[0m
+[move_group-5] [0m[INFO] [1793089059.609165242] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context initialization complete[0m
+[move_group-5] [96mLoading 'move_group/ApplyPlanningSceneService'...
+[move_group-5] [0m[96mLoading 'move_group/ClearOctomapService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupPlanService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[move_group-5] [0m[92m
+[move_group-5] You can start planning now!
+[move_group-5] 
+[INFO] [spawner-4]: process has finished cleanly [pid 448]
+[move_group-5] [0m[INFO] [1793089067.122987376] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089067.123976797] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089067.154885042] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089067.155193084] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089067.155248643] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089067.155273074] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089067.155404513] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089067.157944917] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089067.158029251] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089067.158055992] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089067.158175914] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089067.158604513] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089067.158686082] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089067.158923436] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089067.158942930] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089069.007397022] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089069.050990278] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089069.077969573] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089069.078277009] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089070.093226872] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089070.093373131] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089070.093403154] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089070.093416893] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089070.093529991] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089070.097945910] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089070.098052297] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089070.098072355] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089070.098143799] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089070.099572165] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089070.099695249] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089070.099891354] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089070.099905406] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089074.397629889] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089074.414314114] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089074.438081038] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089074.438262261] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089077.709152599] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089077.709762728] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089077.737925901] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089077.738192696] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089077.738222008] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089077.738234451] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089077.738338855] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089077.747776672] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089077.747846614] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089077.747860595] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089077.747921275] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089077.748166541] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089077.748209657] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089077.748408743] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089077.748422694] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089080.927368597] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089080.974393646] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089080.997890470] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089080.998236080] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089082.016319348] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089082.016625601] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089082.016653917] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089082.016666542] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089082.016769713] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089082.017746805] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089082.017793815] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089082.017806001] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089082.017861751] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089082.018204991] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089082.018247478] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089082.018415551] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089082.018425602] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089086.317381133] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089086.346193736] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089086.367693163] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089086.367911037] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089089.521665386] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089089.522121516] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089089.557079128] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089089.557240078] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089089.557277676] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089089.557296158] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089089.557374554] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089089.567729603] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089089.567785416] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089089.567799164] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089089.567861494] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089089.568154157] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089089.568201283] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089089.568413897] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089089.568425377] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089092.747754541] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089092.766074876] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089092.787842582] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089092.787968737] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089093.803673736] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089093.803867467] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089093.803893237] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089093.803908128] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089093.804011616] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089093.807668638] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089093.807724171] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089093.807737278] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089093.807794881] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089093.808071639] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089093.808115731] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089093.808366886] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089093.808377855] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089098.107335101] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089098.129337363] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089098.157756842] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089098.158116519] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089101.389534309] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089101.389896207] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089101.427209715] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089101.427354710] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089101.427379301] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089101.427397329] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089101.427481362] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089101.437679365] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089101.437736403] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089101.437759229] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089101.437820004] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089101.438138616] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089101.438180480] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089101.438411812] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089101.438420925] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089104.617351064] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089104.620286499] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089104.647562370] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089104.647694172] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089105.655406693] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089105.655712868] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089105.655772142] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089105.655799833] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089105.655973989] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089105.657950313] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089105.658054818] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089105.658072877] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089105.658180468] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089105.658607151] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089105.658702062] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089105.658897648] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089105.658908799] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089109.957331458] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089109.971572294] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089109.997737655] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089109.997922038] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089113.125691646] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089113.126146597] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089113.161648993] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089113.161821182] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089113.161861349] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089113.161877374] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089113.161991746] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089113.167768866] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089113.167832195] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089113.167848269] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089113.167952910] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089113.168323230] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089113.168418904] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089113.168639756] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089113.168652434] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089116.347408889] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089116.353603350] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089116.377922154] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089116.378255523] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089117.392959046] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089117.393112387] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089117.393137688] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089117.393149355] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089117.393208795] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089117.397635628] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089117.397690077] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089117.397703368] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089117.397759725] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089117.398041919] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089117.398092756] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089117.398375871] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089117.398389809] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089121.697362979] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089121.704467716] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089121.727602953] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089121.727744560] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089124.963462712] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089124.964118439] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089125.002414642] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089125.002572403] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089125.002598195] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089125.002610628] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089125.002728668] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089125.007801072] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089125.007893774] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089125.007912389] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089125.008015161] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089125.008401117] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089125.008461826] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089125.008804882] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089125.008837219] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089128.187370598] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089128.200977456] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089128.227807432] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089128.228056276] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089129.242942535] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089129.243137217] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089129.243161893] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089129.243173392] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089129.243265400] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089129.247663055] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089129.247718702] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089129.247731959] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089129.247789481] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089129.248037149] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089129.248075602] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089129.248277108] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089129.248288597] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089133.547334172] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089133.561544880] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089133.587516884] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089133.587714484] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089137.336282925] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089137.336703211] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089137.382994806] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089137.383111428] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089137.383133750] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089137.383143016] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089137.383211946] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089137.388793404] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089137.388867406] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089137.388884004] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089137.388948296] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089137.389232056] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089137.389277746] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089137.389519675] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089137.389535030] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089140.567379599] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089140.570189383] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089140.597664767] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089140.597894141] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089141.612992190] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089141.613218803] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089141.613244775] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089141.613256631] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089141.613354130] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089141.617737168] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089141.617812397] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089141.617828912] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089141.617893708] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089141.618232085] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089141.618274134] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089141.618626428] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089141.618638553] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089145.917328657] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089145.943722662] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089145.967564231] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089145.967681707] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089149.129727787] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793089149.130163362] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793089149.175312520] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089149.175459070] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089149.175481891] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089149.175494035] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089149.175592319] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089149.177647681] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089149.177688391] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089149.177699238] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089149.177750975] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089149.177954485] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089149.178033913] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089149.178256922] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089149.178269319] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089152.357351265] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089152.375421521] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089152.397623798] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089152.397767906] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m
+[move_group-5] [0m[INFO] [1793089153.413305915] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793089153.413479543] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793089153.413506787] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089153.413518953] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089153.413627502] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793089153.418113161] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793089153.418187006] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089153.418208347] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793089153.418314163] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793089153.418719677] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793089153.418807753] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793089153.419038273] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793089153.419056442] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [0m[INFO] [1793089157.717437957] [arm_controller]: Goal reached, success![0m
+[move_group-5] [0m[INFO] [1793089157.728751078] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793089157.757634807] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...[0m
+[move_group-5] [0m[INFO] [1793089157.757799768] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: SUCCEEDED[0m

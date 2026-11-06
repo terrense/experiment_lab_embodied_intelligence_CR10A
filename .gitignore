@@ -1,22 +1,26 @@
 # third-party sources are fetched at a pinned commit (third_party/MANIFEST.yaml)
 third_party/*/
 !third_party/MANIFEST.yaml
-# generated data (keep small curated reports only via explicit git add -f)
-data/bags/
-data/test_results/
-data/reports/*/
-*.log
+
+# ---------------------------------------------------------------------------------------
+# The DATA IS PART OF THE RECORD AND IS COMMITTED.
+#
+# The experiment results, the trained policies, the training curves, the dynamics-identification
+# data and the real-robot evidence all live under data/ and are tracked, so that the analysis
+# can be audited from the repository alone (the owner's instruction, 2026-11-06: nothing here
+# needs to be blocked). The curated subset of the robot evidence is mirrored under
+# docs/evidence/ for convenience - the two are the same data, not two different claims.
+#
+# What stays out are caches and build artefacts only.
+# ---------------------------------------------------------------------------------------
 __pycache__/
 *.pyc
 .pytest_cache/
 build/
 install/
 log/
-# real-robot recordings / screenshots: local only unless the owner approves publication
-data/live/
-data/live_tmp/
-data/sessions/
-data/hands_on/
+logs/
+*.tmp
 
 # the owner's remote compute infrastructure (SSH target, remote paths) - never committed
 scripts/remote/remote_config.local.sh

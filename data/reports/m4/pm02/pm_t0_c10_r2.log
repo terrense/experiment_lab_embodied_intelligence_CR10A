@@ -1,0 +1,3 @@
+[0m[INFO] [1793091462.353145741] [planning_lab_benchmark]: capsule radii (m): base_link=0.097, Link1=0.126, Link2=0.150, Link3=0.110, Link4=0.083, Link5=0.078, Link6=0.061[0m
+[0m[INFO] [1793091462.630482968] [planning_lab_benchmark]: mesh surface samples per link: {'base_link': 87431, 'Link1': 33755, 'Link2': 106139, 'Link3': 90055, 'Link4': 21543, 'Link5': 30794, 'Link6': 24313}; estimate error bound 5.0 mm[0m
+[31m[ERROR] [1793091473.151365929] [planning_lab_benchmark]: positioning move failed at all speeds; failure report written[0m

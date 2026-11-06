@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793014906
+    nanosec: 153595135
+  frame_id: ''
+status:
+- level: "\x02"
+  name: ex/joint_state_adapter
+  message: feedback LOST (age 1.4s) - display FROZEN, state INVALID
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: LOST
+  - key: valid
+    value: 'False'
+  - key: rate_hz
+    value: '125.11'
+  - key: mean_dt_ms
+    value: '7.99'
+  - key: max_dt_ms
+    value: '9.26'
+  - key: age_ms
+    value: '1350.9'
+  - key: accepted
+    value: '1957'
+  - key: rejected
+    value: '0'
+  - key: stamp_latency_ms
+    value: '0.34'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '-28.577'
+  - key: joint2_deg
+    value: '+16.955'
+  - key: joint3_deg
+    value: '+99.009'
+  - key: joint4_deg
+    value: '+26.714'
+  - key: joint5_deg
+    value: '-60.615'
+  - key: joint6_deg
+    value: '-37.550'
+---

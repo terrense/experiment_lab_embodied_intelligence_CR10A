@@ -1,0 +1,13 @@
+stdin is not a terminal device. Keyboard handling disabled.[0m[INFO] [1793016457.237962566] [rosbag2_recorder]: Press SPACE for pausing/resuming[0m
+[0m[INFO] [1793016457.283580648] [rosbag2_storage]: Opened database 'data/bags/live_mock_run06/live_mock_run06_0.db3' for READ_WRITE.[0m
+[0m[INFO] [1793016457.286315874] [rosbag2_recorder]: Listening for topics...[0m
+[0m[INFO] [1793016457.286409727] [rosbag2_recorder]: Event publisher thread: Starting[0m
+[0m[INFO] [1793016457.295864787] [rosbag2_recorder]: Subscribed to topic '/joint_states_robot'[0m
+[0m[INFO] [1793016457.303443414] [rosbag2_recorder]: Subscribed to topic '/ex/dobot/tool_vector_raw'[0m
+[0m[INFO] [1793016457.336217628] [rosbag2_recorder]: Subscribed to topic '/ex/dobot/tcp_controller'[0m
+[0m[INFO] [1793016457.344365732] [rosbag2_recorder]: Subscribed to topic '/diagnostics'[0m
+[0m[INFO] [1793016457.345352784] [rosbag2_recorder]: Recording...[0m
+[0m[INFO] [1793016457.346003657] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...[0m
+[0m[INFO] [1793016468.818770088] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while[0m
+[0m[INFO] [1793016468.826687801] [rosbag2_recorder]: Event publisher thread: Exiting[0m
+[0m[INFO] [1793016468.827290113] [rosbag2_recorder]: Recording stopped[0m

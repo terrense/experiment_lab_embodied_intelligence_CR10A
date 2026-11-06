@@ -1,0 +1,56 @@
+[integration] run=run01 ros=humble domain=42
+[integration] stage 1: SIMULATION
+[integration] OK    sim_pipeline_check (pipeline_check=PASS, expected PASS)
+        [PASS] rate        {"rate_hz": 125.0, "samples": 3125, "max_gap_ms": 10.65, "p99_gap_ms": 9.66}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 31, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[30.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 20.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 25.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 35.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 30.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 45.0]]}
+        [PASS] adapter_ok  {"reports": 46, "worst_level": 0}
+[integration] bag recorded: data/bags/sim_demo_run01
+        Duration:          21.692147035s
+        Messages:          6835
+                           Topic: /joint_states_robot | Type: sensor_msgs/msg/JointState | Count: 2714 | Serialization Format: cdr
+[integration] stage 2: REPLAY
+[integration] OK    replay_pipeline_check (pipeline_check=PASS, expected PASS)
+        [PASS] rate        {"rate_hz": 124.99, "samples": 1875, "max_gap_ms": 10.44, "p99_gap_ms": 9.43}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 20, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[30.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 20.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 25.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 35.0, 0.0, 0.0], [0.01, 0.01, 0.01, 0.01, 30.0, 0.0], [0.02, 0.03, 0.02, 0.01, 0.01, 45.0]]}
+        [PASS] adapter_ok  {"reports": 26, "worst_level": 0}
+[integration] stage 3: fault=degrees (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_degrees (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 68.31, "samples": 754, "max_gap_ms": 5008.81, "p99_gap_ms": 9.76}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 38, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [30.0, 39.02, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 3: fault=dropout (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_dropout (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 106.76, "samples": 1464, "max_gap_ms": 2009.02, "p99_gap_ms": 9.73}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [PASS] single_pub  {"min": 1, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 16, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 3: fault=jump (adapter must flag it -> check FAIL expected)
+[integration] OK    fault_jump (pipeline_check=FAIL, expected FAIL)
+        [PASS] rate        {"rate_hz": 125.34, "samples": 1467, "max_gap_ms": 49.67, "p99_gap_ms": 9.84}
+        [PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+        [FAIL] single_pub  {"min": 0, "max": 1}
+        [PASS] tf_frames   {"checked": 9, "missing": []}
+        [PASS] tf_vs_fk    {"samples": 15, "max_err_mm": 0.0}
+        [PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+        [FAIL] adapter_ok  {"reports": 24, "worst_level": 2}
+[integration] stage 4: LIVE_OBSERVE path against mock controller (127.0.0.1 only)
+[integration] ERROR live_mock_pipeline_check (pipeline_check=FAIL, expected PASS)
+[integration] ERROR observer sent data or too few packets
+[integration] RESULT: FAILURES -> data/reports/run01

@@ -1,0 +1,52 @@
+{
+  "tag": "mock_s1.0",
+  "scene": "wall",
+  "query": "sweep_60",
+  "planner": "RRTConnect",
+  "plant": "mock_components/GenericSystem (no dynamics)",
+  "speed_scale": 1.0,
+  "loaded_trajectory": true,
+  "execution_ok": true,
+  "moveit_error_code": 1,
+  "torque_saturation_steps_during_move": null,
+  "tcp_tracking_rms_mm": 0.9412073243330934,
+  "tcp_tracking_max_mm": 2.052820228764694,
+  "planned_duration_s": 4.623068617,
+  "exec_samples": 571,
+  "joint_states_rate_hz": 100.01030374576101,
+  "estimated_start_latency_s": 0.022000000000000464,
+  "tracking_rms_deg_raw": [
+    0.7344,
+    0.3014,
+    0.0709,
+    0.3545,
+    0.598,
+    0.4524
+  ],
+  "tracking_rms_deg_aligned": [
+    0.0561,
+    0.0341,
+    0.008,
+    0.0401,
+    0.0677,
+    0.0512
+  ],
+  "tracking_max_deg_aligned": [
+    0.1592,
+    0.0913,
+    0.0215,
+    0.1073,
+    0.1811,
+    0.137
+  ],
+  "final_goal_error_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "tcp_path_planned_m": 2.0206755340073075,
+  "tcp_path_executed_m": 2.0232822255925274
+}

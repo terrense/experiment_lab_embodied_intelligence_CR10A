@@ -1,0 +1,483 @@
+{
+ "protocol": "frozen test range, three detectors, legacy policy behaviour",
+ "episode_manifest_hash": "a995f097b28148c2",
+ "split": "test",
+ "seed_start": 20000,
+ "seed_end_exclusive": 20050,
+ "episodes": 50,
+ "tasks": [
+  "wall_obs",
+  "wall_rand",
+  "wall_ood"
+ ],
+ "policy_seeds": [
+  0,
+  1,
+  2
+ ],
+ "qp_margin": 0.04,
+ "cbf_margin": 0.05,
+ "cbf_alpha": 5.0,
+ "independent_stride": 5,
+ "rows": [
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.016516803348521753,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11510791794482614,
+    "min_self_clearance_m_median": 0.03200310781030576,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 143.9
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01647262565355135,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11739181969666831,
+    "min_self_clearance_m_median": 0.03200310781030576,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 138.6
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01648441715858083,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11744861916746487,
+    "min_self_clearance_m_median": 0.03200310781030576,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 139.1
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.011378845358267074,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10855405209047858,
+    "min_self_clearance_m_median": 0.0319591848339673,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 137.5
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01137472148181381,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11415497890534458,
+    "min_self_clearance_m_median": 0.03196177616646864,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 141.5
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.011358319594266263,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1126525218533907,
+    "min_self_clearance_m_median": 0.03195908857817209,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 143.3
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.38,
+   "legacy_collision_rate": 0.46,
+   "corrected_collision_rate": 0.5,
+   "final_dist_m_median": 0.04388218901871416,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.060042744294097054,
+    "min_self_clearance_m_median": 0.03215515419690536,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 68.7
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.5,
+   "legacy_collision_rate": 0.08,
+   "corrected_collision_rate": 0.1,
+   "final_dist_m_median": 0.033471850473884956,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0773974429977484,
+    "min_self_clearance_m_median": 0.031969154755397855,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 132.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.5,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.02888280592731587,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.08123938804166292,
+    "min_self_clearance_m_median": 0.03194123581289514,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 155.8
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012614357232169212,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11737895580276221,
+    "min_self_clearance_m_median": 0.03202696570935973,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 150.9
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01260768696183684,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12784252093782902,
+    "min_self_clearance_m_median": 0.03202696570935973,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 152.3
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012606619135736501,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1269417319474709,
+    "min_self_clearance_m_median": 0.03202696570935973,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 157.2
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012163483656864617,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12495032978151956,
+    "min_self_clearance_m_median": 0.03195077538251248,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 149.0
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01214582448908066,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12965891277596336,
+    "min_self_clearance_m_median": 0.03195077538251248,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 144.7
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01214591035860502,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12898318207511886,
+    "min_self_clearance_m_median": 0.03195077538251248,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 160.2
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.38,
+   "legacy_collision_rate": 0.34,
+   "corrected_collision_rate": 0.34,
+   "final_dist_m_median": 0.06974121231837435,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05703853793540295,
+    "min_self_clearance_m_median": 0.032237806181485626,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 96.9
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.46,
+   "legacy_collision_rate": 0.08,
+   "corrected_collision_rate": 0.08,
+   "final_dist_m_median": 0.02278642225636483,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0890779357068111,
+    "min_self_clearance_m_median": 0.032158541666526916,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 142.5
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.44,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.03493804120582982,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0874705794664028,
+    "min_self_clearance_m_median": 0.03210337750559892,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 165.8
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.88,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012808493737912239,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12361320324322556,
+    "min_self_clearance_m_median": 0.031995348017206174,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 159.3
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.86,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012826406280644813,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12945329678839976,
+    "min_self_clearance_m_median": 0.03202232755262481,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 158.7
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.86,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01282846242369967,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12764522420620766,
+    "min_self_clearance_m_median": 0.03202232755262481,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 163.8
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01591882724413194,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11921592326349711,
+    "min_self_clearance_m_median": 0.03193665416125076,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 158.4
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01590040763467226,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1213534097378791,
+    "min_self_clearance_m_median": 0.03193665416125076,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 159.6
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01591244024800726,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12308642717770579,
+    "min_self_clearance_m_median": 0.03193665416125076,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 165.8
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.32,
+   "legacy_collision_rate": 0.36,
+   "corrected_collision_rate": 0.38,
+   "final_dist_m_median": 0.035845636071286366,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05062131766334976,
+    "min_self_clearance_m_median": 0.032198414569551734,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 98.3
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.42,
+   "legacy_collision_rate": 0.16,
+   "corrected_collision_rate": 0.16,
+   "final_dist_m_median": 0.028639427851161303,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10115109020179254,
+    "min_self_clearance_m_median": 0.03204823363740285,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 137.6
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.42,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.028618717885503523,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09532731791582902,
+    "min_self_clearance_m_median": 0.03203654493456909,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 163.4
+  }
+ ]
+}

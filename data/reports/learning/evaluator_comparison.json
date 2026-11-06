@@ -1,0 +1,456 @@
+{
+ "episodes": 50,
+ "seed_start": 1000,
+ "tasks": [
+  "wall_obs",
+  "wall_rand",
+  "wall_ood"
+ ],
+ "policy_seeds": [
+  0,
+  1,
+  2
+ ],
+ "filters": [
+  "raw",
+  "cbf"
+ ],
+ "cbf_margin": 0.05,
+ "cbf_alpha": 5.0,
+ "independent_episode_stride": 10,
+ "note": "legacy = the evaluator used for the published numbers; the archived JSONs are NOT overwritten by this run.",
+ "rows": [
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.7,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.039332758876896495
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11437204349214923,
+    "min_self_clearance_m_median": -0.0011238951747133998,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.7,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0407718024379925
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11344104666336541,
+    "min_self_clearance_m_median": -0.0011238951747133998,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.84,
+    "collision_rate": 0.04
+   },
+   "corrected": {
+    "collision_rate": 0.04,
+    "min_clearance_m_median": 0.04281062720455414
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12054199232506682,
+    "min_self_clearance_m_median": 0.0012914519893004045,
+    "self_collision_rate": 0.2
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.88,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05533827217398727
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12584042590881975,
+    "min_self_clearance_m_median": 0.0012914519893004045,
+    "self_collision_rate": 0.2
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.5,
+    "collision_rate": 0.38
+   },
+   "corrected": {
+    "collision_rate": 0.4,
+    "min_clearance_m_median": 0.014669063042927068
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05155426848141305,
+    "min_self_clearance_m_median": 0.0012914519893004045,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 1,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.62,
+    "collision_rate": 0.04
+   },
+   "corrected": {
+    "collision_rate": 0.04,
+    "min_clearance_m_median": 0.03845972708684833
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.08328972507051136,
+    "min_self_clearance_m_median": 0.0012914519893004045,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.68,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.04607062620476261
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10398678274314598,
+    "min_self_clearance_m_median": -0.0032718306643737885,
+    "self_collision_rate": 0.8
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.68,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.04992031401879228
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11769620936289452,
+    "min_self_clearance_m_median": -0.0032901184016286833,
+    "self_collision_rate": 0.8
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.86,
+    "collision_rate": 0.04
+   },
+   "corrected": {
+    "collision_rate": 0.04,
+    "min_clearance_m_median": 0.06000737605284444
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12894664833189115,
+    "min_self_clearance_m_median": 0.0008573947096041055,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.9,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06964046591423632
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12993140896352787,
+    "min_self_clearance_m_median": 0.0008573947096041055,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.22,
+    "collision_rate": 0.36
+   },
+   "corrected": {
+    "collision_rate": 0.38,
+    "min_clearance_m_median": 0.0298826302651642
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05358504709761894,
+    "min_self_clearance_m_median": 0.0012914519893004045,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 1,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.3,
+    "collision_rate": 0.06
+   },
+   "corrected": {
+    "collision_rate": 0.06,
+    "min_clearance_m_median": 0.04811432308465806
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09091742353340844,
+    "min_self_clearance_m_median": 0.00040894459554501397,
+    "self_collision_rate": 0.4
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.84,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.04193682611381522
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11018184554465754,
+    "min_self_clearance_m_median": -0.004251472743313608,
+    "self_collision_rate": 0.8
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.84,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.04500249671068979
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1259753026161901,
+    "min_self_clearance_m_median": -0.004251472743313608,
+    "self_collision_rate": 0.8
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.86,
+    "collision_rate": 0.04
+   },
+   "corrected": {
+    "collision_rate": 0.04,
+    "min_clearance_m_median": 0.054322651208774386
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12105398485686644,
+    "min_self_clearance_m_median": -0.0011833684954177075,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.9,
+    "collision_rate": 0.0
+   },
+   "corrected": {
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06508764812877457
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12634719578800455,
+    "min_self_clearance_m_median": -0.0011870976439784658,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "filter": "raw",
+   "legacy": {
+    "success_rate": 0.4,
+    "collision_rate": 0.34
+   },
+   "corrected": {
+    "collision_rate": 0.44,
+    "min_clearance_m_median": 0.009061432302433288
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.04911346151428787,
+    "min_self_clearance_m_median": -0.002737036730754445,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 5,
+    "episodes": 50
+   }
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "filter": "cbf",
+   "legacy": {
+    "success_rate": 0.54,
+    "collision_rate": 0.06
+   },
+   "corrected": {
+    "collision_rate": 0.06,
+    "min_clearance_m_median": 0.044816841466886706
+   },
+   "independent": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09256980294336288,
+    "min_self_clearance_m_median": -0.002737036730754445,
+    "self_collision_rate": 0.6
+   },
+   "verdict_changes": {
+    "legacy_to_corrected": 0,
+    "episodes": 50
+   }
+  }
+ ]
+}

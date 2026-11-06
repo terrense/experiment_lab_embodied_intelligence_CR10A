@@ -1,0 +1,34 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-26-19-40-40-795441-hgdoctor-sx-633
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: [embodied_x] mode=REPLAY  health log: /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run02/replay_20261026_194040.jsonl
+[INFO] [robot_state_publisher-1]: process started with pid [636]
+[INFO] [joint_state_adapter-2]: process started with pid [638]
+[INFO] [robot_state_monitor-3]: process started with pid [640]
+[INFO] [ros2-4]: process started with pid [642]
+[robot_state_publisher-1] [0m[INFO] [1793014840.900109740] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900224965] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900232810] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900236442] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900239377] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900242251] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900244946] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900247730] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900250305] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793014840.900252980] [robot_state_publisher]: got segment world[0m
+[joint_state_adapter-2] [0m[INFO] [1793014841.119538531] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[ros2-4] stdin is not a terminal device. Keyboard handling disabled.[0m[INFO] [1793014841.127096376] [rosbag2_storage]: Opened database '/mnt/c/Users/HGDOCTOR/embodied-x/data/bags/sim_demo_run02/sim_demo_run02_0.db3' for READ_ONLY.[0m
+[ros2-4] [0m[INFO] [1793014841.127263310] [rosbag2_player]: Set rate to 1[0m
+[ros2-4] [0m[INFO] [1793014841.135869320] [rosbag2_player]: Adding keyboard callbacks.[0m
+[ros2-4] [0m[INFO] [1793014841.135954075] [rosbag2_player]: Press SPACE for Pause/Resume[0m
+[ros2-4] [0m[INFO] [1793014841.135962164] [rosbag2_player]: Press CURSOR_RIGHT for Play Next Message[0m
+[ros2-4] [0m[INFO] [1793014841.135971322] [rosbag2_player]: Press CURSOR_UP for Increase Rate 10%[0m
+[ros2-4] [0m[INFO] [1793014841.135975746] [rosbag2_player]: Press CURSOR_DOWN for Decrease Rate 10%[0m
+[ros2-4] [0m[INFO] [1793014841.144170590] [rosbag2_storage]: Opened database '/mnt/c/Users/HGDOCTOR/embodied-x/data/bags/sim_demo_run02/sim_demo_run02_0.db3' for READ_ONLY.[0m
+[robot_state_monitor-3] [0m[INFO] [1793014841.176256757] [robot_state_monitor]: health log -> /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run02/replay_20261026_194040.jsonl[0m
+[ros2-4] [0m[INFO] [1793014858.230939885] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[robot_state_publisher-1] [0m[INFO] [1793014858.231002216] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 636]
+[INFO] [ros2-4]: process has finished cleanly [pid 642]
+[INFO] [launch.user]: [embodied_x] bag finished
+[INFO] [joint_state_adapter-2]: process has finished cleanly [pid 638]
+[INFO] [robot_state_monitor-3]: process has finished cleanly [pid 640]

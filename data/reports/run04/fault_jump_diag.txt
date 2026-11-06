@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793015947
+    nanosec: 777318624
+  frame_id: ''
+status:
+- level: "\x02"
+  name: ex/joint_state_adapter
+  message: 'JUMP: joint2 moved 20.00 deg in 7.6 ms (allowed 2.56); JUMP: joint2 moved 20.00 deg in 15.8 ms (allowed 5.34); JUMP: joint2 move...'
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: FRESH
+  - key: valid
+    value: 'False'
+  - key: rate_hz
+    value: '125.03'
+  - key: mean_dt_ms
+    value: '8.00'
+  - key: max_dt_ms
+    value: '10.28'
+  - key: age_ms
+    value: '0.9'
+  - key: accepted
+    value: '3110'
+  - key: rejected
+    value: '13'
+  - key: stamp_latency_ms
+    value: '0.86'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '+0.445'
+  - key: joint2_deg
+    value: '+19.996'
+  - key: joint3_deg
+    value: '+114.992'
+  - key: joint4_deg
+    value: '-34.980'
+  - key: joint5_deg
+    value: '-60.028'
+  - key: joint6_deg
+    value: '+44.932'
+---

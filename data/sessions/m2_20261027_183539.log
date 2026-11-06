@@ -1,0 +1,326 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-27-16-57-21-770959-hgdoctor-sx-2017
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer URDF from `/home/ex/ex_ws_out/install/ex_moveit_config/share/ex_moveit_config`. -- using config/ex_cr10.urdf[0m
+WARNING:root:[33;21mCannot infer SRDF from `/home/ex/ex_ws_out/install/ex_moveit_config/share/ex_moveit_config`. -- using config/ex_cr10.srdf[0m
+[INFO] [robot_state_publisher-1]: process started with pid [2021]
+[INFO] [ros2_control_node-2]: process started with pid [2023]
+[INFO] [spawner-3]: process started with pid [2025]
+[INFO] [spawner-4]: process started with pid [2027]
+[INFO] [move_group-5]: process started with pid [2029]
+[INFO] [mujoco_sim-6]: process started with pid [2031]
+[ros2_control_node-2] [33m[WARN] [1793091441.918092971] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.918363640] [resource_manager]: Loading hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793091441.919059957] [resource_manager]: Initialize hardware 'SimCR10' [0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919080337] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919185282] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919194315] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919197800] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919200745] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919203649] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919207555] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919211120] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919214966] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793091441.919218631] [robot_state_publisher]: got segment world[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.928725484] [resource_manager]: Successful initialization of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.928794425] [resource_manager]: 'configure' hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793091441.928800855] [resource_manager]: Successful 'configure' of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.928804530] [resource_manager]: 'activate' hardware 'SimCR10' [0m
+[ros2_control_node-2] [0m[INFO] [1793091441.928807595] [resource_manager]: Successful 'activate' of hardware 'SimCR10'[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.935051664] [controller_manager]: update rate is 100 Hz[0m
+[ros2_control_node-2] [0m[INFO] [1793091441.935106665] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50[0m
+[ros2_control_node-2] [33m[WARN] [1793091441.935250237] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.[0m
+[move_group-5] [0m[INFO] [1793091441.937138592] [moveit_rdf_loader.rdf_loader]: Loaded robot model in 0.00277192 seconds[0m
+[move_group-5] [0m[INFO] [1793091441.937219461] [moveit_robot_model.robot_model]: Loading robot model 'ex_cr10'...[0m
+[move_group-5] [0m[INFO] [1793091441.937227002] [moveit_robot_model.robot_model]: No root/virtual joint specified in SRDF. Assuming fixed joint[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.110383969] [controller_manager]: Loading controller 'arm_controller'[0m
+[ros2_control_node-2] [33m[WARN] [1793091442.130995471] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.[0m
+[move_group-5] [0m[INFO] [1793091442.135928805] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'[0m
+[move_group-5] [0m[INFO] [1793091442.136225886] [moveit.ros_planning_interface.moveit_cpp]: Listening to 'joint_states' for joint states[0m
+[move_group-5] [0m[INFO] [1793091442.137034356] [moveit_ros.current_state_monitor]: Listening to joint states on topic 'joint_states'[0m
+[move_group-5] [0m[INFO] [1793091442.137512386] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects[0m
+[move_group-5] [0m[INFO] [1793091442.137550502] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting planning scene monitor[0m
+[move_group-5] [0m[INFO] [1793091442.138047891] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/planning_scene'[0m
+[move_group-5] [0m[INFO] [1793091442.138080780] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.138314357] [controller_manager]: Loading controller 'joint_state_broadcaster'[0m
+[move_group-5] [0m[INFO] [1793091442.138540532] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'collision_object'[0m
+[move_group-5] [0m[INFO] [1793091442.138973906] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry[0m
+[move_group-5] [33m[WARN] [1793091442.139147634] [moveit.ros.occupancy_map_monitor.middleware_handle]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead[0m
+[move_group-5] [31m[ERROR] [1793091442.139163607] [moveit.ros.occupancy_map_monitor.middleware_handle]: No 3D sensor plugin(s) defined for octomap updates[0m
+[spawner-4] [0m[INFO] [1793091442.151144296] [spawner_arm_controller]: [94mLoaded [1marm_controller[0m[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.155898473] [controller_manager]: Configuring controller 'arm_controller'[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.156141344] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.156161944] [arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.156177668] [arm_controller]: Using 'splines' interpolation method.[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.157299914] [arm_controller]: Controller state will be published at 50.00 Hz.[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.160298146] [arm_controller]: Action status changes will be monitored at 20.00 Hz.[0m
+[spawner-3] [0m[INFO] [1793091442.170881640] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.185881600] [controller_manager]: Configuring controller 'joint_state_broadcaster'[0m
+[ros2_control_node-2] [0m[INFO] [1793091442.185963522] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published[0m
+[spawner-4] [0m[INFO] [1793091442.186694246] [spawner_arm_controller]: [92mConfigured and activated [1marm_controller[0m[0m
+[spawner-3] [0m[INFO] [1793091442.216736910] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m[0m
+[move_group-5] [0m[INFO] [1793091442.233188376] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'ompl'[0m
+[move_group-5] [0m[INFO] [1793091442.240551858] [moveit.ros_planning.planning_pipeline]: Using planning interface 'OMPL'[0m
+[move_group-5] [0m[INFO] [1793091442.242137603] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.path_tolerance' was not set. Using default value: 0.100000[0m
+[move_group-5] [0m[INFO] [1793091442.242170171] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.resample_dt' was not set. Using default value: 0.100000[0m
+[move_group-5] [0m[INFO] [1793091442.242174848] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.min_angle_change' was not set. Using default value: 0.001000[0m
+[move_group-5] [0m[INFO] [1793091442.242188138] [moveit_ros.fix_workspace_bounds]: Param 'ompl.default_workspace_bounds' was not set. Using default value: 10.000000[0m
+[move_group-5] [0m[INFO] [1793091442.242196911] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_bounds_error' was set to 0.100000[0m
+[move_group-5] [0m[INFO] [1793091442.242200206] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000[0m
+[move_group-5] [0m[INFO] [1793091442.242206295] [moveit_ros.fix_start_state_collision]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000[0m
+[move_group-5] [0m[INFO] [1793091442.242209500] [moveit_ros.fix_start_state_collision]: Param 'ompl.jiggle_fraction' was not set. Using default value: 0.020000[0m
+[move_group-5] [0m[INFO] [1793091442.242212454] [moveit_ros.fix_start_state_collision]: Param 'ompl.max_sampling_attempts' was not set. Using default value: 100[0m
+[move_group-5] [0m[INFO] [1793091442.242218323] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Add Time Optimal Parameterization'[0m
+[move_group-5] [0m[INFO] [1793091442.242220927] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Resolve constraint frames to robot links'[0m
+[move_group-5] [0m[INFO] [1793091442.242222889] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Workspace Bounds'[0m
+[move_group-5] [0m[INFO] [1793091442.242225163] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Bounds'[0m
+[move_group-5] [0m[INFO] [1793091442.242226915] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State In Collision'[0m
+[move_group-5] [0m[INFO] [1793091442.242228648] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Path Constraints'[0m
+[move_group-5] [0m[INFO] [1793091442.272271402] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for arm_controller[0m
+[move_group-5] [0m[INFO] [1793091442.272545369] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091442.272570967] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091442.273033393] [moveit_ros.trajectory_execution_manager]: Trajectory execution is managing controllers[0m
+[move_group-5] [0m[INFO] [1793091442.273056478] [move_group.move_group]: MoveGroup debug mode is ON[0m
+[move_group-5] [0m[INFO] [1793091442.289403719] [move_group.move_group]: 
+[move_group-5] 
+[move_group-5] ********************************************************
+[move_group-5] * MoveGroup using: 
+[move_group-5] *     - ApplyPlanningSceneService
+[move_group-5] *     - ClearOctomapService
+[move_group-5] *     - CartesianPathService
+[move_group-5] *     - ExecuteTrajectoryAction
+[move_group-5] *     - GetPlanningSceneService
+[move_group-5] *     - KinematicsService
+[move_group-5] *     - MoveAction
+[move_group-5] *     - MotionPlanService
+[move_group-5] *     - QueryPlannersService
+[move_group-5] *     - StateValidationService
+[move_group-5] ********************************************************
+[move_group-5] [0m
+[move_group-5] [0m[INFO] [1793091442.289517498] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner[0m
+[move_group-5] [0m[INFO] [1793091442.289531579] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context initialization complete[0m
+[move_group-5] [96mLoading 'move_group/ApplyPlanningSceneService'...
+[move_group-5] [0m[96mLoading 'move_group/ClearOctomapService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupPlanService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[move_group-5] [0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[move_group-5] [0m[92m
+[move_group-5] You can start planning now!
+[move_group-5] 
+[INFO] [spawner-4]: process has finished cleanly [pid 2027]
+[INFO] [spawner-3]: process has finished cleanly [pid 2025]
+[mujoco_sim-6] [0m[INFO] [1793091442.385679559] [mujoco_sim]: MuJoCo 3.3.7 plant: dt 1.0 ms, mass 24.79 kg (+payload 0.0 kg, controller believes 10.0 kg), M_eff [7.815, 13.037, 6.793, 0.365, 0.184, 0.021], kp [19744.0, 32940.0, 17163.0, 923.0, 464.0, 54.0][0m
+[move_group-5] [0m[INFO] [1793091449.945995977] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091449.946949787] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091449.984385444] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091449.984607752] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091449.984640496] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091449.984653728] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091449.984758372] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091449.985939118] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091449.986003404] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091449.986020272] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091449.986125016] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091449.986440218] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091449.986521443] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091449.986727715] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091449.986747177] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091452.863960470] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091452.864043380] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 2.876938 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091452.864093765] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091452.864439456] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091452.864476148] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091452.864751802] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091452.864870722] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091452.886731758] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091454.366504624] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091454.367096102] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091454.398301205] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091454.398400516] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091454.398422222] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091454.398434478] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091454.398486769] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091454.405841812] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091454.405904155] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091454.405919187] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091454.405989957] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091454.406218263] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091454.406267147] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091454.406483607] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091454.406496675] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091455.366419194] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091455.366516271] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 0.959684 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091455.366669598] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091455.366981815] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091455.367039849] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091455.367292027] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091455.367422425] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091455.407018900] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091456.877088088] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091456.877955075] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091456.911681731] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091456.911820509] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091456.911844320] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091456.911855012] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091456.911911854] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091456.916032583] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091456.916101952] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091456.916119429] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091456.916194500] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091456.916490715] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091456.916544841] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091456.916719996] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091456.916755753] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091458.053852317] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091458.053918059] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 1.136903 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091458.053975012] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091458.054288479] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091458.054337083] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091458.054661032] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091458.054774137] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091458.067368452] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091463.672856861] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091463.673269842] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091463.697602805] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091463.697895462] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091463.697942677] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091463.697966325] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091463.698081677] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091463.706086407] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091463.706168539] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091463.706185580] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091463.706264494] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091463.706534845] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091463.706629778] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091463.706934815] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091463.706950433] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091464.460677350] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091464.460773215] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 0.753504 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091464.460845112] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091464.461113842] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091464.461168536] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091464.461459601] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091464.461548138] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091464.507755591] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091465.968794362] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091465.969659061] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091465.995028368] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091465.995319755] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091465.995358300] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091465.995379332] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091465.995477384] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091465.996110322] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091465.996148406] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091465.996162811] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091465.996288711] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091465.996593291] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091465.996668957] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091465.996985858] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091465.996998038] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091466.956549785] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091466.956647105] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 0.959302 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091466.956707286] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091466.956953902] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091466.957013983] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091466.957247975] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091466.957383205] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091466.997186643] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091468.466465527] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091468.467012245] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091468.496462187] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091468.496563676] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091468.496584294] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091468.496593601] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091468.496658272] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091468.506030773] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091468.506111383] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091468.506128064] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091468.506249179] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091468.506528880] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091468.506587459] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091468.506903186] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091468.506917783] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091469.636063383] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091469.636120309] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 1.128930 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091469.636182686] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091469.636452439] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091469.636501351] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091469.636784379] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091469.636866713] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091469.657145066] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091475.219636873] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091475.220088439] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091475.255013961] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091475.255225155] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091475.255254382] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091475.255267247] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091475.255371793] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091475.256055524] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091475.256112265] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091475.256128317] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091475.256205879] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091475.256451160] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091475.256515576] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091475.256707043] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091475.256720940] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793091476.015104571] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793091476.015171583] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 0.758167 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793091476.015218425] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091476.015472756] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091476.015507865] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793091476.015841171] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793091476.015998680] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793091476.057174567] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m
+[move_group-5] [0m[INFO] [1793091477.526964444] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793091477.527441324] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793091477.554922793] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793091477.555132928] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793091477.555159370] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091477.555172115] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091477.555270780] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793091477.556059937] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793091477.556128312] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091477.556150365] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793091477.556226235] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793091477.556451860] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793091477.556492000] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793091477.556678207] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793091477.556691904] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045080957] [tolerances]: State tolerances failed for joint 1:[0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045193289] [tolerances]: Position Error: 0.007178, Position Tolerance: 0.005000[0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045207632] [tolerances]: State tolerances failed for joint 2:[0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045211752] [tolerances]: Position Error: 0.012084, Position Tolerance: 0.005000[0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045216924] [tolerances]: State tolerances failed for joint 3:[0m
+[ros2_control_node-2] [31m[ERROR] [1793095653.045221003] [tolerances]: Position Error: 0.040734, Position Tolerance: 0.005000[0m
+[ros2_control_node-2] [33m[WARN] [1793095653.045241421] [arm_controller]: Aborted due to goal_time_tolerance exceeding by 4175.103029 seconds[0m
+[move_group-5] [33m[WARN] [1793095653.076643092] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' failed with error GOAL_TOLERANCE_VIOLATED: Aborted due to goal_time_tolerance exceeding by 4175.103029 seconds[0m
+[move_group-5] [33m[WARN] [1793095653.076758801] [moveit_ros.trajectory_execution_manager]: Controller handle arm_controller reports status ABORTED[0m
+[move_group-5] [0m[INFO] [1793095653.076778237] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status ABORTED ...[0m
+[move_group-5] [0m[INFO] [1793095653.076889295] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: ABORTED[0m
+[move_group-5] [0m[INFO] [1793095654.592918686] [moveit_move_group_default_capabilities.plan_service_capability]: Received new planning service request...[0m
+[move_group-5] [0m[INFO] [1793095654.593460687] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm[RRTConnect]' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.[0m
+[move_group-5] [0m[INFO] [1793095654.666526701] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Received goal request[0m
+[move_group-5] [0m[INFO] [1793095654.666794885] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution request received[0m
+[move_group-5] [0m[INFO] [1793095654.666829335] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793095654.666845613] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793095654.666913952] [moveit_ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01[0m
+[move_group-5] [0m[INFO] [1793095654.667579480] [moveit_ros.trajectory_execution_manager]: Starting trajectory execution ...[0m
+[move_group-5] [0m[INFO] [1793095654.667625938] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793095654.667643338] [moveit.plugins.moveit_simple_controller_manager]: Returned 1 controllers in list[0m
+[move_group-5] [0m[INFO] [1793095654.667727093] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793095654.668006343] [arm_controller]: Received new action goal[0m
+[ros2_control_node-2] [0m[INFO] [1793095654.668052971] [arm_controller]: Accepted new action goal[0m
+[move_group-5] [0m[INFO] [1793095654.668331339] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: arm_controller started execution[0m
+[move_group-5] [0m[INFO] [1793095654.668345352] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted![0m
+[move_group-5] [33m[WARN] [1793095656.072092878] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: waitForExecution timed out[0m
+[move_group-5] [31m[ERROR] [1793095656.072161999] [moveit_ros.trajectory_execution_manager]: Controller is taking too long to execute trajectory (the expected upper bound for the trajectory execution was 1.403527 seconds). Stopping trajectory.[0m
+[move_group-5] [0m[INFO] [1793095656.072229295] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Cancelling execution for arm_controller[0m
+[ros2_control_node-2] [0m[INFO] [1793095656.072497209] [arm_controller]: Got request to cancel goal[0m
+[ros2_control_node-2] [0m[INFO] [1793095656.072535959] [arm_controller]: Canceling active action goal because cancel callback received.[0m
+[move_group-5] [0m[INFO] [1793095656.072794139] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status TIMED_OUT ...[0m
+[move_group-5] [0m[INFO] [1793095656.072915161] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: TIMED_OUT[0m
+[move_group-5] [0m[INFO] [1793095656.119272722] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'arm_controller' successfully finished[0m

@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793071656
+    nanosec: 469493759
+  frame_id: ''
+status:
+- level: "\x01"
+  name: ex/joint_state_adapter
+  message: feedback STALE (age 595 ms)
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: STALE
+  - key: valid
+    value: 'True'
+  - key: rate_hz
+    value: '125.13'
+  - key: mean_dt_ms
+    value: '7.99'
+  - key: max_dt_ms
+    value: '10.13'
+  - key: age_ms
+    value: '595.4'
+  - key: accepted
+    value: '1997'
+  - key: rejected
+    value: '0'
+  - key: stamp_latency_ms
+    value: '0.56'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '-28.545'
+  - key: joint2_deg
+    value: '+16.907'
+  - key: joint3_deg
+    value: '+99.144'
+  - key: joint4_deg
+    value: '+26.891'
+  - key: joint5_deg
+    value: '-60.556'
+  - key: joint6_deg
+    value: '-37.861'
+---

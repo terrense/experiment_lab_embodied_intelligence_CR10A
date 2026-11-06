@@ -1,0 +1,14 @@
+{
+  "n": 2779,
+  "pos_err_mm_mean": 4.783946180794231e-14,
+  "pos_err_mm_rms": 9.202386044448955e-14,
+  "pos_err_mm_max": 4.611102534756204e-13,
+  "rot_err_deg_mean_by_hypothesis": {
+    "quat_xyzw": 133.04049644049573,
+    "euler_xyz_extrinsic(Rz*Ry*Rx)": 1.1894363883909358e-06,
+    "euler_xyz_intrinsic(Rx*Ry*Rz)": 124.21482514794106,
+    "quat_wxyz": 6.053144718156582e-07
+  },
+  "best_orientation_hypothesis": "quat_wxyz",
+  "skipped_non_default_frames": 0
+}

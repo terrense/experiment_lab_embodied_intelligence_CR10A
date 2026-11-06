@@ -1,0 +1,996 @@
+{
+ "protocol": "frozen test range, three detectors, legacy policy behaviour",
+ "episode_manifest_hash": "a995f097b28148c2",
+ "split": "test",
+ "seed_start": 20000,
+ "seed_end_exclusive": 20050,
+ "episodes": 50,
+ "tasks": [
+  "wall_obs",
+  "wall_rand",
+  "wall_ood"
+ ],
+ "policy_seeds": [
+  0,
+  1,
+  2
+ ],
+ "methods": [
+  "raw",
+  "cbf_legacy",
+  "qp",
+  "qp0",
+  "exec"
+ ],
+ "qp_margin": 0.04,
+ "qp0_margin": 0.0,
+ "cbf_margin": 0.05,
+ "cbf_alpha": 5.0,
+ "exec_margin": 0.01,
+ "independent_stride": 10,
+ "rows": [
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.016516803348521753,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11861242868784949,
+    "min_self_clearance_m_median": 0.03189176256106364,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 122.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01647262565355135,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11864419952975151,
+    "min_self_clearance_m_median": 0.03189176256106364,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 131.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01648441715858083,
+   "filter_stats": {
+    "solves": 14187,
+    "infeasible": 0,
+    "max_violation": 5.551115123125783e-16,
+    "solve_time_s_median": 0.0006504150223918259
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11872663746984635,
+    "min_self_clearance_m_median": 0.03189176256106364,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 41560.7
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "qp0",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.016515923575755133,
+   "filter_stats": {
+    "solves": 14162,
+    "infeasible": 0,
+    "max_violation": 3.3306690738754696e-16,
+    "solve_time_s_median": 0.0004038290062453598
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11861242868784949,
+    "min_self_clearance_m_median": 0.03189176256106364,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 135.0
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_obs",
+   "method": "exec",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.016516803348521753,
+   "filter_stats": {
+    "solves": 14635,
+    "infeasible": 2,
+    "max_relaxation": 0.005776031969429041,
+    "solve_time_s_median": 0.0006069199880585074,
+    "interventions": 17,
+    "steps": 14635
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11861242868784949,
+    "min_self_clearance_m_median": 0.03189176256106364,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 164.0
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.011378845358267074,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10581713167712817,
+    "min_self_clearance_m_median": 0.03194473505149641,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 127.2
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01137472148181381,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10552649028096263,
+    "min_self_clearance_m_median": 0.031961235544327934,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 125.5
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.011358319594266263,
+   "filter_stats": {
+    "solves": 11996,
+    "infeasible": 0,
+    "max_violation": 6.106226635438361e-16,
+    "solve_time_s_median": 0.00037383000017143786
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1056661676668944,
+    "min_self_clearance_m_median": 0.03194735051455901,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 129.5
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "qp0",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01137332283684898,
+   "filter_stats": {
+    "solves": 11951,
+    "infeasible": 0,
+    "max_violation": 6.106226635438361e-16,
+    "solve_time_s_median": 0.0005244300118647516
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10581713167712817,
+    "min_self_clearance_m_median": 0.03194473505149641,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 6797.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_rand",
+   "method": "exec",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.011378845358267074,
+   "filter_stats": {
+    "solves": 12391,
+    "infeasible": 1,
+    "max_relaxation": 0.0008835523392237892,
+    "solve_time_s_median": 0.00025439599994570017,
+    "interventions": 34,
+    "steps": 12391
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.10581713167712817,
+    "min_self_clearance_m_median": 0.03194473505149641,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 99.8
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.38,
+   "legacy_collision_rate": 0.46,
+   "corrected_collision_rate": 0.5,
+   "final_dist_m_median": 0.04388218901871416,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07230066032940972,
+    "min_self_clearance_m_median": 0.03232909461708711,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 44.6
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.5,
+   "legacy_collision_rate": 0.08,
+   "corrected_collision_rate": 0.1,
+   "final_dist_m_median": 0.033471850473884956,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07507552464715556,
+    "min_self_clearance_m_median": 0.03197317452982935,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 75.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.5,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.02888280592731587,
+   "filter_stats": {
+    "solves": 14013,
+    "infeasible": 0,
+    "max_violation": 5.244069067877888e-15,
+    "solve_time_s_median": 0.00026327298837713897
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07917573078347179,
+    "min_self_clearance_m_median": 0.03193837473933094,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 90.4
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "qp0",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.22,
+   "final_dist_m_median": 0.024554946537220554,
+   "filter_stats": {
+    "solves": 13771,
+    "infeasible": 0,
+    "max_violation": 2.3288662664988635e-15,
+    "solve_time_s_median": 0.00031766199390403926
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07149732702417191,
+    "min_self_clearance_m_median": 0.031909322747132665,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 87.0
+  },
+  {
+   "policy_seed": 0,
+   "task": "wall_ood",
+   "method": "exec",
+   "success_rate": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.024531430290658098,
+   "filter_stats": {
+    "solves": 13829,
+    "infeasible": 0,
+    "max_relaxation": 3.032513476441956e-16,
+    "solve_time_s_median": 0.0002505629963707179,
+    "interventions": 1350,
+    "steps": 13829
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07181571976939509,
+    "min_self_clearance_m_median": 0.03191775331111139,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 107.6
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012614357232169212,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11404499226095784,
+    "min_self_clearance_m_median": 0.031913742540556116,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 84.7
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01260768696183684,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12635232284228984,
+    "min_self_clearance_m_median": 0.031913742540556116,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 86.2
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012606619135736501,
+   "filter_stats": {
+    "solves": 14323,
+    "infeasible": 0,
+    "max_violation": 5.551115123125783e-16,
+    "solve_time_s_median": 0.00022364797769114375
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12455074486157361,
+    "min_self_clearance_m_median": 0.031913742540556116,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 88.4
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "qp0",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012612284848004546,
+   "filter_stats": {
+    "solves": 14311,
+    "infeasible": 0,
+    "max_violation": 2.220446049250313e-16,
+    "solve_time_s_median": 0.0002456849906593561
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11404499226095784,
+    "min_self_clearance_m_median": 0.031913742540556116,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 91.5
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_obs",
+   "method": "exec",
+   "success_rate": 0.74,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012614357232169212,
+   "filter_stats": {
+    "solves": 14733,
+    "infeasible": 2,
+    "max_relaxation": 0.005776031969429041,
+    "solve_time_s_median": 0.0003284350095782429,
+    "interventions": 19,
+    "steps": 14733
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11404499226095784,
+    "min_self_clearance_m_median": 0.031913742540556116,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 106.5
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012163483656864617,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1292543258118478,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 82.5
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01214582448908066,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12916739298253954,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 84.7
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01214591035860502,
+   "filter_stats": {
+    "solves": 11989,
+    "infeasible": 0,
+    "max_violation": 6.938893903907228e-16,
+    "solve_time_s_median": 0.00023711001267656684
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12918009866754449,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 89.2
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "qp0",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012163483656864617,
+   "filter_stats": {
+    "solves": 11942,
+    "infeasible": 0,
+    "max_violation": 6.106226635438361e-16,
+    "solve_time_s_median": 0.0003459599975030869
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1292543258118478,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 89.9
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_rand",
+   "method": "exec",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012163483656864617,
+   "filter_stats": {
+    "solves": 11996,
+    "infeasible": 1,
+    "max_relaxation": 0.0008835523392237892,
+    "solve_time_s_median": 0.00023772200802341104,
+    "interventions": 35,
+    "steps": 11996
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1292543258118478,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 99.3
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.38,
+   "legacy_collision_rate": 0.34,
+   "corrected_collision_rate": 0.34,
+   "final_dist_m_median": 0.06974121231837435,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06285406807772934,
+    "min_self_clearance_m_median": 0.032261716196476005,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 55.8
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.46,
+   "legacy_collision_rate": 0.08,
+   "corrected_collision_rate": 0.08,
+   "final_dist_m_median": 0.02278642225636483,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.08482174526637822,
+    "min_self_clearance_m_median": 0.03221613046705214,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 77.9
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.44,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.03493804120582982,
+   "filter_stats": {
+    "solves": 14400,
+    "infeasible": 0,
+    "max_violation": 4.371503159461554e-15,
+    "solve_time_s_median": 0.00026302298647351563
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.08468039925137118,
+    "min_self_clearance_m_median": 0.03209429187244399,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 96.3
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "qp0",
+   "success_rate": 0.46,
+   "legacy_collision_rate": 0.16,
+   "corrected_collision_rate": 0.2,
+   "final_dist_m_median": 0.023029577170943817,
+   "filter_stats": {
+    "solves": 12578,
+    "infeasible": 0,
+    "max_violation": 3.352786798194174e-15,
+    "solve_time_s_median": 0.00030265399254858494
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06355748166780478,
+    "min_self_clearance_m_median": 0.032273593754100154,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 80.9
+  },
+  {
+   "policy_seed": 1,
+   "task": "wall_ood",
+   "method": "exec",
+   "success_rate": 0.46,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.022998294498045267,
+   "filter_stats": {
+    "solves": 14133,
+    "infeasible": 1,
+    "max_relaxation": 0.00038761066756227123,
+    "solve_time_s_median": 0.00025328301126137376,
+    "interventions": 2520,
+    "steps": 14133
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0628091181007266,
+    "min_self_clearance_m_median": 0.03214239104634909,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 99.2
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "raw",
+   "success_rate": 0.88,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012808493737912239,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1232526916535666,
+    "min_self_clearance_m_median": 0.03193562790312062,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 78.3
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "cbf_legacy",
+   "success_rate": 0.86,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012826406280644813,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12804708386846156,
+    "min_self_clearance_m_median": 0.031935249509234785,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 82.7
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "qp",
+   "success_rate": 0.86,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01282846242369967,
+   "filter_stats": {
+    "solves": 14196,
+    "infeasible": 0,
+    "max_violation": 3.885780586188048e-16,
+    "solve_time_s_median": 0.0002785160031635314
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12595772937904715,
+    "min_self_clearance_m_median": 0.03193547836573045,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 90.7
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "qp0",
+   "success_rate": 0.88,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012814716441173591,
+   "filter_stats": {
+    "solves": 14150,
+    "infeasible": 0,
+    "max_violation": 3.885780586188048e-16,
+    "solve_time_s_median": 0.0002801429945975542
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12554408442283826,
+    "min_self_clearance_m_median": 0.03193562790312062,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 95.5
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_obs",
+   "method": "exec",
+   "success_rate": 0.88,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.012808493737912239,
+   "filter_stats": {
+    "solves": 14734,
+    "infeasible": 2,
+    "max_relaxation": 0.005776031969429041,
+    "solve_time_s_median": 0.0003459160216152668,
+    "interventions": 30,
+    "steps": 14734
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.1232526916535666,
+    "min_self_clearance_m_median": 0.03193562790312062,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 115.5
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "raw",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01591882724413194,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11778551277580292,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 87.5
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "cbf_legacy",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01590040763467226,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11949302922324731,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 88.6
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "qp",
+   "success_rate": 0.82,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01591244024800726,
+   "filter_stats": {
+    "solves": 11940,
+    "infeasible": 0,
+    "max_violation": 7.771561172376096e-16,
+    "solve_time_s_median": 0.00030865598819218576
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.12014011842079857,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 91.5
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "qp0",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.015922971747553215,
+   "filter_stats": {
+    "solves": 11862,
+    "infeasible": 0,
+    "max_violation": 3.3306690738754696e-16,
+    "solve_time_s_median": 0.00025865298812277615
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11778551277580292,
+    "min_self_clearance_m_median": 0.031925783962759524,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 89.5
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_rand",
+   "method": "exec",
+   "success_rate": 0.84,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.01591905365681354,
+   "filter_stats": {
+    "solves": 12187,
+    "infeasible": 1,
+    "max_relaxation": 0.0008835523392237892,
+    "solve_time_s_median": 0.00027464202139526606,
+    "interventions": 48,
+    "steps": 12187
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.11778551277580292,
+    "min_self_clearance_m_median": 0.031898000934429425,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 102.7
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "raw",
+   "success_rate": 0.32,
+   "legacy_collision_rate": 0.36,
+   "corrected_collision_rate": 0.38,
+   "final_dist_m_median": 0.035845636071286366,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.051585562514467144,
+    "min_self_clearance_m_median": 0.03221720442730257,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 46.3
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "cbf_legacy",
+   "success_rate": 0.42,
+   "legacy_collision_rate": 0.16,
+   "corrected_collision_rate": 0.16,
+   "final_dist_m_median": 0.028639427851161303,
+   "filter_stats": {},
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09814383329658076,
+    "min_self_clearance_m_median": 0.032060496443774726,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 73.2
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "qp",
+   "success_rate": 0.42,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.028618717885503523,
+   "filter_stats": {
+    "solves": 13652,
+    "infeasible": 0,
+    "max_violation": 6.110997124997297e-15,
+    "solve_time_s_median": 0.00028028301312588155
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09491266214435615,
+    "min_self_clearance_m_median": 0.03203711903810721,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 87.7
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "qp0",
+   "success_rate": 0.44,
+   "legacy_collision_rate": 0.08,
+   "corrected_collision_rate": 0.16,
+   "final_dist_m_median": 0.028637048647370114,
+   "filter_stats": {
+    "solves": 12732,
+    "infeasible": 0,
+    "max_violation": 2.400857290751901e-15,
+    "solve_time_s_median": 0.00022447999799624085
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07248315253778555,
+    "min_self_clearance_m_median": 0.032214815607726946,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 77.2
+  },
+  {
+   "policy_seed": 2,
+   "task": "wall_ood",
+   "method": "exec",
+   "success_rate": 0.44,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.028638054670909043,
+   "filter_stats": {
+    "solves": 13581,
+    "infeasible": 0,
+    "max_relaxation": 5.189889452439714e-16,
+    "solve_time_s_median": 0.000249335978878662,
+    "interventions": 1233,
+    "steps": 13581
+   },
+   "mesh": {
+    "episodes": 5,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07241307741661618,
+    "min_self_clearance_m_median": 0.03218864220311177,
+    "self_collision_rate": 0.0
+   },
+   "wall_s": 97.3
+  }
+ ]
+}

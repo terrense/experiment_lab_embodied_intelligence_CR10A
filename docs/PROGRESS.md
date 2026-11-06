@@ -451,3 +451,36 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   QP's 45.3 % out of distribution, both collision-free, mesh 0 % everywhere.
 - Figure 5 (assets/learning/frontier.png) is redrawn from the 50-episode sweeps; the ablation is
   no longer drawn (it lies exactly on the B5 curve) and the note in the panel says so.
+
+## 2026-11-06 (evening): the statistics the protocol promised, and the seed count it needs
+- **Compute assessment (the standing rule, stated before the experiments).** Every experiment is
+  assessed first; if the laptop is enough, it runs on the laptop. The assessment table is in
+  docs/REMOTE_COMPUTE.md. The honest finding: the H20's VRAM is NOT the binding constraint
+  anywhere in this plan - the MuJoCo plant is CPU-bound and the policies are small MLPs, so the
+  server's value is its CORE COUNT (many seeds in parallel), which is exactly what the
+  statistical weakness below needs. The one place a GPU genuinely matters is the residual-RL arm
+  (B7) in Week 5.
+- **Remote scaffolding prepared** (scripts/remote/{setup_env,sync,train_seeds,fetch_results}.sh +
+  remote_config.example.sh). The SSH target and the remote paths live in a git-ignored local
+  copy; nothing about the owner's infrastructure is committed. The motion-capable package
+  (ros2_ws/src/ex_dobot_motion) is deliberately EXCLUDED from the sync: a compute node must not
+  hold a copy of the code that can move a robot.
+- **The xacro expansion is now cached** (data/cache/ex_cr10_calibrated_1.urdf, 7.8 kB, committed,
+  byte-identical to what xacro produces). It used to run on EVERY environment construction, i.e.
+  every episode of a sweep; it is 18x faster now, and a remote node needs neither ROS nor xacro.
+- **evaluation/stats.py** - the statistics section 6.3 of the manuscript promised and that did not
+  exist: the paired scenario bootstrap, the two-level (seeds, then scenarios) hierarchical
+  bootstrap, the naive interval kept only so the report can show how much it over-claims, the
+  between-seed spread, an explicit separability verdict, and the Clopper-Pearson bound with its
+  independence warning. Every function returns its assumptions. 13 new tests (220 in total); the
+  key one constructs data with a scenario effect shared across the seeds and a per-seed shift of
+  the difference, and shows the hierarchical interval is more than twice as wide as the naive one.
+- **The seed count is the bottleneck.** Three training seeds cannot separate an 8-point mean
+  difference from an 8-point between-seed spread, and the confirmatory result hinges on exactly
+  that. So six more seeds are training locally (5M timesteps, the archived configuration) and
+  twelve more can be trained on the server when the owner connects it. Each completed seed is
+  immediately usable; the confirmatory statistics re-run with whatever is available.
+- **Manifest v2**: the tuning split moves OUT of the training range (v1 used seeds 0-19, inside
+  train 0-999 - the protocol flaw found while checking the confirmatory result), and a second
+  untouched range (30000-30199) is added for replication. v1 is frozen verbatim, so its hash
+  (a995f097b28148c2, quoted in the committed reports) still reproduces - verified.

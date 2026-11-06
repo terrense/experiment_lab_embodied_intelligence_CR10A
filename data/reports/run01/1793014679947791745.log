@@ -1,0 +1,20 @@
+[33m[WARN] [1793014680.309485817] [dobot_feedback_observer]: LIVE_OBSERVE: read-only feedback from 127.0.0.1:30004 (half_close=True). This node never sends data.[0m
+[0m[INFO] [1793014680.313118739] [dobot_feedback_observer]: connected to 127.0.0.1:30004[0m
+[33m[WARN] [1793014696.452059808] [dobot_feedback_observer]: feedback connection problem (OSError: [Errno 9] Bad file descriptor); retry in 1.0s[0m
+Traceback (most recent call last):
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/dobot_feedback_observer", line 33, in <module>
+    sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'dobot_feedback_observer')())
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/dobot_feedback_observer.py", line 220, in main
+    rclpy.spin(node)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+[ros2run]: Process exited with failure 1

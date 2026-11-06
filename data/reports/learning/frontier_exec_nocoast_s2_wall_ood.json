@@ -1,0 +1,90 @@
+{
+ "task": "wall_ood",
+ "model": "../data/reports/learning/ppo_wall_rand_s2",
+ "mode": "exec_nocoast",
+ "alpha": 5.0,
+ "episodes": 20,
+ "seed": 0,
+ "horizon": 5,
+ "sample_every": 2,
+ "execution_model": {
+  "omega": 37.69911184307752,
+  "zeta": 0.9,
+  "v_gain": 0.8,
+  "dt": 0.02,
+  "sub": 10
+ },
+ "execution_prediction_rms_rad": 0.004573699559250274,
+ "rows": [
+  {
+   "margin": 0.005,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.35,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.0256466243530816,
+   "infeasible": 0,
+   "max_relaxation": 2.42861286636753e-16,
+   "max_violation": 0.0,
+   "interventions": 404,
+   "steps": 5413
+  },
+  {
+   "margin": 0.01,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.35,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.025655896523526005,
+   "infeasible": 0,
+   "max_relaxation": 1.4029576111962427e-16,
+   "max_violation": 0.0,
+   "interventions": 448,
+   "steps": 5420
+  },
+  {
+   "margin": 0.02,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.35,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.025677854743685675,
+   "infeasible": 1,
+   "max_relaxation": 0.003252494214203305,
+   "max_violation": 0.0,
+   "interventions": 586,
+   "steps": 5445
+  },
+  {
+   "margin": 0.04,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.35,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.026740256300680103,
+   "infeasible": 9,
+   "max_relaxation": 0.023252494214203306,
+   "max_violation": 0.0,
+   "interventions": 1443,
+   "steps": 5531
+  },
+  {
+   "margin": 0.06,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.1,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.03926097089321051,
+   "infeasible": 25,
+   "max_relaxation": 0.0432524942142033,
+   "max_violation": 0.0,
+   "interventions": 3357,
+   "steps": 5600
+  }
+ ],
+ "raw": {
+  "success_rate": 0.25,
+  "collision_rate": 0.35,
+  "final_dist_m_median": 0.04254624410929585
+ }
+}

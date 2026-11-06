@@ -1,0 +1,76 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-26-19-37-10-883344-hgdoctor-sx-763
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: [embodied_x] mode=SIMULATION  health log: /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run01/simulation_20261026_193710.jsonl
+[INFO] [robot_state_publisher-1]: process started with pid [766]
+[INFO] [joint_state_adapter-2]: process started with pid [768]
+[INFO] [robot_state_monitor-3]: process started with pid [770]
+[INFO] [mock_joint_publisher-4]: process started with pid [772]
+[robot_state_publisher-1] [0m[INFO] [1793014630.994074559] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994202188] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994210457] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994213882] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994217053] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994219708] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994222353] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994225190] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994227835] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793014630.994230510] [robot_state_publisher]: got segment world[0m
+[mock_joint_publisher-4] [0m[INFO] [1793014631.180170786] [mock_joint_publisher]: SIMULATED joint source -> /joint_states_robot joints=['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'] amps_deg=[30.0, 20.0, 25.0, 35.0, 30.0, 45.0] fault=dropout[0m
+[joint_state_adapter-2] [0m[INFO] [1793014631.182150744] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[robot_state_monitor-3] [0m[INFO] [1793014631.254567005] [robot_state_monitor]: health log -> /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run01/simulation_20261026_193710.jsonl[0m
+[joint_state_adapter-2] [31m[ERROR] [1793014640.171334236] [joint_state_adapter]: joint feedback LOST[0m
+[joint_state_adapter-2] [33m[WARN] [1793014641.168216091] [joint_state_adapter]: feedback resumed after LOST; next sample is a RESYNC[0m
+[joint_state_adapter-2] [31m[ERROR] [1793014650.169529180] [joint_state_adapter]: joint feedback LOST[0m
+[robot_state_publisher-1] [0m[INFO] [1793014650.822563492] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[joint_state_adapter-2] Traceback (most recent call last):
+[joint_state_adapter-2]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/joint_state_adapter", line 33, in <module>
+[joint_state_adapter-2]     sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'joint_state_adapter')())
+[joint_state_adapter-2]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/joint_state_adapter.py", line 199, in main
+[mock_joint_publisher-4] Traceback (most recent call last):
+[mock_joint_publisher-4]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/mock_joint_publisher", line 33, in <module>
+[mock_joint_publisher-4]     sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'mock_joint_publisher')())
+[mock_joint_publisher-4]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/mock_joint_publisher.py", line 83, in main
+[mock_joint_publisher-4]     rclpy.spin(node)
+[mock_joint_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[joint_state_adapter-2]     rclpy.spin(node)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[joint_state_adapter-2]     executor.spin_once()
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[mock_joint_publisher-4]     executor.spin_once()
+[mock_joint_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[mock_joint_publisher-4]     self._spin_once_impl(timeout_sec)
+[mock_joint_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[mock_joint_publisher-4]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[mock_joint_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[mock_joint_publisher-4]     return next(self._cb_iter)
+[mock_joint_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[mock_joint_publisher-4]     raise ExternalShutdownException()
+[mock_joint_publisher-4] rclpy.executors.ExternalShutdownException
+[joint_state_adapter-2]     self._spin_once_impl(timeout_sec)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[joint_state_adapter-2]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[joint_state_adapter-2]     return next(self._cb_iter)
+[joint_state_adapter-2]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[joint_state_adapter-2]     raise ExternalShutdownException()
+[joint_state_adapter-2] rclpy.executors.ExternalShutdownException
+[robot_state_monitor-3] Traceback (most recent call last):
+[robot_state_monitor-3]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/robot_state_monitor", line 33, in <module>
+[robot_state_monitor-3]     sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'robot_state_monitor')())
+[robot_state_monitor-3]   File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/robot_state_monitor.py", line 294, in main
+[robot_state_monitor-3]     rclpy.spin(node)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[robot_state_monitor-3]     executor.spin_once()
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+[robot_state_monitor-3]     self._spin_once_impl(timeout_sec)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+[robot_state_monitor-3]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+[robot_state_monitor-3]     return next(self._cb_iter)
+[robot_state_monitor-3]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 685, in _wait_for_ready_callbacks
+[robot_state_monitor-3]     raise ExternalShutdownException()
+[robot_state_monitor-3] rclpy.executors.ExternalShutdownException
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 766]
+[ERROR] [joint_state_adapter-2]: process has died [pid 768, exit code 1, cmd '/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/joint_state_adapter --ros-args --params-file /tmp/launch_params_sz7ug47e --params-file /tmp/launch_params_l3t29ycz'].
+[ERROR] [mock_joint_publisher-4]: process has died [pid 772, exit code 1, cmd '/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/mock_joint_publisher --ros-args --params-file /tmp/launch_params_5e1zp3r1 --params-file /tmp/launch_params_qrhwo9bt --params-file /tmp/launch_params_omjfhemr'].
+[ERROR] [robot_state_monitor-3]: process has died [pid 770, exit code 1, cmd '/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/robot_state_monitor --ros-args --params-file /tmp/launch_params_0fncwx2_ --params-file /tmp/launch_params_8pzkf6_d --params-file /tmp/launch_params_8ytg0iw1'].

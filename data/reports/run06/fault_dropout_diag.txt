@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793016421
+    nanosec: 940225171
+  frame_id: ''
+status:
+- level: "\x01"
+  name: ex/joint_state_adapter
+  message: rate 55.4 Hz < 80% of expected 125 Hz
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: FRESH
+  - key: valid
+    value: 'True'
+  - key: rate_hz
+    value: '55.42'
+  - key: mean_dt_ms
+    value: '18.04'
+  - key: max_dt_ms
+    value: '2008.19'
+  - key: age_ms
+    value: '5.3'
+  - key: accepted
+    value: '2186'
+  - key: rejected
+    value: '0'
+  - key: stamp_latency_ms
+    value: '0.93'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '+24.319'
+  - key: joint2_deg
+    value: '-19.186'
+  - key: joint3_deg
+    value: '+69.257'
+  - key: joint4_deg
+    value: '-11.646'
+  - key: joint5_deg
+    value: '-60.111'
+  - key: joint6_deg
+    value: '-12.112'
+---

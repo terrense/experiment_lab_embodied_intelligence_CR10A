@@ -1,0 +1,29 @@
+[INFO] [launch]: All log files can be found below /home/ex/.ros/log/2026-10-26-20-06-39-789345-hgdoctor-sx-767
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: [embodied_x] mode=SIMULATION  health log: /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run06/simulation_20261026_200639.jsonl
+[INFO] [robot_state_publisher-1]: process started with pid [770]
+[INFO] [joint_state_adapter-2]: process started with pid [772]
+[INFO] [robot_state_monitor-3]: process started with pid [774]
+[INFO] [mock_joint_publisher-4]: process started with pid [776]
+[robot_state_publisher-1] [0m[INFO] [1793016400.049320431] [robot_state_publisher]: got segment Link1[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049578624] [robot_state_publisher]: got segment Link2[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049594346] [robot_state_publisher]: got segment Link3[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049601816] [robot_state_publisher]: got segment Link4[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049607855] [robot_state_publisher]: got segment Link5[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049613783] [robot_state_publisher]: got segment Link6[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049619721] [robot_state_publisher]: got segment base_link[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049625990] [robot_state_publisher]: got segment flange[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049632239] [robot_state_publisher]: got segment tcp[0m
+[robot_state_publisher-1] [0m[INFO] [1793016400.049638558] [robot_state_publisher]: got segment world[0m
+[mock_joint_publisher-4] [0m[INFO] [1793016400.455349345] [mock_joint_publisher]: SIMULATED joint source -> /joint_states_robot joints=['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'] amps_deg=[30.0, 20.0, 25.0, 35.0, 30.0, 45.0] fault=dropout[0m
+[joint_state_adapter-2] [0m[INFO] [1793016400.466230296] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[robot_state_monitor-3] [0m[INFO] [1793016400.554778902] [robot_state_monitor]: health log -> /mnt/c/Users/HGDOCTOR/embodied-x/data/reports/run06/simulation_20261026_200639.jsonl[0m
+[joint_state_adapter-2] [31m[ERROR] [1793016409.443239588] [joint_state_adapter]: joint feedback LOST[0m
+[joint_state_adapter-2] [33m[WARN] [1793016410.432680270] [joint_state_adapter]: feedback resumed after LOST; next sample is a RESYNC[0m
+[joint_state_adapter-2] [31m[ERROR] [1793016419.448747957] [joint_state_adapter]: joint feedback LOST[0m
+[joint_state_adapter-2] [33m[WARN] [1793016420.431882245] [joint_state_adapter]: feedback resumed after LOST; next sample is a RESYNC[0m
+[robot_state_publisher-1] [0m[INFO] [1793016422.111075570] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 770]
+[INFO] [mock_joint_publisher-4]: process has finished cleanly [pid 776]
+[INFO] [joint_state_adapter-2]: process has finished cleanly [pid 772]
+[INFO] [robot_state_monitor-3]: process has finished cleanly [pid 774]

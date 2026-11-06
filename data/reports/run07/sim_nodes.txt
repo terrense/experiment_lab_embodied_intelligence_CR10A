@@ -1,0 +1,8 @@
+WARNING: Be aware that there are nodes in the graph that share an exact name, which can have unintended side effects.
+/joint_state_adapter
+/mock_joint_publisher
+/robot_state_monitor
+/robot_state_monitor
+/robot_state_monitor
+/robot_state_monitor
+/robot_state_publisher

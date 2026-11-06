@@ -1,0 +1,77 @@
+{
+ "task": "wall_ood",
+ "model": "../data/reports/learning/ppo_wall_rand_s1",
+ "mode": "qp",
+ "alpha": 5.0,
+ "episodes": 50,
+ "seed": 0,
+ "horizon": 5,
+ "sample_every": 2,
+ "execution_model": {
+  "omega": 37.69911184307752,
+  "zeta": 0.9,
+  "v_gain": 0.8,
+  "dt": 0.02,
+  "sub": 10
+ },
+ "execution_prediction_rms_rad": 0.004573699559250274,
+ "rows": [
+  {
+   "margin": 0.005,
+   "mode": "qp",
+   "alpha": 5.0,
+   "success_rate": 0.4,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.026942388081311486,
+   "infeasible": 0,
+   "max_relaxation": 0.0,
+   "max_violation": 2.1423834928313568e-15,
+   "interventions": 0,
+   "steps": 0
+  },
+  {
+   "margin": 0.01,
+   "mode": "qp",
+   "alpha": 5.0,
+   "success_rate": 0.4,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.026920599212849762,
+   "infeasible": 0,
+   "max_relaxation": 0.0,
+   "max_violation": 2.4083924958506753e-15,
+   "interventions": 0,
+   "steps": 0
+  },
+  {
+   "margin": 0.02,
+   "mode": "qp",
+   "alpha": 5.0,
+   "success_rate": 0.4,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.026872875699603525,
+   "infeasible": 0,
+   "max_relaxation": 0.0,
+   "max_violation": 2.136935376914617e-15,
+   "interventions": 0,
+   "steps": 0
+  },
+  {
+   "margin": 0.04,
+   "mode": "qp",
+   "alpha": 5.0,
+   "success_rate": 0.34,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.037049316571890104,
+   "infeasible": 0,
+   "max_relaxation": 0.0,
+   "max_violation": 3.002806336915853e-15,
+   "interventions": 0,
+   "steps": 0
+  }
+ ],
+ "raw": {
+  "success_rate": 0.2,
+  "collision_rate": 0.34,
+  "final_dist_m_median": 0.07562714936474083
+ }
+}

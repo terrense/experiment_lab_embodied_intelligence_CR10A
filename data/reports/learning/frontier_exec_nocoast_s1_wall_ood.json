@@ -1,0 +1,90 @@
+{
+ "task": "wall_ood",
+ "model": "../data/reports/learning/ppo_wall_rand_s1",
+ "mode": "exec_nocoast",
+ "alpha": 5.0,
+ "episodes": 20,
+ "seed": 0,
+ "horizon": 5,
+ "sample_every": 2,
+ "execution_model": {
+  "omega": 37.69911184307752,
+  "zeta": 0.9,
+  "v_gain": 0.8,
+  "dt": 0.02,
+  "sub": 10
+ },
+ "execution_prediction_rms_rad": 0.004573699559250274,
+ "rows": [
+  {
+   "margin": 0.005,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.4,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.036360387687106505,
+   "infeasible": 0,
+   "max_relaxation": 6.852157730108388e-17,
+   "max_violation": 0.0,
+   "interventions": 426,
+   "steps": 5395
+  },
+  {
+   "margin": 0.01,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.4,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.03634304143402453,
+   "infeasible": 0,
+   "max_relaxation": 2.1694885471434944e-16,
+   "max_violation": 0.0,
+   "interventions": 476,
+   "steps": 5400
+  },
+  {
+   "margin": 0.02,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.35,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.04516394333620631,
+   "infeasible": 1,
+   "max_relaxation": 0.003252494214203305,
+   "max_violation": 0.0,
+   "interventions": 818,
+   "steps": 5413
+  },
+  {
+   "margin": 0.04,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.3,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.04912188328222396,
+   "infeasible": 9,
+   "max_relaxation": 0.023252494214203306,
+   "max_violation": 0.0,
+   "interventions": 1429,
+   "steps": 5450
+  },
+  {
+   "margin": 0.06,
+   "mode": "exec_nocoast",
+   "alpha": 5.0,
+   "success_rate": 0.2,
+   "collision_rate": 0.0,
+   "final_dist_m_median": 0.07120404646055287,
+   "infeasible": 15,
+   "max_relaxation": 0.0432524942142033,
+   "max_violation": 0.0,
+   "interventions": 3380,
+   "steps": 5732
+  }
+ ],
+ "raw": {
+  "success_rate": 0.1,
+  "collision_rate": 0.4,
+  "final_dist_m_median": 0.07976641442932014
+ }
+}

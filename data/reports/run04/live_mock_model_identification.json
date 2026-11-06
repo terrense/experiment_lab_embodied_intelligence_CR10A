@@ -1,0 +1,34 @@
+{
+  "bag": "data/bags/live_mock_run04",
+  "paired_samples": 1322,
+  "tool_samples": 1322,
+  "candidates": {
+    "official_cr10": {
+      "n": 1322,
+      "pos_err_mm_mean": 0.01445978161286335,
+      "pos_err_mm_rms": 0.2635395179658423,
+      "pos_err_mm_max": 5.349352131650678,
+      "rot_err_deg_mean_by_hypothesis": {
+        "euler_xyz_extrinsic(Rz*Ry*Rx)": 0.004233597523726223,
+        "euler_xyz_intrinsic(Rx*Ry*Rz)": 125.5557861902613,
+        "quat_wxyz": 0.004232996679870973,
+        "quat_xyzw": 139.43971446517108
+      },
+      "best_orientation_hypothesis": "quat_wxyz"
+    },
+    "official_cr10af": {
+      "n": 1322,
+      "pos_err_mm_mean": 41.88699161749629,
+      "pos_err_mm_rms": 41.887506502834555,
+      "pos_err_mm_max": 41.900949838704676,
+      "rot_err_deg_mean_by_hypothesis": {
+        "euler_xyz_extrinsic(Rz*Ry*Rx)": 179.99672285776987,
+        "euler_xyz_intrinsic(Rx*Ry*Rz)": 119.70605245705073,
+        "quat_wxyz": 179.99672286071552,
+        "quat_xyzw": 95.43531887780216
+      },
+      "best_orientation_hypothesis": "quat_xyzw"
+    }
+  },
+  "best_position_match": "official_cr10"
+}

@@ -1,0 +1,138 @@
+{
+ "episodes": 8,
+ "success_rate": 0.5,
+ "final_dist_m_median": 0.2858218209980999,
+ "time_to_reach_s_median": 13.870000000000001,
+ "path_m_median": 0.5356816118216051,
+ "limit_hit_episodes": 0,
+ "collision_rate": 0.0,
+ "per_episode": [
+  {
+   "success": true,
+   "final_dist_m": 5.970466361840349e-11,
+   "path_m": 2.192843539863216,
+   "time_to_reach_s": 13.24,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.0028409845767332458
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.8074291729079455,
+   "path_m": 0.0,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.2
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.5716436419014344,
+   "path_m": 0.0,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.07339313237404271
+  },
+  {
+   "success": true,
+   "final_dist_m": 3.0574535673108554e-11,
+   "path_m": 1.4822585682794187,
+   "time_to_reach_s": 15.64,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.02318107114986215
+  },
+  {
+   "success": true,
+   "final_dist_m": 3.714475092179058e-11,
+   "path_m": 1.2137685333922292,
+   "time_to_reach_s": 14.5,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.00837261327996111
+  },
+  {
+   "success": true,
+   "final_dist_m": 9.476541411118281e-11,
+   "path_m": 1.0713632236432102,
+   "time_to_reach_s": 7.98,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.008018649781343742
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.7411273865644117,
+   "path_m": 0.0,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.2
+  },
+  {
+   "success": false,
+   "final_dist_m": 0.7241303414827847,
+   "path_m": 0.0,
+   "time_to_reach_s": null,
+   "limit_hit_steps": 0,
+   "collision": false,
+   "min_clearance_m": 0.2
+  }
+ ],
+ "plan_success_rate": 0.5,
+ "plan_time_s_median": 14.629999999999999,
+ "plans": [
+  {
+   "solved": true,
+   "plan_s": 17.31,
+   "checks": 26951,
+   "waypoints": 7
+  },
+  {
+   "solved": false,
+   "plan_s": 43.08,
+   "checks": 60000,
+   "waypoints": 0
+  },
+  {
+   "solved": false,
+   "plan_s": 41.69,
+   "checks": 60010,
+   "waypoints": 0
+  },
+  {
+   "solved": true,
+   "plan_s": 11.95,
+   "checks": 27165,
+   "waypoints": 3
+  },
+  {
+   "solved": true,
+   "plan_s": 2.78,
+   "checks": 7598,
+   "waypoints": 4
+  },
+  {
+   "solved": true,
+   "plan_s": 47.31,
+   "checks": 47942,
+   "waypoints": 4
+  },
+  {
+   "solved": false,
+   "plan_s": 37.94,
+   "checks": 60003,
+   "waypoints": 0
+  },
+  {
+   "solved": false,
+   "plan_s": 45.03,
+   "checks": 60006,
+   "waypoints": 0
+  }
+ ],
+ "max_checks": 60000,
+ "margin_m": 0.005,
+ "exec_steps": 1500
+}

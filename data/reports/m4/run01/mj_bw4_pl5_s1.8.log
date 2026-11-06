@@ -1,0 +1,11 @@
+[0m[INFO] [1793072799.497077277] [planning_lab_benchmark]: capsule radii (m): base_link=0.097, Link1=0.126, Link2=0.150, Link3=0.110, Link4=0.083, Link5=0.078, Link6=0.061[0m
+[0m[INFO] [1793072799.845735099] [planning_lab_benchmark]: mesh surface samples per link: {'base_link': 87431, 'Link1': 33755, 'Link2': 106139, 'Link3': 90055, 'Link4': 21543, 'Link5': 30794, 'Link6': 24313}; estimate error bound 5.0 mm[0m
+Traceback (most recent call last):
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/ex_planning_lab/execute_demo", line 33, in <module>
+    sys.exit(load_entry_point('ex-planning-lab==0.1.0', 'console_scripts', 'execute_demo')())
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/python3.10/site-packages/ex_planning_lab/nodes/execute_demo.py", line 256, in main
+    node.run()
+  File "/home/ex/ex_ws_out/install/ex_planning_lab/lib/python3.10/site-packages/ex_planning_lab/nodes/execute_demo.py", line 172, in run
+    raise RuntimeError(f"positioning move failed (code {code})")
+RuntimeError: positioning move failed (code 1)
+[ros2run]: Process exited with failure 1

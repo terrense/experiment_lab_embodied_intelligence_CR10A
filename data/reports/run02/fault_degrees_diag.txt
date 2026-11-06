@@ -1,0 +1,44 @@
+header:
+  stamp:
+    sec: 1793014882
+    nanosec: 200202170
+  frame_id: ''
+status:
+- level: "\x02"
+  name: ex/joint_state_adapter
+  message: 'UNIT_SUSPECT_DEGREES: joint1=-17.509 exceeds 6.48; degrees sent as radians?; UNIT_SUSPECT_DEGREES: joint3=114.829 exceeds 6.48; ...'
+  hardware_id: joint_feedback
+  values:
+  - key: freshness
+    value: FRESH
+  - key: valid
+    value: 'False'
+  - key: rate_hz
+    value: '124.98'
+  - key: mean_dt_ms
+    value: '8.00'
+  - key: max_dt_ms
+    value: '9.31'
+  - key: age_ms
+    value: '5.0'
+  - key: accepted
+    value: '1249'
+  - key: rejected
+    value: '1188'
+  - key: stamp_latency_ms
+    value: '0.78'
+  - key: joint_state_publishers
+    value: '1'
+  - key: joint1_deg
+    value: '+0.145'
+  - key: joint2_deg
+    value: '-6.300'
+  - key: joint3_deg
+    value: '+82.470'
+  - key: joint4_deg
+    value: '+11.184'
+  - key: joint5_deg
+    value: '-65.485'
+  - key: joint6_deg
+    value: '-13.140'
+---

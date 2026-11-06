@@ -1,0 +1,34 @@
+{
+  "bag": "data/bags/cr10a_live_02",
+  "samples": 14590,
+  "skipped_non_default_frames": 0,
+  "candidates": {
+    "official_cr10": {
+      "n": 14590,
+      "pos_err_mm_mean": 1.6007701494787414,
+      "pos_err_mm_rms": 1.6007701498345435,
+      "pos_err_mm_max": 1.600897533394102,
+      "rot_err_deg_mean_by_hypothesis": {
+        "euler_xyz_intrinsic(Rx*Ry*Rz)": 30.345746288773185,
+        "euler_xyz_extrinsic(Rz*Ry*Rx)": 0.40568374139186986,
+        "quat_xyzw": 141.443883790452,
+        "quat_wxyz": 0.4056836277458064
+      },
+      "best_orientation_hypothesis": "quat_wxyz"
+    },
+    "official_cr10af": {
+      "n": 14590,
+      "pos_err_mm_mean": 43.24608299525429,
+      "pos_err_mm_rms": 43.24608299527757,
+      "pos_err_mm_max": 43.246298054929966,
+      "rot_err_deg_mean_by_hypothesis": {
+        "euler_xyz_intrinsic(Rx*Ry*Rz)": 167.94401982540037,
+        "euler_xyz_extrinsic(Rz*Ry*Rx)": 179.78060646966304,
+        "quat_xyzw": 153.27706734481853,
+        "quat_wxyz": 179.78060647396927
+      },
+      "best_orientation_hypothesis": "quat_xyzw"
+    }
+  },
+  "best_position_match": "official_cr10"
+}

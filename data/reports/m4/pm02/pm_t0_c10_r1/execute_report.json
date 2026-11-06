@@ -1,0 +1,23 @@
+{
+  "tag": "pm_t0_c10_r1",
+  "scene": "wall",
+  "plant": "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)",
+  "speed_scale": 1.0,
+  "execution_ok": false,
+  "positioning_failed": true,
+  "moveit_error_code": -6,
+  "static_hold_error_tcp_mm": 13.012601815146313,
+  "static_hold_error_deg": [
+    -0.0069,
+    -0.2961,
+    -0.4477,
+    -1.5228,
+    -0.0154,
+    0.0065
+  ],
+  "tcp_tracking_rms_mm": null,
+  "tcp_tracking_max_mm": null,
+  "tracking_rms_deg_aligned": null,
+  "estimated_start_latency_s": null,
+  "torque_saturation_steps_during_move": null
+}

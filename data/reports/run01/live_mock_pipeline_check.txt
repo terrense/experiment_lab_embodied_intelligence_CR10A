@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/ex_robot_state/pipeline_check", line 33, in <module>
+    sys.exit(load_entry_point('ex-robot-state==0.1.0', 'console_scripts', 'pipeline_check')())
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/pipeline_check.py", line 148, in main
+    node = PipelineCheck()
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/pipeline_check.py", line 47, in __init__
+    self.model = load_model(self)
+  File "/home/ex/ex_ws_out/install/ex_robot_state/lib/python3.10/site-packages/ex_robot_state/nodes/common.py", line 47, in load_model
+    raise RuntimeError(f"{node.get_name()}: no robot_description parameter or /robot_description topic")
+RuntimeError: pipeline_check: no robot_description parameter or /robot_description topic
+[ros2run]: Process exited with failure 1

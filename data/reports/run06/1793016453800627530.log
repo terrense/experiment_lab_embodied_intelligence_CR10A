@@ -1,0 +1,2 @@
+[0m[INFO] [1793016454.600169917] [joint_state_adapter]: adapter /joint_states_robot -> /joint_states; URDF joints ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'][0m
+[31m[ERROR] [1793016480.575518247] [joint_state_adapter]: joint feedback LOST[0m

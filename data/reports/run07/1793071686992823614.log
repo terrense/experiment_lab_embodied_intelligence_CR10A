@@ -1,0 +1,4 @@
+[33m[WARN] [1793071688.376137783] [dobot_feedback_observer]: LIVE_OBSERVE: read-only feedback from 127.0.0.1:30004 (half_close=False). This node never sends data.[0m
+[0m[INFO] [1793071688.382008175] [dobot_feedback_observer]: connected to 127.0.0.1:30004[0m
+[33m[WARN] [1793071716.409794142] [dobot_feedback_observer]: feedback connection problem (ConnectionError: peer closed connection); retry in 1.0s[0m
+[33m[WARN] [1793071717.411966931] [dobot_feedback_observer]: feedback connection problem (ConnectionRefusedError: [Errno 111] Connection refused); retry in 2.0s[0m

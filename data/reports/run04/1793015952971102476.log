@@ -1,0 +1,11 @@
+[0m[INFO] [1793015953.261900845] [robot_state_publisher]: got segment Link1[0m
+[0m[INFO] [1793015953.263636606] [robot_state_publisher]: got segment Link2[0m
+[0m[INFO] [1793015953.264524746] [robot_state_publisher]: got segment Link3[0m
+[0m[INFO] [1793015953.265278559] [robot_state_publisher]: got segment Link4[0m
+[0m[INFO] [1793015953.265998530] [robot_state_publisher]: got segment Link5[0m
+[0m[INFO] [1793015953.266802070] [robot_state_publisher]: got segment Link6[0m
+[0m[INFO] [1793015953.267496901] [robot_state_publisher]: got segment base_link[0m
+[0m[INFO] [1793015953.268259235] [robot_state_publisher]: got segment flange[0m
+[0m[INFO] [1793015953.269727452] [robot_state_publisher]: got segment tcp[0m
+[0m[INFO] [1793015953.270541167] [robot_state_publisher]: got segment world[0m
+[0m[INFO] [1793015980.395158268] [rclcpp]: signal_handler(SIGINT/SIGTERM)[0m

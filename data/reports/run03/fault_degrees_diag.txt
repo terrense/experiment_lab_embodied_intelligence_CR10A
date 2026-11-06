@@ -1,0 +1,14 @@
+header:
+  stamp:
+    sec: 1793015067
+    nanosec: 837131106
+  frame_id: ''
+status:
+- level: "\0"
+  name: ex/tf_integrity
+  message: OK
+  hardware_id: tf
+  values:
+  - key: fk_error_mm
+    value: '0.0000'
+---

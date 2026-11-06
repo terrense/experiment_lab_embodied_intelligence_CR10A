@@ -1,0 +1,61 @@
+{
+  "tag": "mj_bw4_pl0_s1.8_r3",
+  "scene": "wall",
+  "query": "sweep_60",
+  "planner": "RRTConnect",
+  "plant": "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)",
+  "speed_scale": 1.8,
+  "loaded_trajectory": true,
+  "execution_ok": false,
+  "moveit_error_code": -6,
+  "torque_saturation_steps_during_move": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "sim_max_lag_ms": 1.29,
+  "loadavg_1m": 1.24,
+  "tcp_tracking_rms_mm": 28.121113346696422,
+  "tcp_tracking_max_mm": 41.70505785484346,
+  "planned_duration_s": 2.378585278,
+  "exec_samples": 438,
+  "joint_states_rate_hz": 100.04617698838625,
+  "estimated_start_latency_s": 0.0660000000000005,
+  "tracking_rms_deg_raw": [
+    2.0312,
+    0.1058,
+    0.9744,
+    1.8673,
+    6.4652,
+    6.0258
+  ],
+  "tracking_rms_deg_aligned": [
+    1.8545,
+    0.0567,
+    0.8193,
+    0.4643,
+    0.3682,
+    1.599
+  ],
+  "tracking_max_deg_aligned": [
+    2.7761,
+    0.1534,
+    1.0985,
+    0.9624,
+    0.9188,
+    1.8368
+  ],
+  "final_goal_error_deg": [
+    0.0254,
+    0.0132,
+    0.0241,
+    0.5138,
+    0.4148,
+    0.9879
+  ],
+  "tcp_path_planned_m": 1.9238589352851916,
+  "tcp_path_executed_m": 1.9487843585343556
+}

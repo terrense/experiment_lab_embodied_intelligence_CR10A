@@ -1,0 +1,64 @@
+[0m[INFO] [1793080937.698018403] [planning_lab_benchmark]: capsule radii (m): base_link=0.097, Link1=0.126, Link2=0.150, Link3=0.110, Link4=0.083, Link5=0.078, Link6=0.061[0m
+[0m[INFO] [1793080938.278054973] [planning_lab_benchmark]: mesh surface samples per link: {'base_link': 87431, 'Link1': 33755, 'Link2': 106139, 'Link3': 90055, 'Link4': 21543, 'Link5': 30794, 'Link6': 24313}; estimate error bound 5.0 mm[0m
+[33m[WARN] [1793080954.258842746] [planning_lab_benchmark]: execution did not succeed (MoveIt error code -4)[0m
+{
+  "tag": "mj_bw4_pl10_s1.0_r2",
+  "scene": "wall",
+  "query": "sweep_60",
+  "planner": "RRTConnect",
+  "plant": "mujoco (ex_mujoco_sim, servo drive + rigid-body dynamics)",
+  "speed_scale": 1.0,
+  "loaded_trajectory": true,
+  "execution_ok": false,
+  "moveit_error_code": -4,
+  "torque_saturation_steps_during_move": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "sim_max_lag_ms": 2.47,
+  "loadavg_1m": 0.67,
+  "tcp_tracking_rms_mm": 13.057931178609254,
+  "tcp_tracking_max_mm": 19.178687604890378,
+  "planned_duration_s": 4.281453501,
+  "exec_samples": 633,
+  "joint_states_rate_hz": 100.01745844302832,
+  "estimated_start_latency_s": 0.056000000000000494,
+  "tracking_rms_deg_raw": [
+    0.9676,
+    0.0563,
+    0.4553,
+    0.5679,
+    2.2346,
+    3.9839
+  ],
+  "tracking_rms_deg_aligned": [
+    0.8431,
+    0.0319,
+    0.3827,
+    0.1933,
+    0.8751,
+    1.8942
+  ],
+  "tracking_max_deg_aligned": [
+    1.3488,
+    0.0968,
+    0.5249,
+    0.3692,
+    1.5476,
+    2.1523
+  ],
+  "final_goal_error_deg": [
+    0.0007,
+    0.0014,
+    0.0002,
+    0.0105,
+    0.069,
+    0.9069
+  ],
+  "tcp_path_planned_m": 1.9238589352851916,
+  "tcp_path_executed_m": 1.9363372639642638
+}

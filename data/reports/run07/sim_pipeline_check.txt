@@ -1,0 +1,9 @@
+[PASS] rate        {"rate_hz": 125.02, "samples": 3126, "max_gap_ms": 11.7, "p99_gap_ms": 9.89}
+[PASS] names       {"seen": [["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]], "urdf": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]}
+[PASS] single_pub  {"min": 1, "max": 1}
+[PASS] tf_frames   {"checked": 9, "missing": []}
+[PASS] tf_vs_fk    {"samples": 32, "max_err_mm": 0.0}
+[PASS] motion      {"range_deg": [60.0, 40.0, 50.0, 70.0, 60.0, 90.0]}
+[PASS] mapping     {"dominant_freq_index": [0, 1, 2, 3, 4, 5], "expected": [0, 1, 2, 3, 4, 5], "amplitudes_deg": [[31.27, 6.26, 3.48, 1.52, 1.18, 0.28], [5.42, 17.44, 3.34, 0.69, 0.51, 0.31], [6.02, 7.33, 23.19, 2.26, 1.18, 1.18], [2.17, 3.88, 7.22, 29.53, 7.8, 1.35], [4.69, 5.34, 0.68, 8.57, 22.05, 5.98], [1.54, 2.95, 3.47, 3.95, 12.32, 26.28]]}
+[PASS] adapter_ok  {"reports": 47, "worst_level": 0}
+RESULT: PASS

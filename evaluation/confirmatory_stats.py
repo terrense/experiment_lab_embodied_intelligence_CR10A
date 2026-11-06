@@ -54,6 +54,10 @@ def main(argv=None) -> int:
     ap.add_argument("--qp0-margin", type=float, default=0.0)
     ap.add_argument("--exec-margin", type=float, default=0.01)
     ap.add_argument("--n-boot", type=int, default=4000)
+    ap.add_argument("--cache", type=Path,
+                    default=ROOT / "data" / "reports" / "learning" / "confirmatory_episodes.json",
+                    help="the per-episode flags; reused when the parameters match, so the "
+                         "analysis can be re-run without re-running the episodes")
     ap.add_argument("--out", type=Path,
                     default=ROOT / "data" / "reports" / "learning" / "confirmatory_stats.json")
     a = ap.parse_args(argv)
@@ -81,33 +85,59 @@ def main(argv=None) -> int:
     per_seed: Dict[str, Dict[int, Dict[int, float]]] = {mth: {} for mth in METHODS}
     per_seed_coll: Dict[str, Dict[int, Dict[int, float]]] = {mth: {} for mth in METHODS}
 
-    for s in a.seeds:
-        model_dir = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
-        if not (model_dir / "ppo.zip").exists():
-            raise SystemExit(f"missing policy {model_dir}")
-        base = ppo_policy_factory(model_dir, a.task)
-        for method in METHODS:
-            env = _make(a.task, False)
-            succ: Dict[int, float] = {}
-            coll: Dict[int, float] = {}
-            for ep in range(a.episodes):
-                es = seed0 + ep
-                env.reset(seed=es)
-                policy = build(env, method, base)
-                hit = False
-                ok = False
-                for _ in range(env.cfg.max_steps):
-                    obs, r, term, trunc, info = env.step(policy(env.obs()))
-                    hit = hit or bool(info.get("collision", False))
-                    ok = ok or bool(info.get("success", False))
-                    if term or trunc:
-                        break
-                succ[es] = 1.0 if ok else 0.0
-                coll[es] = 1.0 if hit else 0.0
-            per_seed[method][s] = succ
-            per_seed_coll[method][s] = coll
-            print(f"seed {s} {method:5s}: success {100*sum(succ.values())/len(succ):5.1f}%  "
-                  f"collision {100*sum(coll.values())/len(coll):5.1f}%", flush=True)
+    # the episodes are cached: the ANALYSIS must be re-runnable in seconds when a statistic or a
+    # formatting changes, without re-running 450 episodes
+    cache_path = a.cache
+    cache_key = {"split": a.split, "task": a.task, "seeds": a.seeds, "episodes": a.episodes,
+                 "seed_start": seed0, "qp_margin": a.qp_margin, "qp0_margin": a.qp0_margin,
+                 "exec_margin": a.exec_margin, "methods": list(METHODS)}
+    cache = None
+    if cache_path.exists():
+        try:
+            blob = json.loads(cache_path.read_text())
+            if blob.get("key") == cache_key:
+                cache = blob
+                print("reusing the cached episodes", flush=True)
+        except (OSError, ValueError):
+            cache = None
+
+    if cache is None:
+        blob: Dict = {"key": cache_key, "success": {}, "collision": {}}
+        for s in a.seeds:
+            model_dir = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
+            if not (model_dir / "ppo.zip").exists():
+                raise SystemExit(f"missing policy {model_dir}")
+            base = ppo_policy_factory(model_dir, a.task)
+            for method in METHODS:
+                env = _make(a.task, False)
+                succ: Dict[str, float] = {}
+                coll: Dict[str, float] = {}
+                for ep in range(a.episodes):
+                    es = seed0 + ep
+                    env.reset(seed=es)
+                    policy = build(env, method, base)
+                    hit = False
+                    ok = False
+                    for _ in range(env.cfg.max_steps):
+                        obs, r, term, trunc, info = env.step(policy(env.obs()))
+                        hit = hit or bool(info.get("collision", False))
+                        ok = ok or bool(info.get("success", False))
+                        if term or trunc:
+                            break
+                    succ[str(es)] = 1.0 if ok else 0.0
+                    coll[str(es)] = 1.0 if hit else 0.0
+                blob["success"][f"{method}|{s}"] = succ
+                blob["collision"][f"{method}|{s}"] = coll
+                print(f"seed {s} {method:5s}: success {100*sum(succ.values())/len(succ):5.1f}%  "
+                      f"collision {100*sum(coll.values())/len(coll):5.1f}%", flush=True)
+        cache = blob
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(json.dumps(blob, indent=1))
+
+    for method in METHODS:
+        for s in a.seeds:
+            per_seed[method][s] = {int(k): float(v) for k, v in cache["success"][f"{method}|{s}"].items()}
+            per_seed_coll[method][s] = {int(k): float(v) for k, v in cache["collision"][f"{method}|{s}"].items()}
 
     out: Dict = {"split": a.split, "task": a.task, "seeds": a.seeds, "episodes": a.episodes,
                  "seed_start": seed0,
@@ -115,8 +145,6 @@ def main(argv=None) -> int:
                  "exec_margin": a.exec_margin, "n_boot": a.n_boot, "comparisons": {}}
 
     for other in ("qp", "qp0"):
-        if other == "exec":
-            continue
         for a_m, b_m, label in (("exec", other, f"exec - {other}"), (other, "exec", f"{other} - exec")):
             key = label.replace(" ", "_")
             hier = hierarchical_bootstrap(per_seed[a_m], per_seed[b_m], n_boot=a.n_boot, seed=1)
@@ -126,7 +154,9 @@ def main(argv=None) -> int:
             paired = paired_difference(pooled_a, pooled_b, n_boot=a.n_boot, seed=1)
             spread_a = seed_spread(per_seed[a_m])
             spread_b = seed_spread(per_seed[b_m])
-            sd = float(np.hypot(spread_a["sd"], spread_b["sd"]))
+            # the spread that matters is the spread of the DIFFERENCE across the training seeds,
+            # which the hierarchical bootstrap already reports
+            sd = float(hier["between_seed_sd"])
             sep = separability(hier["mean_difference"], sd, len(a.seeds),
                                hier["ci_low"], hier["ci_high"])
             out["comparisons"][key] = {
@@ -140,17 +170,23 @@ def main(argv=None) -> int:
                                                         n_boot=a.n_boot, seed=1),
                 },
             }
+            hier_w = 100 * (hier["ci_high"] - hier["ci_low"])
+            naive_w = 100 * (naive["ci_high"] - naive["ci_low"])
+            factor = f"{hier_w / naive_w:.1f}x" if naive_w > 1e-9 else "infinitely (the naive interval has zero width)"
             print(f"\n== {label} (completion)")
             print(f"   mean difference {100*hier['mean_difference']:+.1f} points   "
                   f"hierarchical 95 % CI [{100*hier['ci_low']:+.1f}, {100*hier['ci_high']:+.1f}]   "
-                  f"(width {100*(hier['ci_high']-hier['ci_low']):.1f})")
+                  f"(width {hier_w:.1f})")
             print(f"   NAIVE interval (cells treated as independent): "
                   f"[{100*naive['ci_low']:+.1f}, {100*naive['ci_high']:+.1f}]   "
-                  f"(width {100*(naive['ci_high']-naive['ci_low']):.1f}) - over-claims by "
-                  f"{100*(hier['ci_high']-hier['ci_low'])/(naive['ci_high']-naive['ci_low']):.1f}x")
-            print(f"   between-seed spread: {sd:.3f}   per-seed differences (points): "
+                  f"(width {naive_w:.1f}) - the hierarchical one is {factor} wider")
+            print(f"   between-seed spread of the difference: {100*sd:.1f} points   "
+                  f"per-seed differences (points): "
                   f"{[round(100*v, 1) for v in hier['per_seed_mean_difference']]}")
             print(f"   VERDICT: {sep['verdict']} - {sep['why']}")
+            ch = out["comparisons"][key]["collision"]["hierarchical"]
+            print(f"   collisions: {100*ch['mean_difference']:+.1f} points, "
+                  f"hierarchical 95 % CI [{100*ch['ci_low']:+.1f}, {100*ch['ci_high']:+.1f}]")
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(out, indent=1))

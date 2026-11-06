@@ -91,6 +91,39 @@ The honest part: the ablation shows the gain comes from the **look-ahead structu
 
 The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
 
+## Every result, and where it comes from
+
+Nothing under `data/` is excluded from the repository: the experiment results, the trained
+policies, the training curves, the dynamics-identification data and the real-robot recordings are
+all committed, so the analysis can be audited from the repository alone. The table below is the
+index — claim → the script that produced it → the file that holds it.
+
+| Claim | Script | Result file |
+|---|---|---|
+| The published M5 table (historical, dev seeds 1000–1049) | `learning/ex_learning/run_safe_eval.py` | `data/reports/learning/gen_safe/*.json` |
+| Does the published table survive a corrected evaluator? (the Week-1 gate) | `evaluation/compare_evaluators.py` | `data/reports/learning/evaluator_comparison.json` |
+| Is the collision metric the safety envelope or the arm? | `evaluation/independent_collision.py` | `data/reports/learning/evaluator_comparison.json` (the `independent` block) |
+| The **confirmatory** run on the frozen test range 20000–20199, three detectors per episode | `evaluation/final_benchmark.py` | `data/reports/learning/final_benchmark_full.json` |
+| The same on the **identified** plant (40.6 kg, the one fitted on the real CR10A) | `evaluation/final_benchmark.py --dynamics identified_run02` | `data/reports/learning/robustness_identified_dynamics.json` |
+| The command channel of the simulated plant (the coast, the identified model) | `evaluation/measure_execution.py` | `data/reports/learning/execution_channel.json` |
+| The **execution gap**: the filter's own claim vs what the plant did | `evaluation/execution_gap.py` | `data/reports/learning/execution_gap.json` |
+| The safety–completion frontier of the filters | `learning/ex_learning/sweep_qp.py`, `sweep_exec.py` | `data/reports/learning/frontier_*.json`, `tune50_*.json` |
+| The statistics (paired, hierarchical, separability) | `evaluation/confirmatory_stats.py`, `evaluation/stats.py` | `data/reports/learning/confirmatory_stats.json` |
+| The narrow passage, matched protocol | `learning/ex_learning/matched_window.py` | `data/reports/learning/rrt_window_exec30s.json` |
+| Classical baselines (DLS, APF) | `learning/ex_learning/baselines.py` | `data/reports/learning/baselines*.json` |
+| Kinematic calibration (real data) | `evaluation/calibrate.py` | `data/reports/calibration/` |
+| Dynamics identification on the real, moving CR10A | `evaluation/dynamics_id.py` | `data/reports/dynamics/`, `data/reports/run02/` |
+| MuJoCo plant: tracking vs servo bandwidth | `evaluation/m4_tracking_study.py` | `data/reports/m4/` |
+| MoveIt planning benchmark (400 plans, 8 planners, 3 scenes) | `ros2_ws/src/ex_planning_lab/` | `data/reports/planning_lab/` |
+| The read-only digital twin sessions | `scripts/live_session.sh` | `data/reports/run0*/`, `data/live/`, `data/bags/` |
+| Every figure | `evaluation/plot_*.py` | `assets/learning/*.png`, `assets/*/` |
+
+The audited defects and their fixes: [`docs/EVALUATOR_AUDIT.md`](docs/EVALUATOR_AUDIT.md). The
+working plan with the falsification criteria and their outcome:
+[`docs/RESEARCH_PLAN.md`](docs/RESEARCH_PLAN.md). The dated work log:
+[`docs/PROGRESS.md`](docs/PROGRESS.md). The compute assessment for the remote server:
+[`docs/REMOTE_COMPUTE.md`](docs/REMOTE_COMPUTE.md).
+
 Failures found and fixed on the way (all documented with regression tests):
 - PPO learned to **crash on purpose** under a −distance reward.
 - MuJoCo mesh distance queries returned swapped endpoints and spurious zeros.

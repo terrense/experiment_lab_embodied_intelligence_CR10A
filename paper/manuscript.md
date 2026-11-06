@@ -468,6 +468,27 @@ simulator scenarios are not equivalent to independent trials. Zero collisions in
 trials still permits an approximately 5.8 % one-sided 95 % upper bound, and reusing the same 50
 scenarios across three training seeds does not turn that into a 150-scenario guarantee.
 
+The estimators are implemented in `evaluation/stats.py` and applied in
+`evaluation/confirmatory_stats.py`, and they are deliberately explicit about what they do not
+license:
+
+* **the pairing is over scenarios.** The same 50 scenario seeds are evaluated for every method,
+  so the difference is computed per scenario and the bootstrap resamples *scenarios*, not
+  individual observations;
+* **the hierarchical interval resamples training seeds first**, then the scenarios inside a
+  selected seed. This is the interval that answers "would this hold on a new training seed and a
+  new set of scenarios". The naive interval — every (seed, scenario) cell treated as independent
+  — is computed alongside it, so the report can show how much a naive analysis over-claims;
+* **the between-seed spread is reported next to every mean difference**, and the verdict is
+  explicit rather than a p-value in disguise: a difference whose size is comparable to the spread
+  is *not separable* with the seeds at hand, however many episodes were run;
+* **the module states its own limits.** A bias shared by *all* training seeds — a flaw in the
+  reward, the observation or the environment — is invisible to any resampling scheme, because
+  such a scheme propagates variance, not shared bias. And the Clopper–Pearson bound assumes
+  *independent* trials: the same 50 scenarios under three training seeds are 150
+  policy–episode evaluations, not 150 independent scenes, and a bound computed on the number of
+  evaluations would be optimistic.
+
 ### 6.4 Hardware sequence
 
 First characterize the actual command interface and stopping response in an unobstructed, bounded

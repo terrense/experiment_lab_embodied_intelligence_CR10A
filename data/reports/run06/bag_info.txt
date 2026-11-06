@@ -1,0 +1,16 @@
+
+Files:             sim_demo_run06_0.db3
+Bag size:          1.9 MiB
+Storage id:        sqlite3
+Duration:          21.377599394s
+Start:             Oct 26 2026 20:05:14.670752588 (1793016314.670752588)
+End:               Oct 26 2026 20:05:36.048351982 (1793016336.048351982)
+Messages:          6739
+Topic information: Topic: /diagnostics | Type: diagnostic_msgs/msg/DiagnosticArray | Count: 64 | Serialization Format: cdr
+                   Topic: /ex/tcp_pose | Type: geometry_msgs/msg/PoseStamped | Count: 428 | Serialization Format: cdr
+                   Topic: /joint_states | Type: sensor_msgs/msg/JointState | Count: 2676 | Serialization Format: cdr
+                   Topic: /joint_states_robot | Type: sensor_msgs/msg/JointState | Count: 2676 | Serialization Format: cdr
+                   Topic: /robot_description | Type: std_msgs/msg/String | Count: 1 | Serialization Format: cdr
+                   Topic: /tf_static | Type: tf2_msgs/msg/TFMessage | Count: 1 | Serialization Format: cdr
+                   Topic: /tf | Type: tf2_msgs/msg/TFMessage | Count: 893 | Serialization Format: cdr
+

@@ -1,0 +1,111 @@
+[m4] plan reference trajectory on the mock plant
+[m4]   mock_s1.0_r1           ok=True code=1 tcp rms 0.77 max 2.17 mm  sat=None sim_lag_ms=None load=1.06
+[m4]   mock_s1.0_r2           ok=False code=-4 tcp rms 147.59 max 322.20 mm  sat=None sim_lag_ms=None load=0.97
+[m4]   mock_s1.0_r3           ok=True code=1 tcp rms 0.87 max 2.20 mm  sat=None sim_lag_ms=None load=0.96
+[m4]   mock_s1.8_r1           ok=True code=1 tcp rms 1.17 max 2.79 mm  sat=None sim_lag_ms=None load=0.89
+[m4]   mock_s1.8_r2           ok=True code=1 tcp rms 26.29 max 145.21 mm  sat=None sim_lag_ms=None load=0.76
+[m4]   mock_s1.8_r3           ok=True code=1 tcp rms 0.92 max 2.44 mm  sat=None sim_lag_ms=None load=0.64
+[m4] MuJoCo bandwidth 4 Hz payload 0 kg
+loadavg before start: 0.67 6.84 18.92
+MoveIt ready (1 move_group)
+[m4]   mj_bw4_pl0_s1.0_r1     POSITIONING FAILED (code -6)
+[m4]   mj_bw4_pl0_s1.0_r2     ok=False code=-4 tcp rms 19.87 max 29.46 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=10.78 load=0.88
+[m4]   mj_bw4_pl0_s1.0_r3     ok=False code=-4 tcp rms 20.49 max 30.27 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=7.66 load=1.04
+[m4]   mj_bw4_pl0_s1.8_r1     ok=False code=-6 tcp rms 28.41 max 42.09 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.1 load=1.23
+[m4]   mj_bw4_pl0_s1.8_r2     ok=False code=-6 tcp rms 28.48 max 42.45 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.25 load=1.27
+[m4]   mj_bw4_pl0_s1.8_r3     ok=False code=-6 tcp rms 28.12 max 41.71 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.29 load=1.24
+[m4] MuJoCo bandwidth 4 Hz payload 5 kg
+loadavg before start: 1.22 5.36 17.21
+MoveIt ready (1 move_group)
+[m4]   mj_bw4_pl5_s1.0_r1     ok=False code=-4 tcp rms 152.78 max 357.93 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=15.75 load=0.94
+[m4]   mj_bw4_pl5_s1.0_r2     POSITIONING FAILED (code -6)
+[m4]   mj_bw4_pl5_s1.0_r3     ok=False code=-4 tcp rms 14.12 max 20.41 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=4.99 load=0.83
+[m4]   mj_bw4_pl5_s1.8_r1     ok=False code=-6 tcp rms 21.01 max 30.41 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.16 load=0.71
+[m4]   mj_bw4_pl5_s1.8_r2     ok=False code=-6 tcp rms 20.02 max 29.85 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.96 load=0.77
+[m4]   mj_bw4_pl5_s1.8_r3     ok=False code=-6 tcp rms 20.06 max 29.18 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=27.02 load=0.65
+[m4] MuJoCo bandwidth 4 Hz payload 10 kg
+loadavg before start: 0.62 4.08 15.66
+MoveIt ready (1 move_group)
+[m4]   mj_bw4_pl10_s1.0_r1    ok=False code=-4 tcp rms 12.70 max 18.33 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.78 load=0.87
+[m4]   mj_bw4_pl10_s1.0_r2    ok=False code=-4 tcp rms 13.06 max 19.18 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.47 load=0.67
+[m4]   mj_bw4_pl10_s1.0_r3    ok=False code=-4 tcp rms 13.16 max 19.21 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.91 load=0.93
+[m4]   mj_bw4_pl10_s1.8_r1    ok=False code=-6 tcp rms 18.00 max 27.10 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=16.36 load=0.79
+[m4]   mj_bw4_pl10_s1.8_r2    ok=False code=-6 tcp rms 19.40 max 28.71 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=5.78 load=0.62
+[m4]   mj_bw4_pl10_s1.8_r3    ok=False code=-6 tcp rms 18.59 max 27.88 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.71 load=0.63
+[m4] MuJoCo bandwidth 8 Hz payload 0 kg
+loadavg before start: 0.66 3.13 14.13
+MoveIt ready (1 move_group)
+[m4]   mj_bw8_pl0_s1.0_r1     ok=True code=1 tcp rms 5.14 max 8.88 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.28 load=0.9
+[m4]   mj_bw8_pl0_s1.0_r2     ok=True code=1 tcp rms 5.73 max 9.19 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.57 load=0.92
+[m4]   mj_bw8_pl0_s1.0_r3     ok=True code=1 tcp rms 5.61 max 9.44 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.46 load=1.0
+[m4]   mj_bw8_pl0_s1.8_r1     ok=True code=1 tcp rms 8.42 max 13.86 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.52 load=1.08
+[m4]   mj_bw8_pl0_s1.8_r2     ok=False code=-4 tcp rms 209.32 max 645.90 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=38.44 load=1.14
+[m4]   mj_bw8_pl0_s1.8_r3     ok=True code=1 tcp rms 8.67 max 15.08 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.67 load=1.19
+[m4] MuJoCo bandwidth 8 Hz payload 5 kg
+loadavg before start: 1.26 2.73 13.08
+MoveIt ready (1 move_group)
+[m4]   mj_bw8_pl5_s1.0_r1     ok=False code=-4 tcp rms 72.06 max 247.64 mm  sat=[6, 0, 0, 0, 0, 0] sim_lag_ms=39.25 load=1.04
+[m4]   mj_bw8_pl5_s1.0_r2     ok=True code=1 tcp rms 3.80 max 6.96 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.6 load=0.88
+[m4]   mj_bw8_pl5_s1.0_r3     ok=True code=1 tcp rms 4.30 max 7.81 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.13 load=1.04
+[m4]   mj_bw8_pl5_s1.8_r1     ok=True code=1 tcp rms 6.81 max 12.59 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.13 load=0.88
+[m4]   mj_bw8_pl5_s1.8_r2     ok=True code=1 tcp rms 7.33 max 13.17 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.28 load=0.82
+[m4]   mj_bw8_pl5_s1.8_r3     ok=True code=1 tcp rms 6.54 max 12.02 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.8 load=0.78
+[m4] MuJoCo bandwidth 8 Hz payload 10 kg
+loadavg before start: 0.80 2.21 11.99
+MoveIt ready (1 move_group)
+[m4]   mj_bw8_pl10_s1.0_r1    ok=True code=1 tcp rms 3.50 max 6.63 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=4.9 load=0.57
+[m4]   mj_bw8_pl10_s1.0_r2    ok=True code=1 tcp rms 75.59 max 338.64 mm  sat=[267, 163, 507, 6, 38, 0] sim_lag_ms=34.58 load=0.56
+[m4]   mj_bw8_pl10_s1.0_r3    ok=True code=1 tcp rms 4.02 max 7.55 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=3.59 load=0.61
+[m4]   mj_bw8_pl10_s1.8_r1    ok=True code=1 tcp rms 6.40 max 11.98 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=4.89 load=0.59
+[m4]   mj_bw8_pl10_s1.8_r2    ok=True code=1 tcp rms 6.54 max 12.04 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.52 load=0.62
+[m4]   mj_bw8_pl10_s1.8_r3    ok=True code=1 tcp rms 6.29 max 11.54 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=3.65 load=0.68
+[m4] MuJoCo bandwidth 16 Hz payload 0 kg
+loadavg before start: 0.71 1.79 10.93
+MoveIt ready (1 move_group)
+[m4]   mj_bw16_pl0_s1.0_r1    ok=True code=1 tcp rms 1.84 max 4.21 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=5.83 load=0.87
+[m4]   mj_bw16_pl0_s1.0_r2    ok=True code=1 tcp rms 1.83 max 4.60 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.77 load=0.67
+[m4]   mj_bw16_pl0_s1.0_r3    ok=True code=1 tcp rms 2.14 max 4.96 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.43 load=0.81
+[m4]   mj_bw16_pl0_s1.8_r1    ok=True code=1 tcp rms 2.88 max 5.64 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.63 load=0.91
+[m4]   mj_bw16_pl0_s1.8_r2    ok=True code=1 tcp rms 3.06 max 6.58 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.3 load=0.77
+[m4]   mj_bw16_pl0_s1.8_r3    ok=False code=-4 tcp rms 296.89 max 586.78 mm  sat=[20, 0, 3, 0, 0, 0] sim_lag_ms=523.9 load=0.73
+[m4] MuJoCo bandwidth 16 Hz payload 5 kg
+loadavg before start: 0.75 1.54 10.04
+MoveIt ready (1 move_group)
+[m4]   mj_bw16_pl5_s1.0_r1    ok=True code=1 tcp rms 1.85 max 4.22 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.26 load=0.82
+[m4]   mj_bw16_pl5_s1.0_r2    ok=True code=1 tcp rms 1.48 max 3.52 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.7 load=1.08
+[m4]   mj_bw16_pl5_s1.0_r3    ok=True code=1 tcp rms 1.85 max 4.36 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.46 load=1.06
+[m4]   mj_bw16_pl5_s1.8_r1    ok=True code=1 tcp rms 2.65 max 6.20 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.63 load=1.12
+[m4]   mj_bw16_pl5_s1.8_r2    ok=True code=1 tcp rms 2.78 max 5.78 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.34 load=1.18
+[m4]   mj_bw16_pl5_s1.8_r3    ok=True code=1 tcp rms 3.21 max 6.42 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=2.27 load=1.06
+[m4] MuJoCo bandwidth 16 Hz payload 10 kg
+loadavg before start: 1.05 1.45 9.22
+MoveIt ready (1 move_group)
+[m4]   mj_bw16_pl10_s1.0_r1   ok=True code=1 tcp rms 1.34 max 3.11 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=4.07 load=0.82
+[m4]   mj_bw16_pl10_s1.0_r2   ok=True code=1 tcp rms 1.68 max 3.83 mm  sat=[0, 0, 0, 0, 0, 0] sim_lag_ms=1.53 load=0.99
+[m4]   mj_bw16_pl10_s1.0_r3   ok=True code=1 tcp rms 1.44 max 3.39 mm  sat=[0, 0, 7, 0, 0, 0] sim_lag_ms=2.17 load=0.85
+[m4]   mj_bw16_pl10_s1.8_r1   ok=True code=1 tcp rms 2.64 max 5.13 mm  sat=[0, 0, 51, 0, 0, 0] sim_lag_ms=1.19 load=0.72
+[m4]   mj_bw16_pl10_s1.8_r2   ok=True code=1 tcp rms 2.73 max 5.66 mm  sat=[0, 0, 51, 0, 0, 0] sim_lag_ms=15.3 load=0.68
+[m4]   mj_bw16_pl10_s1.8_r3   ok=True code=1 tcp rms 2.84 max 6.25 mm  sat=[0, 0, 49, 0, 0, 0] sim_lag_ms=1.65 load=0.73
+| condition | speed | runs | aborted | TCP max median [min, max] (mm) | TCP rms median (mm) | start latency median (ms) | torque-saturated steps (median, J1..J6) |
+|---|---|---|---|---|---|---|---|
+| mj_bw16_pl0 | 1.0 | 3 | 0 | 4.60 [4.21, 4.96] | 1.84 | 28 | [0, 0, 0, 0, 0, 0] |
+| mj_bw16_pl0 | 1.8 | 3 | 1 | 6.58 [5.64, 586.78] | 3.06 | 30 | [0, 0, 0, 0, 0, 0] |
+| mj_bw16_pl10 | 1.0 | 3 | 0 | 3.39 [3.11, 3.83] | 1.44 | 28 | [0, 0, 0, 0, 0, 0] |
+| mj_bw16_pl10 | 1.8 | 3 | 0 | 5.66 [5.13, 6.25] | 2.73 | 28 | [0, 0, 51, 0, 0, 0] |
+| mj_bw16_pl5 | 1.0 | 3 | 0 | 4.22 [3.52, 4.36] | 1.85 | 30 | [0, 0, 0, 0, 0, 0] |
+| mj_bw16_pl5 | 1.8 | 3 | 0 | 6.20 [5.78, 6.42] | 2.78 | 28 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl0 | 1.0 | 3 | 3 (1 could not even position) | 29.87 [29.46, 30.27] | 20.18 | 77 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl0 | 1.8 | 3 | 3 | 42.09 [41.71, 42.45] | 28.41 | 68 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl10 | 1.0 | 3 | 3 | 19.18 [18.33, 19.21] | 13.06 | 56 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl10 | 1.8 | 3 | 3 | 27.88 [27.10, 28.71] | 18.59 | 48 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl5 | 1.0 | 3 | 3 (1 could not even position) | 189.17 [20.41, 357.93] | 83.45 | 97 | [0, 0, 0, 0, 0, 0] |
+| mj_bw4_pl5 | 1.8 | 3 | 3 | 29.85 [29.18, 30.41] | 20.06 | 52 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl0 | 1.0 | 3 | 0 | 9.19 [8.88, 9.44] | 5.61 | 40 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl0 | 1.8 | 3 | 1 | 15.08 [13.86, 645.90] | 8.67 | 38 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl10 | 1.0 | 3 | 0 | 7.55 [6.63, 338.64] | 4.02 | 30 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl10 | 1.8 | 3 | 0 | 11.98 [11.54, 12.04] | 6.40 | 32 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl5 | 1.0 | 3 | 1 | 7.81 [6.96, 247.64] | 4.30 | 36 | [0, 0, 0, 0, 0, 0] |
+| mj_bw8_pl5 | 1.8 | 3 | 0 | 12.59 [12.02, 13.17] | 6.81 | 34 | [0, 0, 0, 0, 0, 0] |
+| mock | 1.0 | 3 | 1 | 2.20 [2.17, 322.20] | 0.87 | 26 | - |
+| mock | 1.8 | 3 | 0 | 2.79 [2.44, 145.21] | 1.17 | 28 | - |
+wrote assets/m4/tracking_tcp_max.png

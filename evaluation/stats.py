@@ -254,12 +254,12 @@ def separability(mean_difference: float, spread_sd: float, n_seeds: int,
     elif not enough_seeds:
         verdict = "NOT_SEPARABLE"
         why = (f"the interval excludes zero, but {n_seeds} training seeds cannot resolve a "
-               f"difference of {abs(mean_difference):.1f} points against a between-seed spread of "
-               f"{spread_sd:.1f} points")
+               f"difference of {abs(mean_difference)*100:.1f} percentage points against a "
+               f"between-seed spread of {spread_sd*100:.1f} points")
     elif ratio < 1.0:
         verdict = "NOT_SEPARABLE"
-        why = (f"the between-seed spread ({spread_sd:.1f}) is of the same order as the difference "
-               f"({abs(mean_difference):.1f})")
+        why = (f"the between-seed spread ({spread_sd*100:.1f} points) is of the same order as the "
+               f"difference ({abs(mean_difference)*100:.1f} points)")
     else:
         verdict = "SEPARABLE"
         why = (f"the interval excludes zero, {n_seeds} seeds are available, and the difference is "

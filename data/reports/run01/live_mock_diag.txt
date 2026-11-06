@@ -1,0 +1,60 @@
+header:
+  stamp:
+    sec: 1793014694
+    nanosec: 295933267
+  frame_id: ''
+status:
+- level: "\0"
+  name: ex/dobot_feedback_observer
+  message: STREAMING
+  hardware_id: 127.0.0.1:30004
+  values:
+  - key: state
+    value: STREAMING
+  - key: enabled
+    value: 'True'
+  - key: connects
+    value: '1'
+  - key: disconnects
+    value: '0'
+  - key: packets
+    value: '1625'
+  - key: resyncs
+    value: '3'
+  - key: discarded_bytes
+    value: '111'
+  - key: decode_errors
+    value: '0'
+  - key: bytes_received
+    value: '2340111'
+  - key: last_error
+    value: ''
+  - key: robot_mode
+    value: 5 ENABLE
+  - key: enable_status
+    value: '1'
+  - key: error_status
+    value: '0'
+  - key: drag_status
+    value: '0'
+  - key: collision_state
+    value: '0'
+  - key: tool_coordinate
+    value: '0'
+  - key: user_coordinate
+    value: '0'
+  - key: speed_scaling
+    value: '1.000'
+  - key: load_kg
+    value: '0.000'
+  - key: controller_timestamp_ms
+    value: '1793014694291'
+  - key: q_actual_deg
+    value: +17.955 -18.241 +107.521 +34.163 -80.040 +39.726
+  - key: tool_vector_actual
+    value: -338.139 -330.058 +602.156 +147.872 -13.959 +69.267
+  - key: clock_offset_ms_median
+    value: '0.8'
+  - key: clock_offset_ms_stdev
+    value: '0.32'
+---
