@@ -117,6 +117,7 @@ index — claim → the script that produced it → the file that holds it.
 | MoveIt planning benchmark (400 plans, 8 planners, 3 scenes) | `ros2_ws/src/ex_planning_lab/` | `data/reports/planning_lab/` |
 | The read-only digital twin sessions | `scripts/live_session.sh` | `data/reports/run0*/`, `data/live/`, `data/bags/` |
 | Every figure | `evaluation/plot_*.py` | `assets/learning/*.png`, `assets/*/` |
+| **Do the documents still say what the data says?** (99 claims checked) | `evaluation/verify_claims.py` | fails loudly — also a test: `learning/tests/test_claims.py` |
 
 The audited defects and their fixes: [`docs/EVALUATOR_AUDIT.md`](docs/EVALUATOR_AUDIT.md). The
 working plan with the falsification criteria and their outcome:
