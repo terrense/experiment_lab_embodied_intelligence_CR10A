@@ -527,3 +527,12 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   search is now a numpy `argmin` over the same list - the same node is selected (argmin returns
   the first minimum, exactly as the comprehension did) and the random number stream is
   untouched. The archived window run is re-checked against it.
+- **The vectorised planner is verified against the archived run, episode by episode.** The
+  re-check of `learning/ex_learning/planner.py --main` on the window task reproduces
+  `data/reports/learning/rrt_window.json` EXACTLY: the same eight episodes, the same solved
+  flags, the same number of collision checks (26951, 60000, 60010, 27165, 7598, 47942, 60003,
+  60006) and the same number of waypoints. A regression test pins the invariant that matters
+  (the vectorised nearest-node search selects the node the original Python loop selected, and the
+  planner is deterministic for a fixed seed). NOTE: `rrt_window_exec30s.json` is NOT the
+  comparison file - it was produced by `matched_window.py`, which realises the goal from the
+  PRIVILEGED goal pool, so it is a different protocol and a different plan set.
