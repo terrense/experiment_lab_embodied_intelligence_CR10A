@@ -246,6 +246,12 @@ def _cell_worker(job) -> Dict:
             "legacy_collision_rate": sum(r["collision"] for r in per_ep) / len(per_ep),
             "corrected_collision_rate": sum(corr) / len(corr),
             "final_dist_m_median": float(np.median([r["final_dist_m"] for r in per_ep])),
+            # the step at which the goal was first reached (-1: never). With this, the completion
+            # at ANY deadline can be recomputed from the committed report - which matters here,
+            # because the planner is slow and the reactive policy is fast, and the deadline is
+            # the axis on which they differ.
+            "first_success_steps": [(-1 if r["first_success_step"] is None else r["first_success_step"])
+                                    for r in per_ep],
             "mesh": mesh, "wall_s": round(time.time() - t0, 1)}
 
 
@@ -269,6 +275,12 @@ def run_arms(args, plans: List[Dict]) -> Dict:
     rows: List[Dict] = []
     with cf.ProcessPoolExecutor(max_workers=workers) as pool:
         for row in pool.map(_cell_worker, jobs):
+            # the completion at any deadline, recomputed from the recorded first-success steps
+            steps = row["first_success_steps"]
+            row["completion_by_deadline_s"] = {
+                f"{d}s": (sum(1 for s in steps if 0 <= s <= int(d / 0.02)) / len(steps)
+                          if steps else None)
+                for d in (6, 12, 20, 30)}
             rows.append(row)
             mesh = row["mesh"]
             print(f"{row['policy_seed']:>4} {row['arm']:10} {row['success_rate']*100:7.0f}% "

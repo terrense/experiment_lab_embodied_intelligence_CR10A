@@ -837,6 +837,80 @@ The margin therefore has to be spent on the prediction error and on the stopping
 neither of them can the current filter's 10 mm suffice. **The geometry, which is the part that
 looks like the hard modelling problem, is the one part that is already safe.**
 
+### 7.10 Planner guidance: does the filter work across proposal sources?
+
+Section 5.6 asks two questions of the same filter: does it work across **proposal sources**, and
+does **learning** add measurable benefit beyond planning and tracking. The six arms below answer
+them on the out-of-distribution walls. Script `evaluation/b6_planner_filter.py`; the plans are in
+`data/reports/learning/b6_plans.json`, the results in
+`data/reports/learning/b6_planner_filter.json`.
+
+**What the planner is given.** The scene geometry, because the task is known geometry; the start
+configuration, because the robot knows where it is; and the **Cartesian** goal. It does **not**
+get the episode's privileged goal configuration and it does not get a goal pool: it has to
+realise the Cartesian goal into a joint configuration itself, with a damped-least-squares IK. Of
+the 60 realisations sampled per episode, 32 are both accurate and collision-free (median), and
+the goal is realised to **0.033 mm** at the median. One plan is computed per episode and shared
+by the three planner arms, so the comparison between them is not confounded by the planner's
+randomness. The planner is run in the **rigorous** (lower-bound) clearance model.
+
+**Planning.** RRT-Connect with a 2 cm clearance margin, a 20 000-check budget per attempt and up
+to four goal realisations per episode: **42 of the 50 episodes are planned (84 %)**, with a
+median planning time of **1.53 s** and a worst case of 16.0 s. The eight failures are reported as
+failures: their arm stays where it is.
+
+**The six arms**, all with the same deadline, the same goal information and the same three
+detectors. The completion is given at the 30 s deadline the planner needs and at the 6 s
+deadline the reactive policy needs:
+
+| arm | completion (30 s) | completion (6 s) | legacy envelope | corrected | **mesh** |
+|---|---|---|---|---|---|
+| unfiltered policy | 38.7 % | 36.0 % | 38.7 % | 40.7 % | **0 %** |
+| bounded all-pair QP (4 cm) | 48.7 % | 45.3 % | **0 %** | **0 %** | **0 %** |
+| **execution-aware (1 cm)** | **56.7 %** | **54.0 %** | **0 %** | **0 %** | **0 %** |
+| planner + waypoint follower | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + bounded QP | 80.0 % | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + execution-aware | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+
+**The harness is validated against §7.7.** The 6 s column of this table is not a new measurement:
+it is the same measurement code on the same episodes, and it reproduces the confirmatory table
+cell for cell — 36.0 %, 45.3 % and 54.0 % completion, and 38.7 % / 40.7 % envelope collisions for
+the unfiltered policy, which are the numbers of §7.7. The six-arm comparison therefore rests on
+the same measurement code as the published result.
+
+Four findings, and they do not all point the same way.
+
+1. **Established:** the filter works across proposal sources, and it is *redundant* on a good
+   one. On the planner the filter changes nothing — 84.0 % without it, 84.0 % with the
+   execution-aware filter, 80.0 % with the bounded QP (slightly worse: the QP brakes a follower
+   that was already safe). On the reactive policy the same filter turns 38.7 % into 56.7 % and
+   38.7 % envelope collisions into 0 %. **The filter's value is not a property of the filter; it
+   is a property of how bad the proposal is.**
+2. **Established:** a classical planner given only the Cartesian goal reaches 84.0 % completion
+   out of distribution with 0 % collisions, against the filtered reactive policy's 56.7 %. On this
+   task the learned policy adds **nothing** on top of a planner that is handed the same
+   information. That is a statement about *this* task — a policy trained on random walls and
+   evaluated on taller, wider ones — and not about learning in general; §7.7 is where the policy
+   earns its place, and it earns it by being cheap and fast, not by being better.
+3. **Established, and it changes the comparison:** the planner is **slow**. At 6 s it has
+   completed 4 % of the episodes while the filtered policy has completed 54 %, because the
+   waypoint follower moves at most 0.6 rad/s and the path has to be traversed. The 84 % figure is
+   a 30 s number. A deadline that suits the planner does not suit the policy, and the follower's
+   speed was not tuned — so the completion gap is a statement about the pair (planner, deadline),
+   not about the planner alone.
+4. **A statistical caveat that belongs here:** the three planner arms are **identical in every
+   training seed** (84 %, 84 %, 84 %), because a plan does not depend on a policy. They have no
+   between-seed variance at all, so they cannot enter a seed-level bootstrap as the policy arms
+   do; the comparison between a planner arm and a policy arm is a paired comparison over the 50
+   scenarios with a deterministic arm on one side, and it is reported as such.
+
+What this section does **not** say: that the planner is the better method. It is given the
+scene geometry, a collision model and a deadline five times longer than the policy needs; it
+fails to plan 16 % of the episodes; and its completion is a single deterministic number rather
+than a distribution over training seeds. What it does say is narrower and, for this project,
+more useful: **the safety filter earns its place by making a reactive proposal usable, and a
+good proposal makes the filter unnecessary.**
+
 ## 8 Discussion
 
 The strongest current observation is not that RL solves manipulation. It is that a policy can

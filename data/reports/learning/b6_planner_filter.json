@@ -1,0 +1,304 @@
+{
+ "task": "wall_ood",
+ "split": "test",
+ "seed_start": 20000,
+ "episodes": 50,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "deadline_s": 30.0,
+ "qp_margin": 0.04,
+ "exec_margin": 0.01,
+ "plan_margin": 0.02,
+ "plan_checks": 20000,
+ "plan_candidates": 4,
+ "goal_information": "cartesian only; the planner realises it with a DLS IK and never sees the privileged goal configuration",
+ "arms": [
+  "raw",
+  "qp",
+  "exec",
+  "plan",
+  "plan_qp",
+  "plan_exec"
+ ],
+ "rows": [
+  {
+   "policy_seed": 0,
+   "arm": "raw",
+   "success_rate": 0.44,
+   "success_rate_6s": 0.38,
+   "legacy_collision_rate": 0.46,
+   "corrected_collision_rate": 0.5,
+   "final_dist_m_median": 0.06652558220836782,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.060042744294097054
+   },
+   "wall_s": 516.4
+  },
+  {
+   "policy_seed": 0,
+   "arm": "qp",
+   "success_rate": 0.58,
+   "success_rate_6s": 0.5,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.03446452345372469,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.07901866286585713
+   },
+   "wall_s": 1189.6
+  },
+  {
+   "policy_seed": 0,
+   "arm": "exec",
+   "success_rate": 0.78,
+   "success_rate_6s": 0.72,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.027624972025277313,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06468248980557997
+   },
+   "wall_s": 1285.9
+  },
+  {
+   "policy_seed": 0,
+   "arm": "plan",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1047.8
+  },
+  {
+   "policy_seed": 0,
+   "arm": "plan_qp",
+   "success_rate": 0.8,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 5.21977279181934e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1084.0
+  },
+  {
+   "policy_seed": 0,
+   "arm": "plan_exec",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1162.9
+  },
+  {
+   "policy_seed": 1,
+   "arm": "raw",
+   "success_rate": 0.38,
+   "success_rate_6s": 0.38,
+   "legacy_collision_rate": 0.34,
+   "corrected_collision_rate": 0.34,
+   "final_dist_m_median": 0.06893567252906802,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05703853793540295
+   },
+   "wall_s": 793.1
+  },
+  {
+   "policy_seed": 1,
+   "arm": "qp",
+   "success_rate": 0.44,
+   "success_rate_6s": 0.44,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.034482881826798435,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.0874705794664028
+   },
+   "wall_s": 1255.7
+  },
+  {
+   "policy_seed": 1,
+   "arm": "exec",
+   "success_rate": 0.46,
+   "success_rate_6s": 0.46,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.023590354900049362,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06009017942164162
+   },
+   "wall_s": 1321.8
+  },
+  {
+   "policy_seed": 1,
+   "arm": "plan",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1100.0
+  },
+  {
+   "policy_seed": 1,
+   "arm": "plan_qp",
+   "success_rate": 0.8,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 5.21977279181934e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1130.9
+  },
+  {
+   "policy_seed": 1,
+   "arm": "plan_exec",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1213.2
+  },
+  {
+   "policy_seed": 2,
+   "arm": "raw",
+   "success_rate": 0.34,
+   "success_rate_6s": 0.32,
+   "legacy_collision_rate": 0.36,
+   "corrected_collision_rate": 0.38,
+   "final_dist_m_median": 0.03595043149778312,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.05062131766334976
+   },
+   "wall_s": 763.8
+  },
+  {
+   "policy_seed": 2,
+   "arm": "qp",
+   "success_rate": 0.44,
+   "success_rate_6s": 0.42,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.028096229774319748,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.09532731791582902
+   },
+   "wall_s": 1339.9
+  },
+  {
+   "policy_seed": 2,
+   "arm": "exec",
+   "success_rate": 0.46,
+   "success_rate_6s": 0.44,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 0.02809622779805944,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.06842498079665058
+   },
+   "wall_s": 1389.0
+  },
+  {
+   "policy_seed": 2,
+   "arm": "plan",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1154.6
+  },
+  {
+   "policy_seed": 2,
+   "arm": "plan_qp",
+   "success_rate": 0.8,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 5.21977279181934e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1179.9
+  },
+  {
+   "policy_seed": 2,
+   "arm": "plan_exec",
+   "success_rate": 0.84,
+   "success_rate_6s": 0.04,
+   "legacy_collision_rate": 0.0,
+   "corrected_collision_rate": 0.0,
+   "final_dist_m_median": 4.9269817189294564e-05,
+   "mesh": {
+    "episodes": 10,
+    "collision_rate": 0.0,
+    "min_clearance_m_median": 0.13188651515667327
+   },
+   "wall_s": 1232.7
+  }
+ ],
+ "plan_summary": {
+  "solved": 42,
+  "episodes": 50,
+  "plan_time_s_median": 1.53,
+  "plan_time_s_total": 236.86999999999998
+ }
+}

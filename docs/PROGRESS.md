@@ -536,3 +536,28 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   planner is deterministic for a fixed seed). NOTE: `rrt_window_exec30s.json` is NOT the
   comparison file - it was produced by `matched_window.py`, which realises the goal from the
   PRIVILEGED goal pool, so it is a different protocol and a different plan set.
+- **B6 is done: the planner arms (the plan's Week-5 arm, and section 5.6's question).** The
+  planner is given the scene geometry, the start configuration and the CARTESIAN goal, and has
+  to realise the goal into a joint configuration itself with a DLS IK - no privileged goal
+  configuration, no goal pool. It plans **42 of the 50 out-of-distribution episodes (84 %)** in a
+  median of **1.5 s** (worst 16 s), realising the goal to 0.033 mm. One plan per episode, shared
+  by the three planner arms; the planner runs in the rigorous (lower-bound) clearance model.
+  - The **harness is validated against the confirmatory benchmark**: the 6 s column of the B6
+    table is the same measurement code on the same episodes, and it reproduces section 7.7 cell
+    for cell - 36.0 %, 45.3 % and 54.0 % completion, and 38.7 % / 40.7 % envelope collisions for
+    the unfiltered policy. The six-arm comparison rests on the same code as the published result.
+  - **The filter works across proposal sources and is REDUNDANT on a good one.** On the planner
+    it changes nothing (84.0 % without it, 84.0 % with the execution-aware filter, 80.0 % with
+    the bounded QP - slightly worse, because the QP brakes a follower that was already safe). On
+    the reactive policy the same filter turns 38.7 % into 56.7 % and 38.7 % envelope collisions
+    into 0 %. The filter's value is a property of HOW BAD THE PROPOSAL IS, not of the filter.
+  - **On this task the learned policy adds nothing on top of a planner** handed the same
+    information (84.0 % against 56.7 %) - a statement about this task, not about learning in
+    general. The planner is also SLOW (4 % at 6 s against the policy's 54 %), so it needs a
+    deadline five times longer, and it fails to plan 16 % of the episodes.
+  - **A statistical caveat that is in the section, not hidden:** the planner arms are identical
+    in every training seed, because a plan does not depend on a policy. They have no
+    between-seed variance and cannot enter a seed-level bootstrap as the policy arms do.
+- **The claim checker grew to 156 claims** (from 99), every one of them re-derived from the
+  committed JSON: the two new manuscript sections, the B6 table and the harness cross-check are
+  all checked, so a number that drifts away from its source fails the test suite.

@@ -85,54 +85,64 @@ def main(argv=None) -> int:
     per_seed: Dict[str, Dict[int, Dict[int, float]]] = {mth: {} for mth in METHODS}
     per_seed_coll: Dict[str, Dict[int, Dict[int, float]]] = {mth: {} for mth in METHODS}
 
-    # the episodes are cached: the ANALYSIS must be re-runnable in seconds when a statistic or a
-    # formatting changes, without re-running 450 episodes
+    # the episodes are cached PER CELL (method, training seed): the ANALYSIS must be re-runnable
+    # in seconds when a statistic or a formatting changes, without re-running 450 episodes, and a
+    # cell that has already been evaluated must not be re-evaluated when the seed list grows -
+    # which is what happens when more training seeds finish training.
     cache_path = a.cache
     cache_key = {"split": a.split, "task": a.task, "seeds": a.seeds, "episodes": a.episodes,
                  "seed_start": seed0, "qp_margin": a.qp_margin, "qp0_margin": a.qp0_margin,
                  "exec_margin": a.exec_margin, "methods": list(METHODS)}
-    cache = None
+    blob: Dict = {"key": cache_key, "success": {}, "collision": {}}
     if cache_path.exists():
         try:
-            blob = json.loads(cache_path.read_text())
-            if blob.get("key") == cache_key:
-                cache = blob
-                print("reusing the cached episodes", flush=True)
+            old = json.loads(cache_path.read_text())
+            if old.get("key", {}).get("split") == a.split and old.get("key", {}).get("task") == a.task \
+                    and old.get("key", {}).get("episodes") == a.episodes \
+                    and old.get("key", {}).get("seed_start") == seed0 \
+                    and old.get("key", {}).get("qp_margin") == a.qp_margin \
+                    and old.get("key", {}).get("qp0_margin") == a.qp0_margin \
+                    and old.get("key", {}).get("exec_margin") == a.exec_margin:
+                blob = old
+                blob["key"] = cache_key
+                print(f"reusing the cached cells: {sorted(blob['success'])}", flush=True)
         except (OSError, ValueError):
-            cache = None
+            blob = {"key": cache_key, "success": {}, "collision": {}}
 
-    if cache is None:
-        blob: Dict = {"key": cache_key, "success": {}, "collision": {}}
-        for s in a.seeds:
-            model_dir = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
-            if not (model_dir / "ppo.zip").exists():
-                raise SystemExit(f"missing policy {model_dir}")
-            base = ppo_policy_factory(model_dir, a.task)
-            for method in METHODS:
-                env = _make(a.task, False)
-                succ: Dict[str, float] = {}
-                coll: Dict[str, float] = {}
-                for ep in range(a.episodes):
-                    es = seed0 + ep
-                    env.reset(seed=es)
-                    policy = build(env, method, base)
-                    hit = False
-                    ok = False
-                    for _ in range(env.cfg.max_steps):
-                        obs, r, term, trunc, info = env.step(policy(env.obs()))
-                        hit = hit or bool(info.get("collision", False))
-                        ok = ok or bool(info.get("success", False))
-                        if term or trunc:
-                            break
-                    succ[str(es)] = 1.0 if ok else 0.0
-                    coll[str(es)] = 1.0 if hit else 0.0
-                blob["success"][f"{method}|{s}"] = succ
-                blob["collision"][f"{method}|{s}"] = coll
-                print(f"seed {s} {method:5s}: success {100*sum(succ.values())/len(succ):5.1f}%  "
-                      f"collision {100*sum(coll.values())/len(coll):5.1f}%", flush=True)
-        cache = blob
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        cache_path.write_text(json.dumps(blob, indent=1))
+    for s in a.seeds:
+        model_dir = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
+        if not (model_dir / "ppo.zip").exists():
+            raise SystemExit(f"missing policy {model_dir}")
+        base = ppo_policy_factory(model_dir, a.task)
+        for method in METHODS:
+            cell = f"{method}|{s}"
+            if cell in blob.get("success", {}):
+                print(f"seed {s} {method:5s}: cached", flush=True)
+                continue
+            env = _make(a.task, False)
+            succ: Dict[str, float] = {}
+            coll: Dict[str, float] = {}
+            for ep in range(a.episodes):
+                es = seed0 + ep
+                env.reset(seed=es)
+                policy = build(env, method, base)
+                hit = False
+                ok = False
+                for _ in range(env.cfg.max_steps):
+                    obs, r, term, trunc, info = env.step(policy(env.obs()))
+                    hit = hit or bool(info.get("collision", False))
+                    ok = ok or bool(info.get("success", False))
+                    if term or trunc:
+                        break
+                succ[str(es)] = 1.0 if ok else 0.0
+                coll[str(es)] = 1.0 if hit else 0.0
+            blob.setdefault("success", {})[cell] = succ
+            blob.setdefault("collision", {})[cell] = coll
+            print(f"seed {s} {method:5s}: success {100*sum(succ.values())/len(succ):5.1f}%  "
+                  f"collision {100*sum(coll.values())/len(coll):5.1f}%", flush=True)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(json.dumps(blob, indent=1))
+    cache = blob
 
     for method in METHODS:
         for s in a.seeds:

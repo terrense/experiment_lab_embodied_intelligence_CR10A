@@ -16,6 +16,8 @@ Every stage ships working code, tests, measured results and an honest failure an
 | **M4.5** Dynamics identification (**real CR10A moving**) | URDF masses are 1.64× too light (≈ 40 kg datasheet); Coulomb friction 10–14 N m; sim-to-real torque gap cut **3–6×** | [DYNAMICS_ID](docs/DYNAMICS_ID.md) |
 | **M5** Learning (sim) | Wall task: straight line 96 % collisions, potential field 44 % success, **PPO 67 % (3 seeds: 58/64/80 %), 0 collisions**. Moved walls: one-wall PPO 21 %, random-wall PPO 77 %, but 36 % collisions on out-of-distribution walls (APF 2 %). A **control-barrier safety filter** cuts those to 5 % collisions while success rises 21 % → 31 % (still below APF's 50 % success). ⚠ The collision metric is the *conservative safety envelope*, not the arm: an independent mesh-geometry checker finds **no real contact in any of the 300 evaluated episodes**. Window: RRT-Connect 38 % (matched protocol), APF/PPO 0 % |  [LEARNING](docs/LEARNING.md) · [AUDIT](docs/EVALUATOR_AUDIT.md) |
 | **M5.5** What a safety filter actually guarantees (sim) | The plant executes a **channel**, not a command: the arm coasts **14.9 mrad** after a 1 rad/s command is cut. A kinematic filter's own constraints hold while the arm still ends the control step below the enforced margin in **9 %** of the steps (32 % at a 4 cm margin), median prediction error 12 mm — **the command is not the motion**. On the frozen test range the look-ahead filter reaches the completion of an unconstrained-margin filter (54 %) with **0 %** collisions where that filter collides in 16–22 % | [RESULTS](docs/RESULTS.md) · [PLAN](docs/RESEARCH_PLAN.md) · [PAPER](paper/manuscript.md) |
+| **M5.6** What the filter still does not do (sim) | The **stopping tail** is measured: after the command is cut the arm keeps moving and can lose **87 mm** of clearance (p95 38 mm) — **8.7× the filter's own 10 mm margin**. The **nonlinear re-check** says the linearisation is fine (8.5 mrad) and the *model* is not (22 mrad where it matters, against the 4.57 mrad it was fitted on). The **uncertainty budget**, separated: the geometric tube is one-sided (1512/1512 samples), so the geometry costs the margin nothing | [RESULTS](docs/RESULTS.md#9-the-stopping-tail-the-nonlinear-re-check-and-the-uncertainty-budget) |
+| **M5.7** Does the filter work across proposal sources? (sim) | A classical planner given only the **Cartesian** goal plans 42/50 OOD episodes (84 %, median 1.5 s) and reaches **84.0 %** completion with 0 % collisions, against the filtered policy's 56.7 %. The filter is **redundant on a good proposal** (84.0 % → 84.0 %) and decisive on a bad one (38.7 % → 56.7 %, collisions 38.7 % → 0 %) | [RESULTS](docs/RESULTS.md#10-planner-guidance-does-the-filter-work-across-proposal-sources) |
 
 ---
 
@@ -96,6 +98,26 @@ The filter reasons over a **0.1 s** look-ahead and then stops reasoning. Two mea
 * **The stopping tail.** A zero velocity command does not stop the motion. After the command is cut the arm keeps travelling and can lose **87 mm of clearance** (p95 38 mm) — **8.7× the filter's own 10 mm margin**. The motion is over after 200–500 ms, ten to twenty-five control steps. The coast itself is modelled well (the measured/predicted displacement ratio is 0.99997); the problem is the horizon, not the coast.
 * **The nonlinear re-check.** The filter's constraint is a first-order expansion. Rolled out nonlinearly, the expansion stays within 8.5 mrad of the model's own output — so the **linearisation is not the problem**. The model is: its error at the same horizon is **22 mrad where the filter depends on it**, against the 4.57 mrad it was fitted on.
 * **The uncertainty budget, separated.** The geometric tube is **one-sided**: the capsule metric under-estimates the mesh clearance in 1512 of 1512 samples (median 49 mm). The geometry costs the margin nothing. The prediction error and the stopping tail eat it.
+
+### M5.7: does the filter work across proposal sources? (simulation)
+
+Six arms on the out-of-distribution walls, same deadline, same goal information, same detectors.
+The planner gets the **Cartesian** goal and has to realise it itself with a DLS IK — no privileged
+goal configuration, no goal pool. It plans **42 of 50 episodes (84 %)** in a median of **1.5 s**.
+
+| arm | completion (30 s) | completion (6 s) | envelope collisions |
+|---|---|---|---|
+| unfiltered policy | 38.7 % | 36.0 % | 38.7 % |
+| bounded all-pair QP (4 cm) | 48.7 % | 45.3 % | **0 %** |
+| **execution-aware (1 cm)** | **56.7 %** | **54.0 %** | **0 %** |
+| planner + waypoint follower | **84.0 %** | 4.0 % | **0 %** |
+| planner + execution-aware | **84.0 %** | 4.0 % | **0 %** |
+
+**The filter works across proposal sources and is redundant on a good one**: on the planner it
+changes nothing (84.0 % → 84.0 %), on the reactive policy it turns 38.7 % into 56.7 % and 38.7 %
+collisions into 0 %. The filter's value is not a property of the filter; it is a property of how
+bad the proposal is. The 6 s column is a cross-check: the same measurement code reproduces §7.7's
+confirmatory table cell for cell (36.0 %, 45.3 %, 54.0 %).
 
 The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
 

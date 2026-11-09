@@ -364,7 +364,59 @@ looks like the hard modelling problem, is already safe.
 
 ---
 
-## 10. What is NOT in this document
+## 10. Planner guidance: does the filter work across proposal sources?
+
+Source: `data/reports/learning/b6_plans.json` and
+`data/reports/learning/b6_planner_filter.json`, script `evaluation/b6_planner_filter.py`.
+
+The planner is given the scene geometry, the start configuration and the **Cartesian** goal.
+It does **not** get the episode's privileged goal configuration and it does not get a goal pool:
+it realises the goal into a joint configuration itself, with a damped-least-squares IK. Of the
+60 realisations sampled per episode, 32 are accurate *and* collision-free (median), and the goal
+is realised to **0.033 mm** at the median. One plan per episode, shared by the three planner
+arms; the planner runs in the rigorous (lower-bound) clearance model.
+
+**Planning:** 42 of the 50 episodes are planned (**84 %**), median planning time **1.53 s**,
+worst case 16.0 s. The eight failures are reported as failures.
+
+| arm | completion (30 s) | completion (6 s) | legacy envelope | corrected | **mesh** |
+|---|---|---|---|---|---|
+| unfiltered policy | 38.7 % | 36.0 % | 38.7 % | 40.7 % | **0 %** |
+| bounded all-pair QP (4 cm) | 48.7 % | 45.3 % | **0 %** | **0 %** | **0 %** |
+| **execution-aware (1 cm)** | **56.7 %** | **54.0 %** | **0 %** | **0 %** | **0 %** |
+| planner + waypoint follower | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + bounded QP | 80.0 % | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + execution-aware | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+
+**The harness is validated against §8.** The 6 s column is not a new measurement — it is the
+same measurement code on the same episodes, and it reproduces the confirmatory table cell for
+cell: 36.0 %, 45.3 % and 54.0 % completion, and 38.7 % / 40.7 % envelope collisions for the
+unfiltered policy.
+
+* **The filter works across proposal sources, and it is redundant on a good one.** On the
+  planner it changes nothing (84.0 % → 84.0 % with the execution-aware filter, 80.0 % with the
+  bounded QP — slightly worse, because the QP brakes a follower that was already safe). On the
+  reactive policy the same filter turns 38.7 % into 56.7 % and 38.7 % envelope collisions into
+  0 %. **The filter's value is not a property of the filter; it is a property of how bad the
+  proposal is.**
+* **On this task the learned policy adds nothing on top of a planner** that is handed the same
+  information: 84.0 % against 56.7 %. That is a statement about this task (a policy trained on
+  random walls, evaluated on taller and wider ones), not about learning in general.
+* **The planner is slow.** At 6 s it has completed 4 % of the episodes against the filtered
+  policy's 54 %: the waypoint follower moves at most 0.6 rad/s. The 84 % figure is a 30 s
+  number, and the follower's speed was not tuned.
+* **A statistical caveat:** the planner arms are identical in every training seed (84 %, 84 %,
+  84 %), because a plan does not depend on a policy. They have no between-seed variance, so
+  they cannot enter a seed-level bootstrap as the policy arms do.
+
+What this section does **not** say: that the planner is the better method. It is given the scene
+geometry, a collision model and a deadline five times longer than the policy needs; it fails to
+plan 16 % of the episodes; and its completion is a single deterministic number rather than a
+distribution over training seeds.
+
+---
+
+## 11. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.
