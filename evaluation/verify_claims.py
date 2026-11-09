@@ -313,6 +313,26 @@ def main() -> int:
                     c.check(f"seed {seed} {m}: envelope collisions", 100 * sum(co.values()) / len(co),
                             exp[2 * i + 1], "%", tol=0.1)
 
+    print("\n== the replication on a second untouched range (final_benchmark_replication.json)")
+    rep = _load("final_benchmark_replication.json")
+    if rep is None:
+        c.check("final_benchmark_replication.json present", None, None)
+    else:
+        c.check("the replication is on the 30000-30199 range",
+                0.0 if rep["seed_start"] == 30000 else 1.0, 0.0)
+        c.check("the replication uses manifest version 2", float(rep["episode_manifest_version"]), 2.0,
+                "", tol=0.5)
+        for method, exp in (("raw", (40.7, 32.0, 33.3)), ("cbf_legacy", (51.3, 6.0, 6.7)),
+                            ("qp", (52.0, 0.0, 0.0)), ("qp0", (56.0, 7.3, 16.0)),
+                            ("exec", (56.7, 0.0, 0.0))):
+            a = _agg(rep["rows"], method, "wall_ood")
+            c.check(f"replication {method}: completion", a.get("success_rate"), exp[0], "%", tol=0.1)
+            c.check(f"replication {method}: envelope collisions", a.get("legacy_collision_rate"), exp[1],
+                    "%", tol=0.1)
+            c.check(f"replication {method}: corrected collisions", a.get("corrected_collision_rate"),
+                    exp[2], "%", tol=0.1)
+            c.check(f"replication {method}: mesh collisions", a.get("mesh_collision_rate"), 0.0, "%", tol=0.1)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

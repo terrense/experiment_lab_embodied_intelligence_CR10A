@@ -797,6 +797,32 @@ Two things change, and they change in opposite directions.
   completion without the margin-0 collisions — is the part of the result that survives the extra
   seeds, and it is now supported by an interval that excludes zero.
 
+#### 7.7.2 Replication on a second untouched range
+
+A result that is reported once, on one range, is a result about that range. Manifest version 2
+therefore adds a second untouched range, **30000–30199**, and the confirmatory comparison was
+repeated on it with the same policies, the same margins and the same three detectors. Nothing
+was re-tuned and no episode of the new range had been seen. (The manifest version differs —
+the replication range only exists in v2 — but the **test range is byte-identical in v1 and v2**,
+so the §7.7 result is not affected by the version change; only the tuning split moved and the
+replication range was added.)
+
+| method | replication: completion / envelope / corrected / mesh | confirmatory range: the same four |
+|---|---|---|
+| unfiltered policy | 40.7 % / 32.0 % / 33.3 % / **0 %** | 36.0 % / 38.7 % / 40.7 % / **0 %** |
+| archived single-constraint CBF | 51.3 % / 6.0 % / 6.7 % / **0 %** | 46.0 % / 10.7 % / 11.3 % / **0 %** |
+| bounded all-pair QP (4 cm) | 52.0 % / **0 %** / **0 %** / **0 %** | 45.3 % / **0 %** / **0 %** / **0 %** |
+| bounded all-pair QP (0 cm) | 56.0 % / 7.3 % / **16.0 %** / **0 %** | 54.0 % / 8.0 % / **19.3 %** / **0 %** |
+| **execution-aware (1 cm)** | **56.7 %** / **0 %** / **0 %** / **0 %** | 54.0 % / **0 %** / **0 %** / **0 %** |
+
+Every qualitative claim of §7.7 reproduces on a range that had never been touched: the unfiltered
+policy collides in about a third of the episodes under the envelope detector while the mesh
+checker finds **no real contact in any cell**; the two bounded filters are collision-free in every
+cell; the margin-0 QP reaches the completion of the execution-aware filter and pays 7–16 % of
+envelope contacts for it, and the execution-aware filter pays none. The absolute numbers are
+slightly higher on the new range (the scenarios are easier), but the ordering and the collision
+verdict are identical, cell for cell, in all three training seeds.
+
 ### 7.8 Supporting evidence and scope
 
 | Evidence item | Archived observation | Interpretation |
@@ -938,11 +964,14 @@ Four findings, and they do not all point the same way.
    38.7 % envelope collisions into 0 %. **The filter's value is not a property of the filter; it
    is a property of how bad the proposal is.**
 2. **Established:** a classical planner given only the Cartesian goal reaches 84.0 % completion
-   out of distribution with 0 % collisions, against the filtered reactive policy's 56.7 %. On this
-   task the learned policy adds **nothing** on top of a planner that is handed the same
-   information. That is a statement about *this* task — a policy trained on random walls and
-   evaluated on taller, wider ones — and not about learning in general; §7.7 is where the policy
-   earns its place, and it earns it by being cheap and fast, not by being better.
+   out of distribution with 0 % collisions, against the filtered reactive policy's 56.7 %. The two
+   numbers are the same quantity: **42 of the 50 episodes were planned and 42 of the 50
+   completed** — every episode the planner solved was also executed to the goal, and the eight
+   failures are the eight episodes it could not plan. On this task the learned policy adds
+   **nothing** on top of a planner that is handed the same information. That is a statement about
+   *this* task — a policy trained on random walls and evaluated on taller, wider ones — and not
+   about learning in general; §7.7 is where the policy earns its place, and it earns it by being
+   cheap and fast, not by being better.
 3. **Established, and it changes the comparison:** the planner is **slow**. At 6 s it has
    completed 4 % of the episodes while the filtered policy has completed 54 %, because the
    waypoint follower moves at most 0.6 rad/s and the path has to be traversed. The 84 % figure is

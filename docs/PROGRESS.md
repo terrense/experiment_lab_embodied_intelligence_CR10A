@@ -583,3 +583,15 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
     re-evaluated when the seed list grows (the two new seeds cost only their own cells).
   - The claim checker grew to **198 claims** (from 156), including the five-seed intervals and
     the per-seed table of the new subsection 7.7.1.
+- **The confirmatory table REPLICATES on a second untouched range.** Manifest v2's replication
+  range 30000-30199 was run with the same policies, the same margins and the same three
+  detectors. Every qualitative claim of section 7.7 holds, cell for cell, in all three training
+  seeds: the unfiltered policy collides in about a third of the episodes under the envelope
+  detector (32.0 %, 33.3 % corrected) while the mesh checker finds **no real contact in any
+  cell**; the bounded QP (4 cm) and the execution-aware filter are collision-free in every cell;
+  the margin-0 QP reaches the completion of the execution-aware filter (56.0 % against 56.7 %)
+  and pays 7.3 % envelope / 16.0 % corrected contacts for it, and the execution-aware filter pays
+  none. The absolute numbers are slightly higher on the new range (the scenarios are easier),
+  but the ordering and the collision verdict are identical. The manifest version differs (the
+  replication range only exists in v2), but the TEST range is identical in v1 and v2, so the
+  confirmatory result is unaffected by the version change.

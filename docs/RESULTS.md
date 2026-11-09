@@ -326,7 +326,36 @@ by the same margin, both are collision-free, and the mesh checker again finds no
 
 ---
 
-## 9. The stopping tail, the nonlinear re-check, and the uncertainty budget
+## 9. Replication on a second untouched range
+
+Source: `data/reports/learning/final_benchmark_replication.json`, script
+`evaluation/final_benchmark.py --split replication`. Manifest version 2, hash
+`7cfdb66b76291f27`. The same policies, the same margins, the same three detectors, on the range
+**30000–30199**, which had never been touched.
+
+| method | replication: completion / envelope / corrected / mesh | confirmatory range: the same four |
+|---|---|---|
+| unfiltered policy | 40.7 % / 32.0 % / 33.3 % / **0 %** | 36.0 % / 38.7 % / 40.7 % / **0 %** |
+| archived single-constraint CBF | 51.3 % / 6.0 % / 6.7 % / **0 %** | 46.0 % / 10.7 % / 11.3 % / **0 %** |
+| bounded all-pair QP (4 cm) | 52.0 % / **0 %** / **0 %** / **0 %** | 45.3 % / **0 %** / **0 %** / **0 %** |
+| bounded all-pair QP (0 cm) | 56.0 % / 7.3 % / **16.0 %** / **0 %** | 54.0 % / 8.0 % / **19.3 %** / **0 %** |
+| **execution-aware (1 cm)** | **56.7 %** / **0 %** / **0 %** / **0 %** | 54.0 % / **0 %** / **0 %** / **0 %** |
+
+Every qualitative claim of §8 reproduces: the unfiltered policy collides in about a third of the
+episodes under the envelope detector while the mesh checker finds **no real contact in any
+cell**; the two bounded filters are collision-free in every cell; the margin-0 QP reaches the
+completion of the execution-aware filter and pays 7–16 % of envelope contacts for it, and the
+execution-aware filter pays none. The absolute numbers are slightly higher on the new range (the
+scenarios are easier), but the ordering and the collision verdict are identical in all three
+training seeds.
+
+The manifest version differs (the replication range only exists in v2), but the **test range is
+identical in v1 and v2** — only the tuning split moved and the replication range was added — so
+the §8 result is not affected by the version change.
+
+---
+
+## 10. The stopping tail, the nonlinear re-check, and the uncertainty budget
 
 Source: `data/reports/learning/stopping_rollout.json`, script
 `evaluation/stopping_rollout.py`.
@@ -383,7 +412,7 @@ looks like the hard modelling problem, is already safe.
 
 ---
 
-## 10. Planner guidance: does the filter work across proposal sources?
+## 11. Planner guidance: does the filter work across proposal sources?
 
 Source: `data/reports/learning/b6_plans.json` and
 `data/reports/learning/b6_planner_filter.json`, script `evaluation/b6_planner_filter.py`.
@@ -435,7 +464,7 @@ distribution over training seeds.
 
 ---
 
-## 11. What is NOT in this document
+## 12. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.
