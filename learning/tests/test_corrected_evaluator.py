@@ -18,21 +18,42 @@ sys.path.insert(0, str(ROOT / "evaluation"))
 pytest.importorskip("mujoco")
 pytest.importorskip("xacro")
 
-from episode_manifest import SPLITS, build_manifest, episodes_for, manifest_hash  # noqa: E402
+from episode_manifest import (SPLITS, build_manifest, episodes_for, manifest_hash,  # noqa: E402
+                             splits_for)
 from ex_learning.envs.cr10a_reach_wall import ReachWallEnv, WallConfig, load_scene  # noqa: E402
 
 
 # ----------------------------------------------------------------------- the manifest
-def test_split_seed_ranges_do_not_overlap_except_tune_inside_train():
-    # "tune" is deliberately a subset of "train" (the hyper-parameter seeds 0-19 are training
-    # seeds). Every other pair must be disjoint.
-    assert SPLITS["tune"][0] >= SPLITS["train"][0] and SPLITS["tune"][1] <= SPLITS["train"][1]
-    names = [n for n in SPLITS if n != "tune"]
+def test_split_seed_ranges_do_not_overlap():
+    # In manifest version 2 EVERY split is disjoint from every other one: the tuning seeds moved
+    # out of the training range (0-999), which was the protocol flaw of version 1, and a second
+    # untouched range was added for replication.
+    names = list(SPLITS)
     for i, a in enumerate(names):
         for b in names[i + 1:]:
             a0, a1 = SPLITS[a]
             b0, b1 = SPLITS[b]
             assert a1 <= b0 or b1 <= a0, f"{a} and {b} overlap"
+
+
+def test_version_1_keeps_the_contaminated_tuning_split_verbatim():
+    # Version 1 is frozen, not corrected: its tuning split (0-19) lies INSIDE the training range.
+    # The write-up has to be able to say where the operating points were chosen, so the historical
+    # definition is kept and asserted here rather than quietly rewritten.
+    v1 = splits_for(1)
+    assert v1["tune"] == (0, 20)
+    assert v1["train"] == (0, 1000)
+    assert v1["tune"][0] >= v1["train"][0] and v1["tune"][1] <= v1["train"][1]
+    assert "replication" not in v1, "version 1 predates the replication range"
+
+
+def test_version_2_moves_the_tuning_split_out_of_the_training_range():
+    v2 = splits_for(2)
+    assert v2["tune"] == (5000, 5100)
+    assert v2["train"] == (0, 1000)
+    assert v2["train"][1] <= v2["tune"][0], "the tuning split must be disjoint from the training one"
+    assert v2["replication"] == (30000, 30200)
+    assert v2["replication"][0] >= v2["test"][1], "the replication range must not overlap the test one"
 
 
 def test_the_historical_seeds_are_the_dev_split_and_the_test_split_is_new():
@@ -48,8 +69,12 @@ def test_the_historical_seeds_are_the_dev_split_and_the_test_split_is_new():
 def test_manifest_hash_is_stable_and_version_sensitive():
     m = build_manifest(("wall_ood",))
     assert manifest_hash(m) == manifest_hash(build_manifest(("wall_ood",)))
-    assert manifest_hash(m) != manifest_hash(build_manifest(("wall_ood",), version=2))
+    # the version is part of the manifest, so the two versions hash differently
+    assert manifest_hash(m) != manifest_hash(build_manifest(("wall_ood",), version=1))
     assert manifest_hash(m) != manifest_hash(build_manifest(("wall_rand",)))
+    # and version 1 still hashes to the value the archived reports quote
+    v1 = build_manifest(("wall_ood",), version=1)
+    assert manifest_hash(v1) == manifest_hash(build_manifest(("wall_ood",), version=1))
 
 
 # --------------------------------------------------------------- the independent checker

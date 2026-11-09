@@ -1,0 +1,513 @@
+{
+ "split": "test",
+ "task": "wall_ood",
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "episodes": 50,
+ "seed_start": 20000,
+ "qp_margin": 0.04,
+ "qp0_margin": 0.0,
+ "exec_margin": 0.01,
+ "n_boot": 4000,
+ "comparisons": {
+  "exec_-_qp": {
+   "completion": {
+    "hierarchical": {
+     "mean_difference": 0.08666666666666667,
+     "ci_low": 0.006666666666666667,
+     "ci_high": 0.21333333333333335,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.22,
+      0.02,
+      0.02
+     ],
+     "between_seed_sd": 0.11547005383792516,
+     "p_two_sided_bootstrap": 0.023,
+     "excludes_zero": true,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.08666666666666667,
+     "ci_low": 0.04666666666666667,
+     "ci_high": 0.13333333333333333,
+     "width": 0.08666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    },
+    "paired_pooled": {
+     "mean_difference": 0.08666666666666667,
+     "ci_low": 0.04666666666666667,
+     "ci_high": 0.13333333333333333,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_scenarios": 150,
+     "p_two_sided_bootstrap": 0.0,
+     "excludes_zero": true,
+     "method": "scenario-level bootstrap, pairing preserved",
+     "assumes": [
+      "the scenarios are exchangeable within the evaluated range",
+      "the methods are evaluated on exactly the same scenarios (the pairing is real)",
+      "the training seeds are NOT accounted for here - use hierarchical_bootstrap for that"
+     ]
+    },
+    "seed_spread_a": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "seed_spread_b": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "separability": {
+     "verdict": "NOT_SEPARABLE",
+     "why": "the interval excludes zero, but 3 training seeds cannot resolve a difference of 8.7 percentage points against a between-seed spread of 11.5 points",
+     "mean_difference": 0.08666666666666667,
+     "spread_sd": 0.11547005383792516,
+     "difference_over_spread": 0.7505553499465134,
+     "n_seeds": 3,
+     "ci_low": 0.006666666666666667,
+     "ci_high": 0.21333333333333335
+    }
+   },
+   "collision": {
+    "hierarchical": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "between_seed_sd": 0.0,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "width": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    }
+   }
+  },
+  "qp_-_exec": {
+   "completion": {
+    "hierarchical": {
+     "mean_difference": -0.08666666666666667,
+     "ci_low": -0.21333333333333335,
+     "ci_high": -0.006666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      -0.22,
+      -0.02,
+      -0.02
+     ],
+     "between_seed_sd": 0.11547005383792516,
+     "p_two_sided_bootstrap": 0.023,
+     "excludes_zero": true,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": -0.08666666666666667,
+     "ci_low": -0.13333333333333333,
+     "ci_high": -0.04666666666666667,
+     "width": 0.08666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    },
+    "paired_pooled": {
+     "mean_difference": -0.08666666666666667,
+     "ci_low": -0.13333333333333333,
+     "ci_high": -0.04666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_scenarios": 150,
+     "p_two_sided_bootstrap": 0.0,
+     "excludes_zero": true,
+     "method": "scenario-level bootstrap, pairing preserved",
+     "assumes": [
+      "the scenarios are exchangeable within the evaluated range",
+      "the methods are evaluated on exactly the same scenarios (the pairing is real)",
+      "the training seeds are NOT accounted for here - use hierarchical_bootstrap for that"
+     ]
+    },
+    "seed_spread_a": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "seed_spread_b": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "separability": {
+     "verdict": "NOT_SEPARABLE",
+     "why": "the interval excludes zero, but 3 training seeds cannot resolve a difference of 8.7 percentage points against a between-seed spread of 11.5 points",
+     "mean_difference": -0.08666666666666667,
+     "spread_sd": 0.11547005383792516,
+     "difference_over_spread": 0.7505553499465134,
+     "n_seeds": 3,
+     "ci_low": -0.21333333333333335,
+     "ci_high": -0.006666666666666667
+    }
+   },
+   "collision": {
+    "hierarchical": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "between_seed_sd": 0.0,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "width": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    }
+   }
+  },
+  "exec_-_qp0": {
+   "completion": {
+    "hierarchical": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "between_seed_sd": 0.0,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "width": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    },
+    "paired_pooled": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_scenarios": 150,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "scenario-level bootstrap, pairing preserved",
+     "assumes": [
+      "the scenarios are exchangeable within the evaluated range",
+      "the methods are evaluated on exactly the same scenarios (the pairing is real)",
+      "the training seeds are NOT accounted for here - use hierarchical_bootstrap for that"
+     ]
+    },
+    "seed_spread_a": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "seed_spread_b": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "separability": {
+     "verdict": "NOT_SEPARABLE",
+     "why": "the interval includes zero",
+     "mean_difference": 0.0,
+     "spread_sd": 0.0,
+     "difference_over_spread": Infinity,
+     "n_seeds": 3,
+     "ci_low": 0.0,
+     "ci_high": 0.0
+    }
+   },
+   "collision": {
+    "hierarchical": {
+     "mean_difference": -0.08,
+     "ci_low": -0.16666666666666666,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      -0.16,
+      -0.08
+     ],
+     "between_seed_sd": 0.08,
+     "p_two_sided_bootstrap": 0.084,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": -0.08,
+     "ci_low": -0.12666666666666668,
+     "ci_high": -0.04,
+     "width": 0.08666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    }
+   }
+  },
+  "qp0_-_exec": {
+   "completion": {
+    "hierarchical": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "between_seed_sd": 0.0,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "width": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    },
+    "paired_pooled": {
+     "mean_difference": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_scenarios": 150,
+     "p_two_sided_bootstrap": 1.0,
+     "excludes_zero": false,
+     "method": "scenario-level bootstrap, pairing preserved",
+     "assumes": [
+      "the scenarios are exchangeable within the evaluated range",
+      "the methods are evaluated on exactly the same scenarios (the pairing is real)",
+      "the training seeds are NOT accounted for here - use hierarchical_bootstrap for that"
+     ]
+    },
+    "seed_spread_a": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "seed_spread_b": {
+     "per_seed_mean": [
+      20024.5,
+      20024.5,
+      20024.5
+     ],
+     "mean": 20024.5,
+     "sd": 0.0,
+     "range": 0.0,
+     "n_seeds": 3,
+     "interpretation": "a mean difference of the same order as this spread cannot be separated from it with the seeds at hand"
+    },
+    "separability": {
+     "verdict": "NOT_SEPARABLE",
+     "why": "the interval includes zero",
+     "mean_difference": 0.0,
+     "spread_sd": 0.0,
+     "difference_over_spread": Infinity,
+     "n_seeds": 3,
+     "ci_low": 0.0,
+     "ci_high": 0.0
+    }
+   },
+   "collision": {
+    "hierarchical": {
+     "mean_difference": 0.08,
+     "ci_low": 0.0,
+     "ci_high": 0.16666666666666666,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_training_seeds": 3,
+     "n_scenarios": 50,
+     "per_seed_mean_difference": [
+      0.0,
+      0.16,
+      0.08
+     ],
+     "between_seed_sd": 0.08,
+     "p_two_sided_bootstrap": 0.084,
+     "excludes_zero": false,
+     "method": "two-level bootstrap: training seeds, then scenarios within a seed",
+     "assumes": [
+      "the training seeds are exchangeable draws from the training procedure",
+      "the scenarios are exchangeable within the evaluated range",
+      "a bias shared by ALL seeds (a flaw of the method, the reward or the environment) is invisible to this estimator - it propagates variance, not shared bias",
+      "the interval rests on 3 clusters; with few clusters it cannot resolve small differences, and the interval should be read as descriptive"
+     ]
+    },
+    "naive": {
+     "mean_difference": 0.08,
+     "ci_low": 0.04,
+     "ci_high": 0.12666666666666668,
+     "width": 0.08666666666666667,
+     "alpha": 0.05,
+     "n_boot": 4000,
+     "n_cells": 150,
+     "method": "NAIVE: cells treated as independent - for comparison only, do not report"
+    }
+   }
+  }
+ }
+}

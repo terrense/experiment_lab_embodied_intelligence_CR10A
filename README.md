@@ -89,6 +89,14 @@ On the **frozen test range** (20000–20199, never inspected before, 3 seeds × 
 
 The honest part: the ablation shows the gain comes from the **look-ahead structure**, not from the explicit plant model — dropping the coast term from the constraint changes the frontier not at all. And the **tuning seeds overlap the training range**, which is why the tuning sweep could not resolve the difference the confirmatory run finds; the [research plan](docs/RESEARCH_PLAN.md) records both, together with the falsification criteria and their outcome.
 
+### M5.6: what the filter still does not do — measured, not asserted
+
+The filter reasons over a **0.1 s** look-ahead and then stops reasoning. Two measurements say what that costs, on the states the filter itself produces:
+
+* **The stopping tail.** A zero velocity command does not stop the motion. After the command is cut the arm keeps travelling and can lose **87 mm of clearance** (p95 38 mm) — **8.7× the filter's own 10 mm margin**. The motion is over after 200–500 ms, ten to twenty-five control steps. The coast itself is modelled well (the measured/predicted displacement ratio is 0.99997); the problem is the horizon, not the coast.
+* **The nonlinear re-check.** The filter's constraint is a first-order expansion. Rolled out nonlinearly, the expansion stays within 8.5 mrad of the model's own output — so the **linearisation is not the problem**. The model is: its error at the same horizon is **22 mrad where the filter depends on it**, against the 4.57 mrad it was fitted on.
+* **The uncertainty budget, separated.** The geometric tube is **one-sided**: the capsule metric under-estimates the mesh clearance in 1512 of 1512 samples (median 49 mm). The geometry costs the margin nothing. The prediction error and the stopping tail eat it.
+
 The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
 
 ## Every result, and where it comes from
@@ -110,6 +118,8 @@ index — claim → the script that produced it → the file that holds it.
 | The safety–completion frontier of the filters | `learning/ex_learning/sweep_qp.py`, `sweep_exec.py` | `data/reports/learning/frontier_*.json`, `tune50_*.json` |
 | The statistics (paired, hierarchical, separability) | `evaluation/confirmatory_stats.py`, `evaluation/stats.py` | `data/reports/learning/confirmatory_stats.json` |
 | The narrow passage, matched protocol | `learning/ex_learning/matched_window.py` | `data/reports/learning/rrt_window_exec30s.json` |
+| **Planner guidance vs the reactive policy** (B6: does the filter work across proposal sources?) | `evaluation/b6_planner_filter.py` | `data/reports/learning/b6_plans.json`, `b6_planner_filter.json` |
+| **The stopping tail, the nonlinear re-check, the separated uncertainty budget** | `evaluation/stopping_rollout.py` | `data/reports/learning/stopping_rollout.json` |
 | Classical baselines (DLS, APF) | `learning/ex_learning/baselines.py` | `data/reports/learning/baselines*.json` |
 | Kinematic calibration (real data) | `evaluation/calibrate.py` | `data/reports/calibration/` |
 | Dynamics identification on the real, moving CR10A | `evaluation/dynamics_id.py` | `data/reports/dynamics/`, `data/reports/run02/` |

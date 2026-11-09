@@ -43,7 +43,13 @@ class JointRRTConnect:
         return all(self.valid(a + (b - a) * (i / n)) for i in range(1, n + 1))
 
     def _extend(self, nodes: List[np.ndarray], parents: List[int], target: np.ndarray) -> Tuple[str, int]:
-        i = int(np.argmin([np.max(np.abs(n - target)) for n in nodes]))
+        # The nearest node is found with numpy instead of a Python loop over the tree. The result
+        # is the SAME (argmin returns the first minimum, exactly as the list comprehension did) and
+        # the random number stream is untouched, so the plans are unchanged - but the search is no
+        # longer O(N) in Python per extension. That matters: a failed search with a 20k-check
+        # budget builds a tree of thousands of nodes, and the Python loop made one such search take
+        # half an hour instead of half a minute.
+        i = int(np.argmin(np.max(np.abs(np.asarray(nodes) - target), axis=1)))
         d = target - nodes[i]
         dist = np.max(np.abs(d))
         new = target if dist <= self.step else nodes[i] + d * (self.step / dist)

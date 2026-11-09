@@ -241,6 +241,26 @@ The per-seed breakdown, out-of-distribution walls, 50 episodes per cell:
 | 1 | 44 % / 0 % | 46 % / **20 %** | **46 % / 0 %** |
 | 2 | 42 % / 0 % | 44 % / **16 %** | **44 % / 0 %** |
 
+The intervals, from `evaluation/confirmatory_stats.py`
+(`data/reports/learning/confirmatory_stats.json`). The comparison is **paired over scenarios**:
+the same 50 episode seeds are run by every method, so the difference is computed per scenario
+and the bootstrap resamples *scenarios* — never individual observations. The hierarchical interval
+resamples **training seeds first** and the scenarios inside a selected seed; that is the
+interval that answers "would this hold on a new training seed and a new set of scenarios".
+
+| comparison (completion) | mean diff | hierarchical 95 % CI | naive CI | between-seed spread of the difference | verdict |
+|---|---|---|---|---|---|
+| execution-aware − QP (4 cm) | +8.7 pts | **[+0.7, +21.3]** | [+4.7, +13.3] | 11.5 pts | `NOT_SEPARABLE` |
+| execution-aware − QP (0 cm) | +0.0 pts | [+0.0, +0.0] | [+0.0, +0.0] | 0.0 pts | identical per episode |
+| QP (4 cm) − QP (0 cm) | −8.7 pts | [−21.3, −0.7] | [−13.3, −4.7] | 11.5 pts | `NOT_SEPARABLE` |
+
+The naive interval is **2.4× narrower** than the hierarchical one, and it is the one a per-episode
+analysis would have produced: it reads as a settled 8.7-point win. The estimator's verdict is
+`NOT_SEPARABLE` — the interval excludes zero, but three training seeds cannot resolve an
+8.7-point difference against an 11.5-point between-seed spread. The collision comparison is
+unambiguous: execution-aware − QP (0 cm) is **−8.0 points** of collisions (hierarchical CI
+[−16.7, +0.0]), and execution-aware − QP (4 cm) is +0.0 points.
+
 Reading:
 
 * **Established, in all three seeds:** the execution-aware filter reaches *exactly* the
@@ -287,7 +307,64 @@ by the same margin, both are collision-free, and the mesh checker again finds no
 
 ---
 
-## 9. What is NOT in this document
+## 9. The stopping tail, the nonlinear re-check, and the uncertainty budget
+
+Source: `data/reports/learning/stopping_rollout.json`, script
+`evaluation/stopping_rollout.py`.
+
+The states are sampled from the **execution-aware filter's own output** (216 states, three policy
+seeds, six episodes each), where the clearance is at least the filter's 10 mm margin by
+construction — that is where the terminal-stop question is asked. The command is cut to zero and
+the plant is rolled on with every physics substep recorded.
+
+**A. The stopping tail.** A zero velocity command does not stop the motion.
+
+| time after the cut | tool-point travel (p95) | clearance lost (p95) | clearance lost (worst) |
+|---|---|---|---|
+| 50 ms | 110 mm | 35 mm | 63 mm |
+| **100 ms** (the filter's whole look-ahead) | **142 mm** | **38 mm** | **87 mm** |
+| 200 ms | 129 mm | 24 mm | 80 mm |
+| 500 ms | 129 mm | 24 mm | 80 mm |
+
+* In **35 %** of the states the tail brings the arm *closer* to the obstacle than at the cut.
+* The worst case loses **87 mm** of clearance — **8.7× the filter's own 10 mm margin**.
+* The motion is over after 200–500 ms (10–25 control steps); the filter's look-ahead is 5 steps.
+* The coast itself is modelled well: the measured/predicted displacement ratio is 0.99997
+  (median), 1.014 (worst). The problem is not the coast model, it is the horizon.
+
+**B. The nonlinear re-check.**
+
+| quantity | median | p05 | p95 | worst |
+|---|---|---|---|---|
+| model prediction error at the horizon end | **22.3 mrad** | 11.3 | 88.8 | 188.5 |
+| the same, through the filter's first-order expansion | 22.4 mrad | 10.6 | 93.7 | 194.2 |
+| the expansion alone (first-order vs the model's own output) | 8.5 mrad | 5.1 | 10.5 | 11.7 |
+| tool-point error of the predicted motion | 22.5 mm | 3.3 | 79.5 | 140.0 |
+
+* The **linearisation is not the problem**: the expansion stays within 8.5 mrad of the model's
+  own output.
+* The **model is the problem, and it generalises worse than it was fitted to say**: the
+  identification reports 4.57 mrad, but that was measured on a random-command rollout on the
+  reach task. On the states the filter produces, the same model's error at the same horizon is
+  **22.3 mrad — five times larger**.
+
+**C. The uncertainty budget, separated.** The tube radius ε_i of §5.5's conditional argument is
+the gap between the environment's capsule clearance and the physical mesh clearance. Over 1512
+link–configuration samples it is **one-sided**: the capsule clearance is smaller in **1512 of
+1512** samples, by 49 mm at the median (6 mm p05, 126 mm worst).
+
+| term | magnitude | direction |
+|---|---|---|
+| geometric (capsule vs mesh) | 6–126 mm, median 49 mm | **one-sided** — works *for* the guarantee |
+| prediction (linearised vs nonlinear) | 22 mrad median, 89 mrad p95 | two-sided — eats the margin |
+| stopping tail (0.1–0.5 s after the cut) | up to 87 mm of clearance | two-sided — eats the margin, the most |
+
+The margin has to be spent on the prediction error and on the stopping tail. The geometry, which
+looks like the hard modelling problem, is already safe.
+
+---
+
+## 10. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.

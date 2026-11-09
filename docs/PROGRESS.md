@@ -484,3 +484,46 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   train 0-999 - the protocol flaw found while checking the confirmatory result), and a second
   untouched range (30000-30199) is added for replication. v1 is frozen verbatim, so its hash
   (a995f097b28148c2, quoted in the committed reports) still reproduces - verified.
+
+## 2026-11-08/09: the two things the filter does not do, measured
+- **Compute assessment first (the standing rule).** The two experiments below are CPU-bound
+  (MuJoCo at 1 kHz, a bounded program per control step); neither touches the GPU, so both run on
+  the laptop. The one thing that changed is the PROCESSING: the B6 cells are independent, so they
+  run in six parallel processes instead of one (the machine has 16 cores and the training job
+  takes 12). The H20's core count is still the resource that would matter for more seeds.
+- **The stopping tail is now measured, not asserted** (`evaluation/stopping_rollout.py`). The
+  states are sampled from the EXECUTION-AWARE FILTER'S OWN OUTPUT - where the clearance is at
+  least the filter's 10 mm margin by construction - because the unfiltered policy's states are
+  already in collision half the time and the question is meaningless there. The command is cut
+  to zero and the plant is rolled on with every physics substep recorded. The result: the arm
+  keeps moving and can lose **87 mm of clearance** (p95 38 mm) after the cut, **8.7x the
+  filter's own margin**, and in **35 %** of the states the tail brings it CLOSER to the
+  obstacle. The motion is over after 200-500 ms; the filter's look-ahead is 100 ms. The coast
+  itself is modelled well (measured/predicted 0.99997), so the horizon is the problem, not the
+  coast. This is the empirical answer to the "stopping verification" the manuscript had listed
+  as not implemented.
+- **The nonlinear re-check.** The filter's constraint is a first-order expansion. Rolled out
+  nonlinearly: the expansion stays within **8.5 mrad** of the model's own output, so the
+  LINEARISATION is not the problem - but the MODEL is: its error at the same horizon is **22.3
+  mrad** on the states the filter produces, against the **4.57 mrad** it was fitted on (a
+  random-command rollout on the reach task). The identified model is a good model of the
+  channel in general and a poor model of it where the filter depends on it.
+- **The uncertainty budget, separated** (this is what 5.5 asked for). The geometric tube is
+  MEASURED: the environment scores clearance with the enclosing capsules, the truth is the mesh,
+  and the gap is **one-sided** - the capsule is smaller in **1512 of 1512** samples, by 49 mm at
+  the median (126 mm worst). So the geometry costs the margin nothing; the PREDICTION error and
+  the STOPPING TAIL eat it. The part that looked like the hard modelling problem is the part
+  that is already safe.
+- **Two bugs found and fixed while measuring.** (a) The mesh checker owns its own MuJoCo model
+  instance, so its pose has to be set explicitly - without that the geometric comparison was made
+  at the wrong configuration and produced nonsense (both signs of the error). (b) The
+  manifest tests still encoded the version-1 protocol after the manifest moved to version 2
+  (the tuning split moved out of the training range, a replication range was added): the two
+  stale assertions are now written against version 2, and version 1's contaminated tuning split
+  is asserted separately so the history stays on the record.
+- **The planner was made tractable, without changing a single plan.** `JointRRTConnect._extend`
+  searched the tree for the nearest node with a Python loop, which is O(N) per extension in
+  Python: a failed 20k-check search built a tree of thousands of nodes and took **1711 s**. The
+  search is now a numpy `argmin` over the same list - the same node is selected (argmin returns
+  the first minimum, exactly as the comprehension did) and the random number stream is
+  untouched. The archived window run is re-checked against it.

@@ -194,6 +194,41 @@ def main() -> int:
         c.check("the 50-episode tuning sweeps", None, None)
         c.note("sweep check error", str(e))
 
+    print("\n== the stopping tail, the nonlinear re-check, the uncertainty budget (stopping_rollout.json)")
+    sr = _load("stopping_rollout.json")
+    if sr is None:
+        c.check("stopping_rollout.json present", None, None)
+    else:
+        A = sr["A_stopping_tail"]
+        B = sr["B_nonlinear_recheck"]
+        C = sr["C_uncertainty_budget"]
+        for delay, exp_tcp, exp_loss, exp_max in (("50ms", 109.6, 34.6, 62.6),
+                                                   ("100ms", 141.9, 38.0, 86.9),
+                                                   ("200ms", 128.8, 23.8, 79.8)):
+            prof = A["coast_profile"][delay]
+            c.check(f"stopping tail {delay}: tool-point travel (p95, mm)",
+                    prof["coast_tcp_mm"]["p95"], exp_tcp, "mm", tol=0.1)
+            c.check(f"stopping tail {delay}: clearance lost (p95, mm)",
+                    prof["clearance_loss_mm"]["p95"], exp_loss, "mm", tol=0.1)
+            c.check(f"stopping tail {delay}: clearance lost (worst, mm)",
+                    prof["clearance_loss_mm"]["max"], exp_max, "mm", tol=0.1)
+        c.check("the tail brings the arm closer to the obstacle", 100 * A["tail_approaches_obstacle_rate"],
+                35.2, "%", tol=0.1)
+        c.check("the model predicts the coast (measured/predicted, median)",
+                A["coast_ratio_measured_over_predicted"]["median"], 0.99997, "", tol=0.0001)
+        c.check("the model's error at the horizon end (mrad, median)",
+                1000 * B["horizon_end_err_rad_rms"]["median"], 22.3, "mrad", tol=0.05)
+        c.check("the expansion's own error (mrad, median)",
+                1000 * B["linearisation_err_rad_rms"]["median"], 8.5, "mrad", tol=0.05)
+        c.check("the tool-point error of the predicted motion (mm, median)",
+                B["tcp_err_mm_median"]["median"], 22.5, "mm", tol=0.05)
+        eps = [r["eps_m"] for r in sr["rows"]["eps"]]
+        c.check("the geometric tube is one-sided (samples where the capsule OVER-estimates)",
+                sum(1 for e in eps if e < 0.0), 0, "count", tol=0.5)
+        c.check("the geometric tube, sample count", len(eps), 1512, "count", tol=0.5)
+        c.check("the geometric tube, median (mm)", 1000 * C["eps_overall_m"]["median"], 49.0, "mm", tol=0.1)
+        c.check("the geometric tube, worst (mm)", 1000 * C["eps_overall_m"]["max"], 125.6, "mm", tol=0.1)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

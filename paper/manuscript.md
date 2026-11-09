@@ -353,6 +353,12 @@ certificate.
 > command sequence, it does **not** include a stopping tail, and it does **not** re-check the
 > candidate by nonlinear rollout. The two are separated deliberately: the implemented version is
 > what §7.5 and §7.6 measure, and the difference between them is the honest remaining work.
+>
+> **What §7.9 adds is the measurement of the two missing pieces**, not their implementation: the
+> stopping tail is measured on the plant (the command cut to zero erodes up to 87 mm of
+> clearance, 8.7× the filter's own margin), and the candidate is re-checked by a nonlinear
+> rollout (the first-order expansion is faithful to the model, 8.5 mrad, but the model itself is
+> 22 mrad off where it matters). The filter's decision still does not use either.
 
 The filter as specified optimises a short sequence `U = (u_t, …, u_(t+H−1))` around the nominal
 policy or reference path. Its objective penalizes deviation from the nominal sequence, changes
@@ -381,10 +387,17 @@ complete tube radius. Then the true surfaces do not intersect: distance to a fix
 implication, not a novel theorem.
 
 Applying it requires bounds on every relevant link, continuous-time or substep coverage, valid
-prediction under the selected commands, and a feasible terminal backup. The current data do not
-establish these assumptions. Consequently, the proposed implementation is described as an
-empirically calibrated safety filter until these conditions are supported. Neither an empirical
-maximum nor zero collisions in a finite test establishes unconditional invariance.
+prediction under the selected commands, and a feasible terminal backup. §7.9 measures what the
+data can and cannot support. The **geometric** half of the argument is supported: the capsule
+metric under-estimates the mesh clearance in 1512 of 1512 measured samples, so the tube is
+one-sided and the clearance that the filter enforces is a valid lower bound on the physical
+clearance — the geometry costs the margin nothing. The **prediction** half is not: the model's
+error where the filter depends on it is 22 mrad at the median, of the same order as the 10 mm
+margin. The **terminal backup** is not: the stopping tail erodes up to 87 mm of clearance after
+the command is cut, and the filter does not reason about it. Consequently, the proposed
+implementation is described as an empirically calibrated safety filter until these conditions
+are supported. Neither an empirical maximum nor zero collisions in a finite test establishes
+unconditional invariance.
 
 ### 5.6 Learning component and planner guidance
 
@@ -702,10 +715,16 @@ Five things follow, and they are not all equally well established.
    and changes nothing.
 2. **Not established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
    The per-seed differences are +22, +2 and +2 points, a mean of +8.7, but the QP's own
-   between-seed spread is 8 points and the mean is dominated by one training seed. Three
-   training seeds cannot separate an 8-point mean from an 8-point spread. The honest statement
-   is that the two are **indistinguishable on completion at equal safety on this task**, and the
-   paper does not claim otherwise.
+   between-seed spread is 8 points and the mean is dominated by one training seed. The
+   hierarchical interval — training seeds first, then the scenarios inside a seed — is
+   [+0.7, +21.3] points, and the spread of the *difference* between seeds is 11.5 points. The
+   naive interval, which treats every (seed, scenario) cell as independent, is [+4.7, +13.3]
+   points: 2.4× narrower, and it would be read as a decisive 8.7-point win. The estimator's own
+   verdict is `NOT_SEPARABLE`: the interval excludes zero, but three training seeds cannot
+   resolve an 8.7-point difference against an 11.5-point spread. The honest statement is that
+   the two are **indistinguishable on completion at equal safety on this task**, and the paper
+   does not claim otherwise. The numbers come from `evaluation/confirmatory_stats.py` and are
+   stored in `data/reports/learning/confirmatory_stats.json`.
 3. **Established:** the archived out-of-distribution envelope-collision rate **reproduces on
    data that was never used to reach it** (38.7 % against the published 36 %), and the mesh
    checker finds **no real contact in any cell**. The collision-metric finding of §4.5 is
@@ -739,6 +758,84 @@ that a future protocol should place the tuning split outside the training range.
 
 *Table 2.* Supporting evidence and scope. The dynamics comparison uses the recorded run02 regime;
 the physical interpretation of the torque signal remains conditional.
+
+### 7.9 The stopping tail, the nonlinear re-check, and the uncertainty budget
+
+Section 5.4 specifies two things the implemented filter does not do: it does not include a
+**stopping tail**, and it does not **re-check the candidate by nonlinear rollout**. Section 5.5
+then needs an uncertainty budget whose terms are separated. This subsection measures all three on
+the simulated plant. The states are sampled from the **execution-aware filter's own output**,
+where the clearance is at least the filter's 10 mm margin by construction — that is where the
+terminal-stop question is actually asked. 216 states, three policy seeds, six episodes each;
+script `evaluation/stopping_rollout.py`, report
+`data/reports/learning/stopping_rollout.json`.
+
+**The stopping tail.** The command is cut to zero and the plant is rolled on, with every physics
+substep recorded. The command channel does not stop the motion: the arm keeps travelling, and
+what it does while it coasts is the part a kinematic filter never reasons about.
+
+| time after the command was cut | tool-point travel (p95) | clearance lost (p95) | clearance lost (worst) |
+|---|---|---|---|
+| 50 ms | 110 mm | 35 mm | 63 mm |
+| **100 ms** (the filter's whole look-ahead) | **142 mm** | **38 mm** | **87 mm** |
+| 200 ms | 129 mm | 24 mm | 80 mm |
+| 500 ms | 129 mm | 24 mm | 80 mm |
+
+The motion is essentially over after 200–500 ms, ten to twenty-five control steps. The filter's
+look-ahead is five steps. **In 35 % of the states the tail brings the arm closer to the obstacle
+than it was at the cut**, and the worst case loses 87 mm of clearance — **8.7× the filter's own
+10 mm margin**. A filter that verifies the commanded motion over 0.1 s and then stops reasoning
+cannot claim that margin at the end of the motion; it can only claim it at the instant the
+command is issued.
+
+The coast itself is well modelled: the execution model predicts the joint displacement after
+the cut to within 0.04 % (median ratio of measured to predicted 0.99997, worst 1.014). The
+problem is not the model of the coast; it is that the filter's horizon is ten times shorter than
+the coast.
+
+**The nonlinear re-check.** The filter's constraint is a first-order expansion of the predicted
+motion, so the expansion itself has to be checked against a nonlinear rollout. Rolling the same
+horizon nonlinearly and comparing:
+
+| quantity | median | p05 | p95 | worst |
+|---|---|---|---|---|
+| model prediction error at the horizon end | **22.3 mrad** | 11.3 | 88.8 | 188.5 |
+| the same, through the filter's first-order expansion | 22.4 mrad | 10.6 | 93.7 | 194.2 |
+| the expansion alone (first-order vs the model's own output) | 8.5 mrad | 5.1 | 10.5 | 11.7 |
+| tool-point error of the predicted motion | 22.5 mm | 3.3 | 79.5 | 140.0 |
+
+Two things follow, and they point in different directions. First, **the linearisation is not the
+problem**: the first-order expansion stays within 8.5 mrad of the model's own output, and the
+expansion's error against the plant (22.4 mrad) is the model's error (22.3 mrad) to within
+0.1 mrad. The constraint is a faithful rendering of the model.
+
+Second, **the model is the problem, and it generalises worse than it was fitted to say**. The
+identification of §7.5 reports a 4.57 mrad prediction error — but that was measured on a
+random-command rollout on the reach task. On the states the filter actually produces, near
+obstacles and under its own commands, the same model's error at the same horizon is **22.3 mrad,
+five times larger**. The identified model is a good model of the channel in general and a poor
+model of the channel where the filter depends on it.
+
+**The uncertainty budget, separated.** §5.5's conditional argument needs a tube radius ε_i
+around the predicted surface. That radius is a *geometric* quantity, and it is measurable: the
+environment scores clearance with the enclosing capsules, the physical truth is the mesh
+surface, and the gap between them is the tube the argument has to cover. Over 1512
+link–configuration samples, the gap is **one-sided**: the capsule clearance is smaller than the
+mesh clearance in **1512 of 1512** samples, by 49 mm at the median (6 mm at p05, 126 mm at the
+worst). Per link, the median gap is 98 mm (base), 12 mm (Link1), 87 mm (Link2), 48 mm (Link3),
+61 mm (Link4), 41 mm (Link5) and 17 mm (Link6).
+
+So the three terms of the budget are now separated, and they are not of the same kind:
+
+| term | magnitude | direction |
+|---|---|---|
+| geometric (capsule vs mesh) | 6–126 mm, median 49 mm | **one-sided**: it works *in favour* of the guarantee and costs the margin nothing |
+| prediction (linearised vs nonlinear) | 22 mrad median, 89 mrad p95 | two-sided: it eats the margin |
+| stopping tail (0.1–0.5 s after the cut) | up to 87 mm of clearance | two-sided: it eats the margin, by far the most |
+
+The margin therefore has to be spent on the prediction error and on the stopping tail, and on
+neither of them can the current filter's 10 mm suffice. **The geometry, which is the part that
+looks like the hard modelling problem, is the one part that is already safe.**
 
 ## 8 Discussion
 
