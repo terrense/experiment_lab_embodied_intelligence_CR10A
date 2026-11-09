@@ -93,6 +93,9 @@ The honest part: the ablation shows the gain comes from the **look-ahead structu
 
 ### M5.6: what the filter still does not do — measured, not asserted
 
+![stopping tail](assets/learning/stopping_tail.png)
+*The filter reasons over a **0.1 s** look-ahead and then stops reasoning. Left: the tool-point travel after the command is cut to zero — the motion it reasons about is a fraction of the motion that happens. Right: the clearance lost during that tail, against the filter's own 10 mm margin; in 35 % of the states the tail brings the arm closer to the wall, and the worst case erases 87 mm.*
+
 The filter reasons over a **0.1 s** look-ahead and then stops reasoning. Two measurements say what that costs, on the states the filter itself produces:
 
 * **The stopping tail.** A zero velocity command does not stop the motion. After the command is cut the arm keeps travelling and can lose **87 mm of clearance** (p95 38 mm) — **8.7× the filter's own 10 mm margin**. The motion is over after 200–500 ms, ten to twenty-five control steps. The coast itself is modelled well (the measured/predicted displacement ratio is 0.99997); the problem is the horizon, not the coast.

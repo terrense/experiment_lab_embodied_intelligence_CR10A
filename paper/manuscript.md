@@ -851,6 +851,15 @@ script `evaluation/stopping_rollout.py`, report
 substep recorded. The command channel does not stop the motion: the arm keeps travelling, and
 what it does while it coasts is the part a kinematic filter never reasons about.
 
+![the stopping tail](../assets/learning/stopping_tail.png)
+*Figure 7.* The stopping tail, measured on 216 states from the execution-aware filter's own
+output. **Left:** the tool-point travel after the command is cut to zero; the filter's whole
+look-ahead (100 ms) is marked, and the motion it reasons about is a fraction of the motion that
+happens. **Right:** the clearance lost during the same tail, against the filter's own 10 mm
+margin. The median state does not lose clearance — most sampled states are far from the wall and
+the coast moves the arm away from it — but in 35 % of the states the tail brings the arm closer,
+and the worst case erases 87 mm. SIMULATION ONLY; no real robot was connected.
+
 | time after the command was cut | tool-point travel (p95) | clearance lost (p95) | clearance lost (worst) |
 |---|---|---|---|
 | 50 ms | 110 mm | 35 mm | 63 mm |

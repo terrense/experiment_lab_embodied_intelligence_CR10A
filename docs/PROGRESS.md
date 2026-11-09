@@ -595,3 +595,10 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   but the ordering and the collision verdict are identical. The manifest version differs (the
   replication range only exists in v2), but the TEST range is identical in v1 and v2, so the
   confirmatory result is unaffected by the version change.
+- **Figure 7 (the stopping tail)** is drawn from the committed JSON
+  (`evaluation/plot_stopping_tail.py` -> `assets/learning/stopping_tail.png`): the tool-point
+  travel after the command is cut, and the clearance lost during the tail, both against the
+  filter's 100 ms horizon and its 10 mm margin. The figure also shows the fact that the median
+  state does NOT lose clearance - most sampled states are far from the wall and the coast moves
+  the arm away - so the erosion is in the third of the states that are close to it. That is in
+  the caption, because a figure that only showed the worst case would be misleading.

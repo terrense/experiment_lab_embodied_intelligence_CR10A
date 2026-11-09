@@ -56,6 +56,7 @@ Figures are generated from the committed JSON reports, never hand-drawn:
 |---|---|---|
 | Safety–completion frontier (Fig. 5) | `evaluation/plot_frontier.py` | `assets/learning/frontier.png` |
 | The execution gap (Fig. 6) | `evaluation/plot_execution_gap.py` | `assets/learning/execution_gap.png` |
+| The stopping tail (Fig. 7) | `evaluation/plot_stopping_tail.py` | `assets/learning/stopping_tail.png` |
 | Per-stage plots | `evaluation/plot_*.py` | `assets/learning/*.png` |
 
 Regenerating a figure after a re-run is a two-line command; the numbers in the caption are read

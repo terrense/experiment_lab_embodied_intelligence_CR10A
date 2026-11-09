@@ -143,7 +143,7 @@ def stopping_tail(env, model, q, qd, q_ref, v: np.ndarray, hold_steps: int = 3,
     # The filter's look-ahead is 0.1 s, so the profile says how much of the coast a filter with
     # that horizon cannot see.
     profile = {}
-    for delay_ms in (50, 100, 200, 500, 1000):
+    for delay_ms in (20, 50, 75, 100, 150, 200, 300, 500, 750, 1000):
         r = min(int(delay_ms / 1000.0 / rec_dt), len(tail["Q"]) - 1)
         entry = {"coast_rad": float(np.abs(tail["Q"][r] - q_cut).max())}
         if fk is not None:
@@ -385,7 +385,7 @@ def main(argv=None) -> int:
                                            for t in tails if "coast_tcp_mm" in t["coast_profile"][delay]]),
                     "clearance_loss_mm": stats([t["coast_profile"][delay].get("clearance_loss_mm")
                                                 for t in tails if "clearance_loss_mm" in t["coast_profile"][delay]]),
-                } for delay in ("50ms", "100ms", "200ms", "500ms", "1000ms")
+                } for delay in ("20ms", "50ms", "75ms", "100ms", "150ms", "200ms", "300ms", "500ms", "750ms", "1000ms")
             },
             "tail_s": stats([t["tail_s"] for t in tails if t["tail_s"] is not None]),
             "tail_approaches_obstacle_rate": float(np.mean([t["tail_approaches_obstacle"] for t in tails])),
