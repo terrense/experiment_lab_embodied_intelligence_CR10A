@@ -242,36 +242,55 @@ The per-seed breakdown, out-of-distribution walls, 50 episodes per cell:
 | 2 | 42 % / 0 % | 44 % / **16 %** | **44 % / 0 %** |
 
 The intervals, from `evaluation/confirmatory_stats.py`
-(`data/reports/learning/confirmatory_stats.json`). The comparison is **paired over scenarios**:
-the same 50 episode seeds are run by every method, so the difference is computed per scenario
-and the bootstrap resamples *scenarios* — never individual observations. The hierarchical interval
-resamples **training seeds first** and the scenarios inside a selected seed; that is the
-interval that answers "would this hold on a new training seed and a new set of scenarios".
+(`data/reports/learning/confirmatory_stats.json`), now with **five** training seeds (the two
+extra ones were trained with the archived configuration; the episodes are the same). The
+comparison is **paired over scenarios**: the same 50 episode seeds are run by every method, so
+the difference is computed per scenario and the bootstrap resamples *scenarios* — never
+individual observations. The hierarchical interval resamples **training seeds first** and the
+scenarios inside a selected seed; that is the interval that answers "would this hold on a new
+training seed and a new set of scenarios".
 
 | comparison (completion) | mean diff | hierarchical 95 % CI | naive CI | between-seed spread of the difference | verdict |
 |---|---|---|---|---|---|
-| execution-aware − QP (4 cm) | +8.7 pts | **[+0.7, +21.3]** | [+4.7, +13.3] | 11.5 pts | `NOT_SEPARABLE` |
-| execution-aware − QP (0 cm) | +0.0 pts | [+0.0, +0.0] | [+0.0, +0.0] | 0.0 pts | identical per episode |
-| QP (4 cm) − QP (0 cm) | −8.7 pts | [−21.3, −0.7] | [−13.3, −4.7] | 11.5 pts | `NOT_SEPARABLE` |
+| execution-aware − QP (4 cm) | +6.8 pts | **[+1.2, +15.2]** | [+4.0, +10.0] | 8.7 pts | `NOT_SEPARABLE` |
+| execution-aware − QP (0 cm) | −0.4 pts | [−1.6, +0.0] | [−1.2, +0.0] | 0.9 pts | identical per episode |
+| QP (4 cm) − QP (0 cm) | −6.8 pts | [−15.2, −1.2] | [−10.0, −4.0] | 8.7 pts | `NOT_SEPARABLE` |
 
-The naive interval is **2.4× narrower** than the hierarchical one, and it is the one a per-episode
-analysis would have produced: it reads as a settled 8.7-point win. The estimator's verdict is
-`NOT_SEPARABLE` — the interval excludes zero, but three training seeds cannot resolve an
-8.7-point difference against an 11.5-point between-seed spread. The collision comparison is
-unambiguous: execution-aware − QP (0 cm) is **−8.0 points** of collisions (hierarchical CI
-[−16.7, +0.0]), and execution-aware − QP (4 cm) is +0.0 points.
+The naive interval is **2.3× narrower** than the hierarchical one, and it is the one a per-episode
+analysis would have produced: it reads as a settled 6.8-point win. The estimator's verdict is
+`NOT_SEPARABLE` — and with five clusters the reason is no longer "too few seeds" but the
+substantive one: the between-seed spread of the difference (8.7 points) is of the same order as
+the difference itself (6.8 points).
+
+**The collision comparison is separable.** execution-aware − QP (0 cm) is **−7.2 points** of
+envelope collisions with a hierarchical interval of **[−13.2, −2.4]** that **excludes zero**;
+execution-aware − QP (4 cm) is +0.0 points. Under the stricter corrected detector of §8 the same
+difference is larger (19.3 % against 0 %), because the margin-0 filter's envelope contacts are
+exactly what the corrected detector resolves.
+
+Per seed (completion / envelope collisions, 50 episodes each):
+
+| policy seed | QP (4 cm) | QP (0 cm) | execution-aware (1 cm) |
+|---|---|---|---|
+| 0 | 50 % / 0 % | 72 % / 0 % | 72 % / 0 % |
+| 1 | 44 % / 0 % | 46 % / 16 % | 46 % / 0 % |
+| 2 | 42 % / 0 % | 44 % / 8 % | 44 % / 0 % |
+| 3 | 42 % / 0 % | 50 % / 6 % | 48 % / 0 % |
+| 4 | 42 % / 0 % | 44 % / 6 % | 44 % / 0 % |
 
 Reading:
 
-* **Established, in all three seeds:** the execution-aware filter reaches *exactly* the
-  completion of the unconstrained-margin QP while that QP pays 16–22 % collisions under the
-  corrected detector. The look-ahead constraint buys the margin-0 completion without the
-  margin-0 collisions. This is the positive result, and §6 shows it belongs to the constraint
+* **Established, in all five seeds:** the execution-aware filter reaches *exactly* the
+  completion of the unconstrained-margin QP while that QP pays collisions (16–22 % under the
+  corrected detector on the three audited seeds; 6–16 % envelope contacts on all five). The
+  look-ahead constraint buys the margin-0 completion without the margin-0 collisions, and the
+  collision difference is **separable**: the hierarchical interval is [−13.2, −2.4] points and
+  excludes zero. This is the positive result, and §6 shows it belongs to the constraint
   structure, not to the plant model;
 * **NOT established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
-  The per-seed differences are +22, +2 and +2 points against a between-seed spread of 8 points.
-  Three training seeds cannot separate an 8-point mean from an 8-point spread, so the two are
-  reported as indistinguishable at equal safety;
+  With five training seeds the per-seed differences are +22, +2, +2, +6 and +2 points against a
+  between-seed spread of the difference of 8.7 points, so the two are reported as
+  indistinguishable at equal safety;
 * the archived out-of-distribution envelope-collision rate **reproduces on the untouched test
   range** (38.7 % against the published 36 %), and the **mesh checker finds no real contact in
   any cell** — the conclusion of §3 holds on data that was never used to reach it;

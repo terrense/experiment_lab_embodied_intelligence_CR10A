@@ -33,6 +33,20 @@ advantage over the *safe* fixed-margin filter is **not** established: the per-se
 reported honestly as well: the gain comes from the look-ahead structure, not from the explicit
 plant model, whose coast term changes nothing.
 
+Two measurements sharpen what the filter still does not do, and one reframes what it is for.
+The filter reasons over a 0.1 s horizon while the motion it must cover lasts 0.2–0.5 s: with the
+command cut to zero the arm keeps moving and can lose **87 mm** of clearance, 8.7× the filter's
+own 10 mm margin. A nonlinear re-check shows the first-order expansion is faithful to the plant
+model (8.5 mrad) while the model itself is five times less accurate where the filter depends on
+it (22 mrad, against the 4.6 mrad of its fitting rollout); the *geometric* uncertainty, in
+contrast, is one-sided — the capsule metric under-estimates the mesh clearance in 1512 of 1512
+measured samples — so it costs the margin nothing. And giving a classical planner the same
+Cartesian goal with no privileged information, it plans 84 % of the out-of-distribution episodes
+and reaches 84 % completion with 0 % collisions where the filtered reactive policy reaches 57 %:
+the safety filter is what makes a *reactive* proposal usable (38.7 % → 56.7 % completion,
+38.7 % → 0 % collisions) and it is redundant on a *good* proposal. The filter is a repair, not a
+contribution in itself.
+
 The manuscript states the method, the conditional geometric reasoning and the evaluation protocol.
 All results are simulated; closed-loop hardware experiments remain pending, and no physical
 safety guarantee is claimed for the proposed filter.
@@ -707,24 +721,25 @@ collision rate:
 
 Five things follow, and they are not all equally well established.
 
-1. **Established, in all three seeds:** the execution-aware filter reaches *exactly* the
-   completion of the unconstrained-margin QP while the QP at margin 0 pays 16–22 % collisions
-   under the corrected detector. The look-ahead constraint buys the margin-0 completion without
-   the margin-0 collisions. This is the paper's positive result, and it is a property of the
-   constraint structure, not of the plant model — the ablation of §7.6 removes the coast term
-   and changes nothing.
+1. **Established, in all five seeds:** the execution-aware filter reaches *exactly* the
+   completion of the unconstrained-margin QP while the QP at margin 0 pays collisions
+   (16–22 % under the corrected detector on the three audited seeds; 6–16 % envelope contacts
+   on all five). The look-ahead constraint buys the margin-0 completion without the margin-0
+   collisions, and §7.7.1 shows the collision difference is separable: the hierarchical interval
+   is [−13.2, −2.4] points and excludes zero. This is the paper's positive result, and it is a
+   property of the constraint structure, not of the plant model — the ablation of §7.6 removes
+   the coast term and changes nothing.
 2. **Not established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
-   The per-seed differences are +22, +2 and +2 points, a mean of +8.7, but the QP's own
-   between-seed spread is 8 points and the mean is dominated by one training seed. The
-   hierarchical interval — training seeds first, then the scenarios inside a seed — is
-   [+0.7, +21.3] points, and the spread of the *difference* between seeds is 11.5 points. The
-   naive interval, which treats every (seed, scenario) cell as independent, is [+4.7, +13.3]
-   points: 2.4× narrower, and it would be read as a decisive 8.7-point win. The estimator's own
-   verdict is `NOT_SEPARABLE`: the interval excludes zero, but three training seeds cannot
-   resolve an 8.7-point difference against an 11.5-point spread. The honest statement is that
-   the two are **indistinguishable on completion at equal safety on this task**, and the paper
-   does not claim otherwise. The numbers come from `evaluation/confirmatory_stats.py` and are
-   stored in `data/reports/learning/confirmatory_stats.json`.
+   With five training seeds the hierarchical interval — training seeds first, then the scenarios
+   inside a seed — is [+1.2, +15.2] points (mean +6.8, per-seed differences +22, +2, +2, +6, +2)
+   and the between-seed spread of the *difference* is 8.7 points. The naive interval, which
+   treats every (seed, scenario) cell as independent, is [+4.0, +10.0] points: 2.3× narrower, and
+   it would be read as a settled win. The estimator's verdict is `NOT_SEPARABLE` — with five
+   clusters the reason is no longer "too few seeds" but the substantive one, that the spread is
+   of the same order as the difference. The honest statement is that the two are
+   **indistinguishable on completion at equal safety on this task**, and the paper does not claim
+   otherwise. The numbers come from `evaluation/confirmatory_stats.py` and are stored in
+   `data/reports/learning/confirmatory_stats.json`.
 3. **Established:** the archived out-of-distribution envelope-collision rate **reproduces on
    data that was never used to reach it** (38.7 % against the published 36 %), and the mesh
    checker finds **no real contact in any cell**. The collision-metric finding of §4.5 is
@@ -745,6 +760,40 @@ and the bounded QP are indistinguishable (32.0 % against 31.3 %, 50 episodes per
 confirmatory test range, which the policies have never seen, is where the two separate. This is
 reported rather than smoothed over: it means the tuning sweep understates the difference, and
 that a future protocol should place the tuning split outside the training range.
+
+#### 7.7.1 The same comparison with five training seeds
+
+Three training seeds were the binding constraint on every statement above, so two more were
+trained with the archived configuration and the same analysis was repeated. The episodes are the
+same; only the number of training seeds changes. Completion and (envelope) collision, per seed:
+
+| policy seed | QP (4 cm) | QP (0 cm) | execution-aware (1 cm) |
+|---|---|---|---|
+| 0 | 50 % / 0 % | 72 % / 0 % | 72 % / 0 % |
+| 1 | 44 % / 0 % | 46 % / 16 % | 46 % / 0 % |
+| 2 | 42 % / 0 % | 44 % / 8 % | 44 % / 0 % |
+| 3 | 42 % / 0 % | 50 % / 6 % | 48 % / 0 % |
+| 4 | 42 % / 0 % | 44 % / 6 % | 44 % / 0 % |
+
+Two things change, and they change in opposite directions.
+
+* **The completion verdict does not change, but the reason does.** The hierarchical interval for
+  execution-aware − QP (4 cm) is **[+1.2, +15.2]** points (mean +6.8, per-seed differences
+  +22, +2, +2, +6, +2), and the naive interval that treats every cell as independent is
+  [+4.0, +10.0] — **2.3× narrower**, and the one a per-episode analysis would have reported as a
+  settled win. The estimator's verdict is still `NOT_SEPARABLE`, but no longer because there are
+  too few seeds: with five clusters the reason is the substantive one, that the **between-seed
+  spread of the difference is 8.7 points against a mean of 6.8**. The completion advantage over
+  the safe fixed-margin filter is still **not established**, and it is now not established for a
+  reason that more seeds of the same kind would not fix.
+* **The collision difference IS separable.** The execution-aware filter has **0 %** envelope
+  collisions in **all five** seeds while the margin-0 QP has 6–16 % (mean 7.2 %). The
+  hierarchical interval for that difference is **[−13.2, −2.4] points and excludes zero**. Under
+  the stricter corrected detector of §7.7 the same difference is larger still (19.3 % against
+  0 %), because the envelope contacts of the margin-0 filter are exactly the ones the corrected
+  detector resolves. The safety claim — that the look-ahead constraint buys the margin-0
+  completion without the margin-0 collisions — is the part of the result that survives the extra
+  seeds, and it is now supported by an interval that excludes zero.
 
 ### 7.8 Supporting evidence and scope
 
@@ -943,13 +992,25 @@ the loop. A reader should take from this study the warning about command-level r
 demonstration that a look-ahead constraint is the cheap fix, not a demonstration that plant
 identification is the key to safety filtering.
 
-That also says where the remaining effort belongs. The identified model's own error (4.6 mrad over
-five policy steps) is a third of the coast it is meant to represent, and the prediction assumes
-the command is held constant — an assumption every filter intervention violates. A predictor that
-is accurate on short horizons *under the commands the filter will actually issue*, with an
-explicit error budget added to the margin, is the next thing to build; so is a tuning split that
-does not overlap the training range, since the current one cannot resolve the differences the
-method produces.
+That also says where the remaining effort belongs. §7.9 sharpens the estimate: the identified
+model's own error is 4.6 mrad over five policy steps **on the random-command rollout it was
+fitted on**, but 22.3 mrad on the states the filter actually produces, and the first-order
+expansion that the constraint is built from is faithful to that model (8.5 mrad). So the next
+thing to build is not a better linearisation but a predictor that is accurate on short horizons
+*under the commands the filter will actually issue*, with an explicit error budget added to the
+margin — and a filter that reasons about the **stopping tail**, which §7.9 measures at up to 87 mm
+of clearance after the command is cut, against a margin of 10 mm. So is a tuning split that does
+not overlap the training range, since the current one cannot resolve the differences the method
+produces.
+
+§7.10 adds the other half of the answer, and it is a humbling one for this project. The filter
+is what makes a *reactive* proposal usable — 38.7 % → 56.7 % completion and 38.7 % → 0 %
+collisions — and it is redundant on a *good* proposal, where a classical planner given the same
+Cartesian goal already reaches 84.0 % with 0 % collisions and the filter changes nothing. The
+filter is therefore not a contribution in itself; it is a repair. What makes the repair worth
+building is that the repair is cheap and general: it turns a proposal that is wrong in half the
+episodes into one that is safe in all of them, without retraining anything, and it costs nothing
+where the proposal was already safe.
 
 The repository offers unusually useful ingredients for studying this boundary: real feedback,
 controller-consistent geometry, a local dynamics record, and policy failures under a controlled
@@ -978,8 +1039,12 @@ Two further limits on what §7.5 establishes. The look-ahead constraint is linea
 current configuration, so its accuracy degrades with the horizon; the horizons tested are short
 enough that the measured error is small, but the method is not a geometric proof and no such claim
 is made. And the measurement is of the *filter's own* consistency with the plant — of the 0.1–1.3 %
-residual failure rate, some share is model error and some share is the linearisation, and the two
-were not separated.
+residual failure rate, some share is model error and some share is the linearisation. §7.9
+separates the two: the linearisation contributes 8.5 mrad and the model 22.3 mrad, so the model is
+the larger share. §7.9 also adds a limit that was not visible before: the filter's constraint is
+evaluated over 0.1 s while the motion it has to cover lasts 0.2–0.5 s, so the residual failure
+rate of §7.5 is a lower bound on the disagreement between the filter and the plant, not the whole
+of it.
 
 A third limit is statistical and it applies to the headline comparison. Three training seeds
 cannot separate an 8-point mean difference from an 8-point between-seed spread, and the

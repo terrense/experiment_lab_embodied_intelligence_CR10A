@@ -274,6 +274,45 @@ def main() -> int:
             vals = {round(100 * r["success_rate"], 6) for r in b6["rows"] if r["arm"] == arm}
             c.check(f"the {arm} arm is identical in every training seed", len(vals), 1, "count", tol=0.5)
 
+    print("\n== the confirmatory statistics with five training seeds (confirmatory_stats.json)")
+    cs = _load("confirmatory_stats.json")
+    if cs is None:
+        c.check("confirmatory_stats.json present", None, None)
+    else:
+        c.check("the statistics use five training seeds", float(len(cs["seeds"])), 5.0, "count", tol=0.5)
+        cmp_ = cs["comparisons"]
+        eh = cmp_["exec_-_qp"]["completion"]["hierarchical"]
+        en = cmp_["exec_-_qp"]["completion"]["naive"]
+        c.check("exec - qp: the mean completion difference", 100 * eh["mean_difference"], 6.8, "%", tol=0.1)
+        c.check("exec - qp: the hierarchical interval, low", 100 * eh["ci_low"], 1.2, "%", tol=0.1)
+        c.check("exec - qp: the hierarchical interval, high", 100 * eh["ci_high"], 15.2, "%", tol=0.1)
+        c.check("exec - qp: the naive interval, low", 100 * en["ci_low"], 4.0, "%", tol=0.1)
+        c.check("exec - qp: the naive interval, high", 100 * en["ci_high"], 10.0, "%", tol=0.1)
+        c.check("exec - qp: the between-seed spread of the difference",
+                100 * eh["between_seed_sd"], 8.7, "%", tol=0.1)
+        c.check("exec - qp: the verdict is NOT_SEPARABLE",
+                1.0 if cmp_["exec_-_qp"]["completion"]["separability"]["verdict"] == "NOT_SEPARABLE" else 0.0,
+                1.0)
+        ch = cmp_["exec_-_qp0"]["collision"]["hierarchical"]
+        c.check("exec - qp0: the collision difference", 100 * ch["mean_difference"], -7.2, "%", tol=0.1)
+        c.check("exec - qp0: the collision interval, low", 100 * ch["ci_low"], -13.2, "%", tol=0.1)
+        c.check("exec - qp0: the collision interval, high", 100 * ch["ci_high"], -2.4, "%", tol=0.1)
+        c.check("exec - qp0: the collision interval excludes zero",
+                1.0 if ch["excludes_zero"] else 0.0, 1.0)
+        # the per-seed table of section 7.7.1, from the episode cache
+        cache = _load("confirmatory_episodes.json")
+        if cache is not None:
+            for seed, exp in ((0, (50, 0, 72, 0, 72, 0)), (1, (44, 0, 46, 16, 46, 0)),
+                              (2, (42, 0, 44, 8, 44, 0)), (3, (42, 0, 50, 6, 48, 0)),
+                              (4, (42, 0, 44, 6, 44, 0))):
+                for i, m in enumerate(("qp", "qp0", "exec")):
+                    su = cache["success"][f"{m}|{seed}"]
+                    co = cache["collision"][f"{m}|{seed}"]
+                    c.check(f"seed {seed} {m}: completion", 100 * sum(su.values()) / len(su),
+                            exp[2 * i], "%", tol=0.1)
+                    c.check(f"seed {seed} {m}: envelope collisions", 100 * sum(co.values()) / len(co),
+                            exp[2 * i + 1], "%", tol=0.1)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

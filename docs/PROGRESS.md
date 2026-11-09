@@ -561,3 +561,25 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - **The claim checker grew to 156 claims** (from 99), every one of them re-derived from the
   committed JSON: the two new manuscript sections, the B6 table and the harness cross-check are
   all checked, so a number that drifts away from its source fails the test suite.
+- **Five training seeds, and the statistical verdict changes in one direction only.** Two more
+  PPO seeds were trained with the archived configuration (seed 3: 66 % on wall_rand, seed 4:
+  80 %, seed 5: 80 % - about 70 min each now that the machine is not suspending) and the same
+  analysis was repeated on the same episodes.
+  - **The completion verdict does not change, but its REASON does.** With three seeds the
+    verdict was "too few seeds to resolve it"; with five it is the substantive one: the
+    hierarchical interval for execution-aware - QP (4 cm) is [+1.2, +15.2] points (mean +6.8,
+    per-seed differences +22, +2, +2, +6, +2) and the between-seed spread of the DIFFERENCE is
+    8.7 points - the same order as the difference. The naive interval (every cell independent)
+    is [+4.0, +10.0], 2.3x narrower, and is the one a per-episode analysis would have reported
+    as a settled win. The completion advantage over the safe fixed-margin filter is therefore
+    NOT established, and more seeds of the same kind would not change that.
+  - **The collision difference IS separable.** The execution-aware filter has 0 % envelope
+    collisions in all five seeds against the margin-0 QP's 0-16 % (mean 7.2 %); the hierarchical
+    interval is [-13.2, -2.4] points and EXCLUDES zero. The safety claim - the look-ahead
+    constraint buys the margin-0 completion without the margin-0 collisions - is the part of the
+    result that survives the extra seeds, and it is now supported by an interval rather than by
+    an eyeball.
+  - The episode cache is now PER CELL, so a cell that has already been evaluated is not
+    re-evaluated when the seed list grows (the two new seeds cost only their own cells).
+  - The claim checker grew to **198 claims** (from 156), including the five-seed intervals and
+    the per-seed table of the new subsection 7.7.1.
