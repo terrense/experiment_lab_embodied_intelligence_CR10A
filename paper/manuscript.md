@@ -419,7 +419,9 @@ Use RRTConnect or a validated optimization planner to choose a collision-free ro
 waypoint follower is the primary nominal controller. PPO provides a second nominal controller, and
 an optional residual SAC learns a bounded correction to waypoint following. This separation asks
 whether the filter works across proposal sources and whether learning adds measurable benefit
-beyond planning and tracking.
+beyond planning and tracking. **§7.10 carries out the first half of this**: a planner is given
+the Cartesian goal and no privileged information, and the six-arm comparison shows that the
+filter is decisive on a reactive proposal and redundant on a planned one.
 
 A compact observation can include `q`, `v`, reference error, several path look-ahead points, and
 per-link nearest-obstacle distances and normals, with a validity mask for absent obstacles. This
