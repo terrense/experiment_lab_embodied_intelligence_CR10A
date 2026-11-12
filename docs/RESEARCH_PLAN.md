@@ -11,6 +11,112 @@
 
 ---
 
+## 0. REVISED MAIN LINE (2026-11-09) — read this first
+
+The plan below is the **control-line plan**, and it is 90 % done. It stays, because it produced
+the project's only *measured* results and because the next line is **built on top of it**. What
+changed is the question the work is organised around.
+
+### 0.1 Why the main line changed
+
+An external review (2026-11-08/09) and the owner's own technical direction agree on two things:
+
+1. **The owner's long-term accumulation is in LLM-agent / post-training / RL / verifiable
+   evaluation**, not in control theory. A paper whose contribution is "we measured the execution
+   gap of a safety filter" is a robotics-systems paper, and it does not compound into the
+   capability the owner is building.
+2. **The control line's own falsification criterion already fired against it.** The ablation
+   removes the coast term and the frontier does not move: the *look-ahead constraint structure*
+   carries the result, not the plant model. The filter is a **repair** that makes a reactive
+   proposal usable — and §7.10 of the manuscript shows it is redundant on a good proposal.
+
+So the control line is **demoted from "the contribution" to "the substrate"**, and the new
+contribution is one level up.
+
+### 0.2 The new question
+
+> **When the safety layer's own guarantee is known to be imperfect — and its imperfection is
+> measured — how should a high-level agent decide when to keep going, when to slow down, when to
+> retreat, and when to give up?**
+
+This is a sequence-decision problem, not a control problem, and it sits exactly where the
+owner's expertise is: agent policies, verifiable reward, credit assignment under a sparse final
+outcome, and post-training (SFT / DPO / GRPO).
+
+### 0.3 Why this repo is the right platform for it (and why it is not generic)
+
+A generic "LLM calls verified robot skills" paper has been done (IROSA, RA-L 2026;
+RecoveryChaining, IROS 2025; MAGMA-GEN, CoRL 2026). Assembling those pieces is not a
+contribution. What this repo has that those papers do not is a **measured risk model of its own
+execution layer**, and that is the asset:
+
+| asset | measured value | why the agent needs it |
+|---|---|---|
+| the gap between a safety layer's claim and the plant | 9.2 % of control steps at a 2 cm margin, median error 12 mm, worst 146 mm | the agent's reward is "did the arm stay safe", and this says how reliable that reward is |
+| the **stopping cost** of a decision | up to 87 mm of clearance lost after a command is cut; 35 % of states get closer | "keep going vs stop safely" is a **non-binary** trade-off, and the agent needs the price of stopping |
+| the **geometric** model error | one-sided: the capsule metric under-estimates the mesh clearance in 1512/1512 samples, by 49 mm at the median | the verifier's bias is known and conservative, so the reward is usable |
+| the **censoring** of the safety evaluation | the envelope metric stops the arm before it can touch; uncensored, the unfiltered policy makes real mesh contact in 50 % of the episodes | the reward must be computed on trajectories that are not stopped early |
+
+**The contribution is therefore not "an agent that calls robot skills". It is "an agent whose
+reward is a *calibrated* risk signal, and a study of what post-training buys on top of it".**
+
+### 0.4 The new method ladder
+
+The old ladder (B0–B8) is preserved below as the **control ladder** and is not rewritten. The new
+ladder runs on top of it:
+
+| group | agent layer | purpose |
+|---|---|---|
+| A0 | fixed state machine with hand-written recovery rules | **the strong baseline.** If the FSM matches the learned agent, the learning claim is void |
+| A1 | LLM agent, prompt only, no training | the zero-training reference |
+| A2 | LLM agent + SFT on successful trajectories | imitation floor |
+| A3 | LLM agent + DPO on (success, failure) pairs | preference floor |
+| A4 | LLM agent + GRPO / RLVR on the calibrated risk reward | **the research candidate** |
+| A5 | A4 + failure-node-focused sampling (which failure to spend the budget on) | the mechanism contribution |
+
+The **decisive experiment** is A0 vs A1 vs A2 vs A4 on **unseen fault combinations**, with the
+same task, the same skills, the same budget and paired seeds. If A4 does not beat A0 and A2
+stably, the RL claim is void and the paper says so.
+
+### 0.5 What must be true before A4 is meaningful
+
+The agent's reward is the verifier. **A wrong verifier optimises toward a wrong target.** That is
+why the control line's Gate-1 repairs are not a detour — they are a prerequisite:
+
+| Gate-1 repair | why the agent line needs it |
+|---|---|
+| the execution-gap metric is split into *initially unsafe* and *safe→unsafe crossing* | the agent must be scored on the failures it could have prevented, not on states it inherited |
+| the censoring diagnostic (the physical-contact protocol) | the reward must not be computed on trajectories the safety layer truncated |
+| the mesh checker on **every** episode (stride 1) | the reward's ground truth must have the same denominator as the comparison |
+| the solver latency distribution (P50/P95/P99) | the agent's skills have a real time cost, and the reward must price it |
+| **B4+**: the speed-dependent (stopping-distance) margin | if a trivial margin rule matches the look-ahead filter, then the agent has no reason to prefer the expensive one — and the substrate itself is wrong |
+
+### 0.6 The immediate sequence
+
+1. **Gate 1** (this week): the five repairs above, then re-state the control line's headline
+   numbers with the corrected metric. *The censoring result already changes one headline: the
+   unfiltered policy's "0 % real collisions" was an artefact of the episode being terminated at
+   the envelope contact — uncensored, it makes real mesh contact in 50 % of the episodes.*
+2. **The agent substrate** (2–3 weeks): the skill layer (`plan_motion`, `execute_path`,
+   `inspect_state`, `replan`, `retreat`, `finish`), the fault injector, the calibrated verifier,
+   the multi-waypoint inspection task, and the episode-level trajectory recorder.
+3. **The decisive experiment** (2 weeks): A0 (FSM), A1 (prompt), A2 (SFT), A4 (GRPO) on unseen
+   fault combinations. This is where the H20 server becomes genuinely useful (SFT/GRPO on a small
+   model), instead of as a seed trainer.
+4. **The control line is written up as the substrate**: the execution-gap measurement, the
+   stopping-cost model and the calibrated verifier are the measurement contribution of the agent
+   paper, and they are reusable by anyone who builds a safety layer.
+
+### 0.7 What is explicitly NOT changing
+
+* The hardware rules (no robot connection, no motion, the whitelist and the dry-run default).
+* The commit-everything policy under `data/`.
+* The statistical discipline: paired scenarios, hierarchical bootstrap over training seeds, and
+  an explicit separability verdict.
+* The claim checker: every number in the documents is re-derived from the committed JSON.
+
+---
+
 ## 决策摘要（中文）
 
 - **主线**：面向位置控制机械臂的**执行感知安全过滤**。规划器负责"绕哪边走"，学习策略负责局部效率，过滤器负责"这个指令能不能真的被执行"。

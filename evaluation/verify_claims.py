@@ -138,22 +138,33 @@ def main() -> int:
         c.check("execution_gap.json present", None, None)
     else:
         by = {(r["method"], round(r["margin"], 4)): r for r in eg["rows"]}
-        for margin, exp in ((0.005, (3.6, 0.1, 0.6)), (0.01, (8.0, 0.1, 0.4)),
-                            (0.02, (9.2, 0.2, 0.6)), (0.04, (32.4, 1.3, 4.8))):
+        # (initially unsafe, safe->unsafe crossings) per method per margin
+        for margin, exp in ((0.005, {"qp": (210, 5), "exec_nocoast": (1, 5), "exec": (6, 28)}),
+                            (0.01, {"qp": (468, 9), "exec_nocoast": (1, 4), "exec": (0, 24)}),
+                            (0.02, {"qp": (543, 10), "exec_nocoast": (2, 8), "exec": (10, 27)}),
+                            (0.04, {"qp": (1923, 20), "exec_nocoast": (22, 55), "exec": (111, 177)})):
+            for method, (n_init, n_cross) in exp.items():
+                row = by.get((method, margin))
+                if row is None:
+                    continue
+                c.check(f"gap {margin*100:g} cm {method}: steps that started inside the margin",
+                        float(row["initially_unsafe"]), float(n_init), "count", tol=0.5)
+                c.check(f"gap {margin*100:g} cm {method}: safe-to-unsafe crossings",
+                        float(row["safe_to_unsafe_crossings"]), float(n_cross), "count", tol=0.5)
             qp = by.get(("qp", margin))
-            nc = by.get(("exec_nocoast", margin))
-            ex = by.get(("exec", margin))
             if qp:
-                c.check(f"gap {margin*100:g} cm: qp claim-failure rate",
-                        100 * qp["prediction_failure_rate"], exp[0])
                 c.check(f"gap {margin*100:g} cm: qp gap median (mm)",
                         qp["gap_mm_median"], -12.0, "mm", tol=0.2)
-            if nc:
-                c.check(f"gap {margin*100:g} cm: exec-no-coast claim-failure rate",
-                        100 * nc["prediction_failure_rate"], exp[1])
+        # the headline: the QP spends its time inside the margin buffer, the look-ahead filter does not
+        for margin, exp in ((0.02, (9.05, 0.17)), (0.04, (32.05, 1.85))):
+            qp = by.get(("qp", margin))
+            ex = by.get(("exec", margin))
+            if qp:
+                c.check(f"gap {margin*100:g} cm: qp steps inside the margin (%)",
+                        100 * qp["initially_unsafe_rate"], exp[0], "%", tol=0.01)
             if ex:
-                c.check(f"gap {margin*100:g} cm: exec claim-failure rate",
-                        100 * ex["prediction_failure_rate"], exp[2])
+                c.check(f"gap {margin*100:g} cm: exec steps inside the margin (%)",
+                        100 * ex["initially_unsafe_rate"], exp[1], "%", tol=0.01)
 
     print("\n== the command channel (execution_channel.json)")
     ec = _load("execution_channel.json")
@@ -274,29 +285,29 @@ def main() -> int:
             vals = {round(100 * r["success_rate"], 6) for r in b6["rows"] if r["arm"] == arm}
             c.check(f"the {arm} arm is identical in every training seed", len(vals), 1, "count", tol=0.5)
 
-    print("\n== the confirmatory statistics with five training seeds (confirmatory_stats.json)")
+    print("\n== the confirmatory statistics with nine training seeds (confirmatory_stats.json)")
     cs = _load("confirmatory_stats.json")
     if cs is None:
         c.check("confirmatory_stats.json present", None, None)
     else:
-        c.check("the statistics use five training seeds", float(len(cs["seeds"])), 5.0, "count", tol=0.5)
+        c.check("the statistics use nine training seeds", float(len(cs["seeds"])), 9.0, "count", tol=0.5)
         cmp_ = cs["comparisons"]
         eh = cmp_["exec_-_qp"]["completion"]["hierarchical"]
         en = cmp_["exec_-_qp"]["completion"]["naive"]
-        c.check("exec - qp: the mean completion difference", 100 * eh["mean_difference"], 6.8, "%", tol=0.1)
-        c.check("exec - qp: the hierarchical interval, low", 100 * eh["ci_low"], 1.2, "%", tol=0.1)
-        c.check("exec - qp: the hierarchical interval, high", 100 * eh["ci_high"], 15.2, "%", tol=0.1)
-        c.check("exec - qp: the naive interval, low", 100 * en["ci_low"], 4.0, "%", tol=0.1)
-        c.check("exec - qp: the naive interval, high", 100 * en["ci_high"], 10.0, "%", tol=0.1)
+        c.check("exec - qp: the mean completion difference", 100 * eh["mean_difference"], 6.67, "%", tol=0.02)
+        c.check("exec - qp: the hierarchical interval, low", 100 * eh["ci_low"], 2.0, "%", tol=0.02)
+        c.check("exec - qp: the hierarchical interval, high", 100 * eh["ci_high"], 12.0, "%", tol=0.02)
+        c.check("exec - qp: the naive interval, low", 100 * en["ci_low"], 4.22, "%", tol=0.02)
+        c.check("exec - qp: the naive interval, high", 100 * en["ci_high"], 9.11, "%", tol=0.02)
         c.check("exec - qp: the between-seed spread of the difference",
-                100 * eh["between_seed_sd"], 8.7, "%", tol=0.1)
+                100 * eh["between_seed_sd"], 7.07, "%", tol=0.02)
         c.check("exec - qp: the verdict is NOT_SEPARABLE",
                 1.0 if cmp_["exec_-_qp"]["completion"]["separability"]["verdict"] == "NOT_SEPARABLE" else 0.0,
                 1.0)
         ch = cmp_["exec_-_qp0"]["collision"]["hierarchical"]
-        c.check("exec - qp0: the collision difference", 100 * ch["mean_difference"], -7.2, "%", tol=0.1)
-        c.check("exec - qp0: the collision interval, low", 100 * ch["ci_low"], -13.2, "%", tol=0.1)
-        c.check("exec - qp0: the collision interval, high", 100 * ch["ci_high"], -2.4, "%", tol=0.1)
+        c.check("exec - qp0: the collision difference", 100 * ch["mean_difference"], -7.33, "%", tol=0.02)
+        c.check("exec - qp0: the collision interval, low", 100 * ch["ci_low"], -11.11, "%", tol=0.02)
+        c.check("exec - qp0: the collision interval, high", 100 * ch["ci_high"], -4.0, "%", tol=0.02)
         c.check("exec - qp0: the collision interval excludes zero",
                 1.0 if ch["excludes_zero"] else 0.0, 1.0)
         # the per-seed table of section 7.7.1, from the episode cache
@@ -304,7 +315,9 @@ def main() -> int:
         if cache is not None:
             for seed, exp in ((0, (50, 0, 72, 0, 72, 0)), (1, (44, 0, 46, 16, 46, 0)),
                               (2, (42, 0, 44, 8, 44, 0)), (3, (42, 0, 50, 6, 48, 0)),
-                              (4, (42, 0, 44, 6, 44, 0))):
+                              (4, (42, 0, 44, 6, 44, 0)), (5, (38, 0, 48, 10, 48, 0)),
+                              (6, (60, 0, 66, 4, 68, 0)), (7, (40, 0, 38, 8, 38, 0)),
+                              (8, (50, 0, 56, 8, 60, 0))):
                 for i, m in enumerate(("qp", "qp0", "exec")):
                     su = cache["success"][f"{m}|{seed}"]
                     co = cache["collision"][f"{m}|{seed}"]

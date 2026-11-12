@@ -68,7 +68,7 @@ def main(argv=None) -> int:
     ap.add_argument("--cbf-margin", type=float, default=0.05)
     ap.add_argument("--cbf-alpha", type=float, default=5.0)
     ap.add_argument("--methods", nargs="*", default=["raw", "cbf_legacy", "qp"],
-                    choices=["raw", "cbf_legacy", "qp", "qp0", "exec"])
+                    choices=["raw", "cbf_legacy", "qp", "qp0", "qp_speed", "exec"])
     ap.add_argument("--qp0-margin", type=float, default=0.0,
                     help="the second QP operating point (margin 0 = the proportional approach "
                          "barrier, the best completion on the tuning seeds)")
@@ -79,6 +79,12 @@ def main(argv=None) -> int:
                     help="the plant: the one the archived policies were trained on, or the one "
                          "identified on the real CR10A (a robustness check)")
     ap.add_argument("--independent-stride", type=int, default=5)
+    ap.add_argument("--speed-margin0", type=float, default=0.01,
+                    help="B4+: the base clearance margin, before the speed-dependent part")
+    ap.add_argument("--speed-tau", type=float, default=0.02,
+                    help="B4+: the command-to-motion lag [s] in the stopping-distance margin")
+    ap.add_argument("--speed-a-min", type=float, default=1.0,
+                    help="B4+: the smallest deceleration the arm can achieve [rad/s^2]")
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "learning" / "final_benchmark.json")
     a = ap.parse_args(argv)
 
@@ -129,6 +135,13 @@ def main(argv=None) -> int:
         if method == "exec":
             from ex_learning.safety_filter import cbf_policy_exec
             return cbf_policy_exec(env, base(env), exec_model, margin=a.exec_margin, stats=stats)
+        if method == "qp_speed":
+            # B4+: the fixed-margin QP with a SPEED-DEPENDENT margin (the stopping-distance
+            # margin). This is the cheap strong alternative that a reviewer will ask for: if it
+            # matches the execution-aware filter, the look-ahead prediction is not needed.
+            from ex_learning.safety_filter import speed_dependent_margin
+            return speed_dependent_margin(env, base(env), margin0=a.speed_margin0,
+                                          tau=a.speed_tau, a_min=a.speed_a_min, stats=stats)
         raise ValueError(method)
 
     print(f"{'seed':>4} {'task':9} {'method':11} {'legacy':>15} {'corrected':>11} {'mesh':>8} {'self':>7} "

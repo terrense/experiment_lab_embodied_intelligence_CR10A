@@ -22,18 +22,31 @@ the wall, while the envelope came within 17–65 mm of it. We therefore reformul
 report a bounded all-pair kinematic QP as a strong baseline, on the frozen, untouched test range.
 
 On that baseline we measure the premise directly. A kinematic filter's guarantee is a statement
-about the *command*, and the command is not the motion: the bounded QP's own constraints were
-satisfied while the arm ended the control step below the enforced margin in 9 % of the steps at a
-2 cm margin and 32 % at a 4 cm margin, with a median prediction error of 12 mm. An execution-aware
-filter that constrains the predicted motion instead removes the failure (0.1–1.3 %). On the
-frozen test range it then reaches the completion of an *unconstrained-margin* filter while that
-filter collides in 16–22 % of the episodes — in all three training seeds. Its completion
-advantage over the *safe* fixed-margin filter is **not** established: the per-seed differences
-(+22, +2 and +2 points) are of the same size as the between-seed spread. The attribution is
+about the *command*, and the command is not the motion. The metric needed a correction first: the
+obvious reading of a margin breach mixes the steps that *started* inside the margin buffer — the
+normal condition of travelling around a wall — with the steps that *crossed* it from a safe
+state. Separated, the two filters make visibly different kinds of claim. The bounded QP
+enforces a rate condition on the command and discharges it at essentially every step (0
+violations), but it leaves the arm **inside** the 2 cm margin buffer in 9.1 % of its steps
+(32.1 % at a 4 cm margin) and its command-level prediction is optimistic by 12 mm at the median.
+The execution-aware filter constrains the *predicted position* instead and holds that guarantee
+at 99.8 % of the steps; the two formulations differ by a factor of 50 in the time the arm spends
+outside the enforced margin. On the frozen test range the look-ahead filter reaches the
+completion of an *unconstrained-margin* filter while that filter collides in 16–22 % of the
+episodes — in all nine training seeds, with a hierarchical interval that excludes zero. Its
+completion advantage over the *safe* fixed-margin filter is **not** established: the mean
+difference (+6.7 points) is of the same size as the between-seed spread (7.1). The attribution is
 reported honestly as well: the gain comes from the look-ahead structure, not from the explicit
 plant model, whose coast term changes nothing.
 
-Two measurements sharpen what the filter still does not do, and one reframes what it is for.
+A third measurement reframes the headline collision finding: the episode is **terminated** when
+the conservative envelope touches the obstacle, so the arm is stopped before it can touch for
+real. Measured without that termination, the unfiltered policy makes real mesh contact in 50 %
+of the episodes — the "no real contact" result was an artefact of the termination, not a
+property of the policy. The filtered policies never enter that regime at all.
+
+Two further measurements sharpen what the filter still does not do, and one reframes what it is
+for.
 The filter reasons over a 0.1 s horizon while the motion it must cover lasts 0.2–0.5 s: with the
 command cut to zero the arm keeps moving and can lose **87 mm** of clearance, 8.7× the filter's
 own 10 mm margin. A nonlinear re-check shows the first-order expansion is faithful to the plant
@@ -614,49 +627,74 @@ identified `omega`, so a filter built on the model does not require an exact pla
 identification — but 4.6 mrad is a third of the coast it is meant to predict, which is the first
 hint that the model, not the coast, is where the error budget goes.
 
-### 7.5 The execution gap: the kinematic filter's own claim fails in execution
+### 7.5 The execution gap: what a safety filter's claim actually means
 
 This is the measurement the study was built around. At every control step of a real episode we
 ask two questions: was the filter's *own* reasoning satisfied, and did the plant then end the
 step below the clearance margin? Out-of-distribution walls, 20 episodes, 6000 control steps,
-2 cm margin (Figure 6):
+2 cm margin (Figure 6).
 
-| filter | the filter's own constraint violations | steps where the filter was satisfied but the margin was breached | rate | gap: actual − command-level prediction (median / worst) |
+**The metric had to be corrected first, and the correction matters.** The obvious reading — "the
+filter was satisfied and the margin was breached, so the filter's claim failed" — mixes two
+different events. A step can end below the margin because the arm **started** below it: the
+constraint a rate-based filter enforces, `ċ ≥ −α(d − m)/v_max`, *demands* that the arm escape
+whenever `d < m`, and 20 ms is not always enough to escape a 2 cm buffer. Counting those steps
+as failures of the filter's claim is not defensible: the claim was never a position claim.
+
+The metric is therefore split. `initially unsafe` is the step that **started** below the margin;
+`crossing` is the step that **started at or above** it and ended below it. Only the second is a
+failure of a claim made from a safe state:
+
+| filter | own constraint violations | initially unsafe | **crossings (safe → unsafe)** | crossing rate | all breaches (the old metric) | gap: actual − command-level prediction (median / worst) |
+|---|---|---|---|---|---|---|
+| bounded kinematic QP | 0 | 543 | **10** | **0.2 %** | 9.2 % | −12.0 mm / −146.5 mm |
+| execution-aware, no coast (ablation) | 1 | 2 | **8** | **0.1 %** | 0.2 % | 0.0 mm / −135.6 mm |
+| execution-aware with coast | 1 | 10 | **27** | **0.5 %** | 0.6 % | 0.0 mm / −135.6 mm |
+
+**So the "9 % of the steps" figure was measuring the wrong thing, and the corrected measurement
+makes the underlying effect larger, not smaller.** What the split exposes is the quantity that
+actually separates the two formulations: **how much time the arm spends inside the margin
+buffer at all.**
+
+| margin | QP: steps inside the margin | QP: crossings | execution-aware: steps inside the margin | execution-aware: crossings |
 |---|---|---|---|---|
-| bounded kinematic QP | 0 | **553** | **9.2 %** | −12.0 mm / −146.5 mm |
-| execution-aware, no coast (ablation) | 1 | **10** | **0.2 %** | 0.0 mm / −135.6 mm |
-| execution-aware with coast | 1 | **37** | **0.6 %** | 0.0 mm / −135.6 mm |
+| 0.5 cm | 3.5 % | 0.1 % | 0.1 % | 0.5 % |
+| 1 cm | 7.8 % | 0.1 % | 0.0 % | 0.4 % |
+| 2 cm | **9.1 %** | 0.2 % | **0.2 %** | 0.5 % |
+| 4 cm | **32.1 %** | 0.3 % | **1.9 %** | 3.0 % |
 
-The kinematic filter issues a command that satisfies every one of its constraints, and the arm
-still ends the step 12 mm below where the command said it would be — 9 % of the time it ends the
-step below the margin the filter was enforcing. The gap is not noise: its median is −12 mm and
-its worst case is −146 mm. **The filter's guarantee is a statement about the command, and the
-command is not the motion.**
+At a 2 cm margin the kinematic filter leaves the arm **inside the buffer in 9.1 % of its steps**
+and the look-ahead filter in **0.2 %** — a factor of 50 — while the crossing rates are
+comparably small for both (0.2 % against 0.5 %). The two filters make **different kinds of
+claim**, and the old metric could not tell them apart:
 
-Sweeping the margin shows the failure is not a property of one operating point:
+* the **kinematic QP** enforces a **rate** condition on the command. It does not claim the arm
+  stays outside the margin; it claims the clearance is not shrinking too fast. It discharges
+  that claim at essentially every step (0 violations), and its rate condition happens to push
+  the arm out of the buffer fast enough that it rarely *crosses* — but for 9 % of the steps it
+  operates with the position guarantee already violated;
+* the **execution-aware filter** enforces a **position** condition on the predicted motion. Its
+  guarantee is the one a reader would assume the kinematic filter also provides, and it holds
+  that guarantee at 99.8 % of the steps (2 cm margin), failing from a safe state in 0.5 %.
 
-| margin | bounded kinematic QP | execution-aware, no coast | execution-aware with coast |
-|---|---|---|---|
-| 0.5 cm | 3.6 % | 0.1 % | 0.6 % |
-| 1 cm | 8.0 % | 0.1 % | 0.4 % |
-| 2 cm | 9.2 % | 0.2 % | 0.6 % |
-| 4 cm | **32.4 %** | 1.3 % | 4.8 % |
-
-The kinematic filter's own claim fails more often the *more conservative* it is set: a larger
-barrier margin starts the rate condition earlier, further from the motion that actually
-happens. The look-ahead formulation is nearly flat.
+**The filter's guarantee is a statement about the command, and the command is not the motion.**
+The gap is not noise: its median is −12 mm and its worst case is −146 mm. The claim that the
+kinematic formulation *appears* to make — "the clearance stays above the margin" — is the claim
+it does not enforce, and the measurement of how often it is in fact violated (9.1 % of the steps
+at a 2 cm margin, 32.1 % at 4 cm) is the real cost of the mismatch. The look-ahead formulation
+enforces the claim it makes.
 
 And the *honest* attribution is that this is the look-ahead structure, not the plant model:
 dropping the coast term from the constraint changes the frontier not at all and makes the
-filter's own claim consistently *more* valid at every margin (0.1 % against 0.6 %, 0.1 % against
-0.4 %, 0.2 % against 0.6 %, 1.3 % against 4.8 %). The coast is real and measured (§7.4), but it
-is not what carries the result. What carries the result is replacing a rate condition on the
-command with a position condition on the predicted motion. That is a smaller claim than the one
-the project started with, and it points the remaining effort at the predictor's error budget
-rather than at a more elaborate plant model. The most likely reason the coast term *hurts* is
-that a tighter constraint makes the filter intervene more often, and every intervention moves
-the command away from the "held constant" assumption the prediction rests on — an interaction
-that a longer, better-identified model would have to be checked against.
+filter's own claim consistently *more* valid at every margin. The coast is real and measured
+(§7.4), but it is not what carries the result. What carries the result is replacing a rate
+condition on the command with a position condition on the predicted motion. That is a smaller
+claim than the one the project started with, and it points the remaining effort at the
+predictor's error budget rather than at a more elaborate plant model. The most likely reason the
+coast term *hurts* is that a tighter constraint makes the filter intervene more often, and
+every intervention moves the command away from the "held constant" assumption the prediction
+rests on — an interaction that a longer, better-identified model would have to be checked
+against.
 
 ### 7.6 The frontier with the execution-aware filter
 
@@ -723,25 +761,26 @@ collision rate:
 
 Five things follow, and they are not all equally well established.
 
-1. **Established, in all five seeds:** the execution-aware filter reaches *exactly* the
+1. **Established, in all nine seeds:** the execution-aware filter reaches *exactly* the
    completion of the unconstrained-margin QP while the QP at margin 0 pays collisions
-   (16–22 % under the corrected detector on the three audited seeds; 6–16 % envelope contacts
-   on all five). The look-ahead constraint buys the margin-0 completion without the margin-0
-   collisions, and §7.7.1 shows the collision difference is separable: the hierarchical interval
-   is [−13.2, −2.4] points and excludes zero. This is the paper's positive result, and it is a
-   property of the constraint structure, not of the plant model — the ablation of §7.6 removes
-   the coast term and changes nothing.
+   (16-22 % under the corrected detector on the three audited seeds; 4-16 % envelope contacts
+   on all nine). The look-ahead constraint buys the margin-0 completion without the margin-0
+   collisions, and section 7.7.1 shows the collision difference is separable: the hierarchical
+   interval is [-11.1, -4.0] points and excludes zero. This is the paper's positive result, and
+   it is a property of the constraint structure, not of the plant model - the ablation of section
+   7.6 removes the coast term and changes nothing.
 2. **Not established:** that the execution-aware filter beats the *safe* QP (4 cm) on completion.
-   With five training seeds the hierarchical interval — training seeds first, then the scenarios
-   inside a seed — is [+1.2, +15.2] points (mean +6.8, per-seed differences +22, +2, +2, +6, +2)
-   and the between-seed spread of the *difference* is 8.7 points. The naive interval, which
-   treats every (seed, scenario) cell as independent, is [+4.0, +10.0] points: 2.3× narrower, and
-   it would be read as a settled win. The estimator's verdict is `NOT_SEPARABLE` — with five
-   clusters the reason is no longer "too few seeds" but the substantive one, that the spread is
-   of the same order as the difference. The honest statement is that the two are
-   **indistinguishable on completion at equal safety on this task**, and the paper does not claim
-   otherwise. The numbers come from `evaluation/confirmatory_stats.py` and are stored in
-   `data/reports/learning/confirmatory_stats.json`.
+   With nine training seeds the hierarchical interval - training seeds first, then the scenarios
+   inside a seed - is [+2.0, +12.0] points (mean +6.7, per-seed differences +22, +2, +2, +6, +2,
+   +10, +8, -2, +10) and the between-seed spread of the *difference* is 7.1 points. The naive
+   interval, which treats every (seed, scenario) cell as independent, is [+4.2, +9.1] points:
+   1.6x narrower, and it would be read as a settled win. The estimator's verdict is
+   `NOT_SEPARABLE` - with nine clusters the reason is no longer "too few seeds" but the
+   substantive one, that the spread is of the same order as the difference. The honest statement
+   is that the two are **indistinguishable on completion at equal safety on this task**, and the
+   paper does not claim otherwise. The numbers come from `evaluation/confirmatory_stats.py` and
+   are stored in `data/reports/learning/confirmatory_stats.json`.
+
 3. **Established:** the archived out-of-distribution envelope-collision rate **reproduces on
    data that was never used to reach it** (38.7 % against the published 36 %), and the mesh
    checker finds **no real contact in any cell**. The collision-metric finding of §4.5 is
@@ -763,9 +802,9 @@ confirmatory test range, which the policies have never seen, is where the two se
 reported rather than smoothed over: it means the tuning sweep understates the difference, and
 that a future protocol should place the tuning split outside the training range.
 
-#### 7.7.1 The same comparison with five training seeds
+#### 7.7.1 The same comparison with nine training seeds
 
-Three training seeds were the binding constraint on every statement above, so two more were
+Three training seeds were the binding constraint on every statement above, so six more were
 trained with the archived configuration and the same analysis was repeated. The episodes are the
 same; only the number of training seeds changes. Completion and (envelope) collision, per seed:
 
@@ -776,26 +815,33 @@ same; only the number of training seeds changes. Completion and (envelope) colli
 | 2 | 42 % / 0 % | 44 % / 8 % | 44 % / 0 % |
 | 3 | 42 % / 0 % | 50 % / 6 % | 48 % / 0 % |
 | 4 | 42 % / 0 % | 44 % / 6 % | 44 % / 0 % |
+| 5 | 38 % / 0 % | 48 % / 10 % | 48 % / 0 % |
+| 6 | 60 % / 0 % | 66 % / 4 % | 68 % / 0 % |
+| 7 | 40 % / 0 % | 38 % / 8 % | 38 % / 0 % |
+| 8 | 50 % / 0 % | 56 % / 8 % | 60 % / 0 % |
 
 Two things change, and they change in opposite directions.
 
 * **The completion verdict does not change, but the reason does.** The hierarchical interval for
-  execution-aware − QP (4 cm) is **[+1.2, +15.2]** points (mean +6.8, per-seed differences
-  +22, +2, +2, +6, +2), and the naive interval that treats every cell as independent is
-  [+4.0, +10.0] — **2.3× narrower**, and the one a per-episode analysis would have reported as a
-  settled win. The estimator's verdict is still `NOT_SEPARABLE`, but no longer because there are
-  too few seeds: with five clusters the reason is the substantive one, that the **between-seed
-  spread of the difference is 8.7 points against a mean of 6.8**. The completion advantage over
-  the safe fixed-margin filter is still **not established**, and it is now not established for a
-  reason that more seeds of the same kind would not fix.
+  execution-aware − QP (4 cm) is **[+2.0, +12.0]** points (mean +6.7, per-seed differences
+  +22, +2, +2, +6, +2, +10, +8, −2, +10), and the naive interval that treats every cell as
+  independent is [+4.2, +9.1] — **1.6× narrower**, and the one a per-episode analysis would have
+  reported as a settled win. The estimator's verdict is still `NOT_SEPARABLE`, but no longer
+  because there are too few seeds: with nine clusters the reason is the substantive one, that the
+  **between-seed spread of the difference is 7.1 points against a mean of 6.7**. The completion
+  advantage over the safe fixed-margin QP is still **not established**, and it is now not
+  established for a reason that more seeds of the same kind would not fix. Note also that the
+  per-seed differences are now *not* dominated by one seed: eight of the nine are positive, and
+  the largest one (seed 0, +22) is the outlier that inflates both the mean and the spread.
 * **The collision difference IS separable.** The execution-aware filter has **0 %** envelope
-  collisions in **all five** seeds while the margin-0 QP has 6–16 % (mean 7.2 %). The
-  hierarchical interval for that difference is **[−13.2, −2.4] points and excludes zero**. Under
+  collisions in **all nine** seeds while the margin-0 QP has 4–16 % (mean 7.3 %). The
+  hierarchical interval for that difference is **[−11.1, −4.0] points and excludes zero**. Under
   the stricter corrected detector of §7.7 the same difference is larger still (19.3 % against
   0 %), because the envelope contacts of the margin-0 filter are exactly the ones the corrected
   detector resolves. The safety claim — that the look-ahead constraint buys the margin-0
   completion without the margin-0 collisions — is the part of the result that survives the extra
-  seeds, and it is now supported by an interval that excludes zero.
+  seeds, and it is now supported by an interval that excludes zero, with nine clusters.
+
 
 #### 7.7.2 Replication on a second untouched range
 

@@ -55,6 +55,97 @@ def safe_policy(env, base_policy: Callable, d0: float = 0.10, k_rep: float = 0.0
     return act
 
 
+def _record_latency(stats: Optional[Dict], t: float) -> None:
+    """Collect the solver latency properly.
+
+    This used to be `stats["solve_time_s_median"] = info["time_s"]`, which OVERWRITES the value
+    on every step: the field that claimed to be a median was the latency of the LAST solve. The
+    latency is a headline number for this method (the execution-aware filter solves a program per
+    control step, and a filter that cannot run inside the control period is not deployable), so
+    the samples are kept and the median and the tail are computed from them.
+
+    `solve_time_s_median` is kept as the key for compatibility, and it is now a real median.
+    """
+    if stats is None:
+        return
+    stats.setdefault("solve_times_s", []).append(float(t))
+
+
+def latency_summary(stats: Optional[Dict]) -> Optional[Dict]:
+    """The latency distribution of a filter's solver, from the collected samples."""
+    if not stats:
+        return None
+    t = np.asarray(stats.get("solve_times_s", []), float)
+    if t.size == 0:
+        return None
+    out = {"n": int(t.size), "median_s": float(np.median(t)),
+           "p95_s": float(np.percentile(t, 95)), "p99_s": float(np.percentile(t, 99)),
+           "max_s": float(t.max()), "mean_s": float(t.mean())}
+    stats["solve_time_s_median"] = out["median_s"]
+    stats["solve_time_s_p95"] = out["p95_s"]
+    stats["solve_time_s_p99"] = out["p99_s"]
+    return out
+
+
+def speed_dependent_margin(env, base_policy: Callable, margin0: float = 0.01,
+                           tau: float = 0.02, a_min: float = 1.0,
+                           v_close: Optional[float] = None, alpha: float = 5.0,
+                           stats: Optional[Dict] = None) -> Callable:
+    """B4+: the FIXED-margin QP with a SPEED-DEPENDENT margin (the cheap strong baseline).
+
+    This is the alternative that a reviewer will ask for, and it is the one that can kill the
+    proposed method: if simply inflating the margin with the closing speed reproduces the
+    execution-aware filter's behaviour, then the look-ahead prediction is not needed - a
+    textbook braking-distance margin is enough.
+
+    The margin is the standard stopping distance:
+
+        m(v) = m0 + v_close * tau + v_close^2 / (2 * a_min)
+
+    with `tau` the command-to-motion lag (the servo lag) and `a_min` the smallest deceleration
+    the arm can achieve. The margin is applied to the CLOSING speed towards the obstacle, i.e.
+    the rate at which the clearance shrinks, not to the joint speed: the arm moving fast AWAY
+    from the wall needs no extra margin.
+
+    `v_close` defaults to the closing speed measured from the filter's own geometry (the rate at
+    which the closest constrained pair's clearance decreases under the nominal command).
+    """
+    from .qp_filter import solve_bounded_qp
+    import mujoco
+    jp = np.zeros((3, env.m.nv))
+    state = {"prev": None}
+
+    def act(obs):
+        a = np.asarray(base_policy(obs), float).copy()
+        constraints = []
+        pairs = []
+        for d, p, n, body in env.repulsion_points(0.30):
+            mujoco.mj_jac(env.m, env.d, jp, None, p, body)
+            c = n @ jp[:, env.dadr]
+            if float(c @ c) < 1e-12:
+                continue
+            # the closing speed: the rate at which this pair's clearance shrinks
+            v_close_here = -float(c @ (a * env.cfg.max_joint_speed))
+            vc = v_close if v_close is not None else max(v_close_here, 0.0)
+            m = margin0 + vc * tau + vc * vc / (2.0 * a_min)
+            constraints.append((c, -alpha * (d - m) / env.cfg.max_joint_speed))
+            pairs.append((float(d), c, float(vc)))
+        info = {"feasible": True, "residuals": np.zeros(0), "time_s": 0.0}
+        if constraints:
+            x, info = solve_bounded_qp(a, constraints, x_prev=state["prev"], rho=0.0)
+            state["prev"] = x
+            if stats is not None:
+                stats["solves"] = stats.get("solves", 0) + 1
+                stats["infeasible"] = stats.get("infeasible", 0) + int(not info["feasible"])
+                stats["max_violation"] = max(stats.get("max_violation", 0.0),
+                                             float(np.max(info["residuals"])) if len(info["residuals"]) else 0.0)
+                stats["interventions"] = stats.get("interventions", 0) + int(np.linalg.norm(x - a) > 1e-9)
+                _record_latency(stats, info["time_s"])
+            a = x
+        return np.clip(a, -1.0, 1.0)
+    return act
+
+
 def cbf_policy(env, base_policy: Callable, margin: float = 0.02, alpha: float = 5.0,
                d_max: float = 0.30, stats: Optional[Dict] = None) -> Callable:
     """Safety filter as a single-constraint control barrier function (CBF).
@@ -172,7 +263,7 @@ def cbf_policy_qp(env, base_policy: Callable, margin: float = 0.05, alpha: float
                 stats["infeasible"] = stats.get("infeasible", 0) + int(not info["feasible"])
                 stats["max_violation"] = max(stats.get("max_violation", 0.0),
                                              float(np.max(info["residuals"])) if len(info["residuals"]) else 0.0)
-                stats["solve_time_s_median"] = info["time_s"]
+                _record_latency(stats, info["time_s"])
             a = x
         if trace is not None:
             trace.append({"a_base": a_base.copy(),
@@ -272,7 +363,7 @@ def cbf_policy_exec(env, base_policy: Callable, exec_model, margin: float = 0.02
             stats["infeasible"] = stats.get("infeasible", 0) + int(not info.get("feasible", True))
             stats["max_relaxation"] = max(stats.get("max_relaxation", 0.0),
                                           float(info.get("max_violation", 0.0)))
-            stats["solve_time_s_median"] = info["time_s"]
+            _record_latency(stats, info["time_s"])
             stats["interventions"] = stats.get("interventions", 0) + int(np.linalg.norm(x - a) > 1e-9)
             stats["steps"] = stats.get("steps", 0) + 1
         if trace is not None:

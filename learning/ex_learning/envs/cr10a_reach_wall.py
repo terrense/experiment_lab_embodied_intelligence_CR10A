@@ -122,6 +122,20 @@ class WallConfig(ReachConfig):
     # evaluations stay reproducible; the corrected evaluator turns them on)
     conservative_geometry: bool = False   # subtract the sampling error so the clearance is a
                                            # rigorous LOWER bound (see pair_distances)
+    # SIMULATION-ONLY diagnostic switch. The default keeps the archived behaviour: the episode
+    # ENDS at the first conservative-envelope contact. That termination is what the training and
+    # the completion statistics use, and it must not change.
+    #
+    # It is also a CENSORING mechanism, and that has to be measured rather than assumed: if the
+    # arm is stopped the moment the (conservative) capsule envelope touches the obstacle, the arm
+    # never gets the chance to reach a REAL contact, so "the mesh checker found no contact" says
+    # nothing about what the unfiltered policy would have done if it had been allowed to continue.
+    # With `terminate_on_contact=False` the episode runs on past the envelope contact (up to
+    # `post_contact_steps` extra steps) and the independent mesh checker can then measure what
+    # actually happens. This mode exists ONLY for the physical-contact diagnostic and MUST NOT
+    # be used for a completion statistic or on hardware.
+    terminate_on_contact: bool = True
+    post_contact_steps: int = 60           # extra steps allowed after the first envelope contact
     # reward shaping (legacy by default; the audited P1-a fixes are opt-in so the archived
     # policies stay comparable)
     gamma: float = 0.99
@@ -377,6 +391,7 @@ class ReachWallEnv(ReachEnv):
             self.q_ref = q0.copy()
             self.goal = goal_xyz if goal is None else np.asarray(goal, float)
             self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+            self.steps_after_contact = 0
             self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
             self.substep_collision = False
             self.q_goal = q_goal.copy()  # privileged: only the diagnostic joint_interp baseline reads it
@@ -396,6 +411,7 @@ class ReachWallEnv(ReachEnv):
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
         self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+        self.steps_after_contact = 0
         self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
         self.substep_collision = False
         self.q_goal = q_goal.copy()  # privileged: only the diagnostic joint_interp baseline reads it
@@ -426,6 +442,7 @@ class ReachWallEnv(ReachEnv):
         self.q_ref = q0.copy()
         self.goal = goal_xyz if goal is None else np.asarray(goal, float)
         self.t, self.succeeded, self.collided, self.succeeded_bonus = 0, False, False, False
+        self.steps_after_contact = 0
         self.min_clearance_step, self.min_clearance_episode = float("inf"), float("inf")
         self.substep_collision = False
         self.q_goal = q_goal.copy()
@@ -468,11 +485,21 @@ class ReachWallEnv(ReachEnv):
         if c < self.cfg.shaping_margin:
             reward -= self.cfg.shaping_weight * (self.cfg.shaping_margin - c) / self.cfg.shaping_margin
         if c < 0.0 or self.substep_collision:
-            self.collided, term = True, True
+            self.collided = True
             reward -= self.cfg.collision_penalty
             if self.last_pair is None:
                 _, (ci, bi) = self.clearance(with_detail=True)
                 self.last_pair = (self.capsules[ci].link, self.box_names[bi])
+            if self.cfg.terminate_on_contact:
+                term = True
+            else:
+                # SIMULATION-ONLY: keep going past the envelope contact so the PHYSICAL outcome
+                # can be measured (the censoring diagnostic). The episode is still cut short after
+                # `post_contact_steps` extra steps, so a policy that drives through the wall does
+                # not run forever.
+                self.steps_after_contact = getattr(self, "steps_after_contact", 0) + 1
+                if self.steps_after_contact >= self.cfg.post_contact_steps:
+                    term = True
         info.update({"clearance": c, "collision": self.collided, "success": bool(info["success"] and not self.collided),
                      "min_clearance_episode": self.min_clearance_episode})
         return obs, reward, term, trunc, info

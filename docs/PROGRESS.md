@@ -602,3 +602,49 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   state does NOT lose clearance - most sampled states are far from the wall and the coast moves
   the arm away - so the erosion is in the third of the states that are close to it. That is in
   the caption, because a figure that only showed the worst case would be misleading.
+
+## 2026-11-09: the main line is revised, and three claims are corrected
+- **The main line changed** (see `docs/RESEARCH_PLAN.md` section 0, and the README's new M6
+  section). The control line is demoted from "the contribution" to "the substrate": it produced
+  the only *measured* results so far, and it provides exactly what a high-level agent needs - a
+  **calibrated risk model of its own execution layer**. The new contribution is one level up:
+  *when the safety layer's guarantee is known to be imperfect, and its imperfection is measured,
+  how should an agent decide when to keep going, slow down, retreat or give up?* The decisive
+  experiment compares a hand-written state machine (the strong baseline), a prompt-only agent,
+  SFT and GRPO/RLVR on unseen fault combinations.
+- **Three claims were corrected, and all three came from an external review of the code.** Each
+  was checked against the source before anything was changed:
+  1. **The execution-gap metric was measuring the wrong thing.** It counted every step that ended
+     below the margin, including the steps that **started** below it - and the rate-based
+     constraint *demands* escape when the arm is inside the margin, so 20 ms is often not enough.
+     The metric is now split into `initially unsafe` and `safe-to-unsafe crossing`. The corrected
+     numbers: at a 2 cm margin the kinematic QP leaves the arm **inside the margin buffer in
+     9.1 % of its steps** (32.1 % at 4 cm) while the execution-aware filter does so in **0.2 %**
+     (1.9 %) - a factor of 50 - and the safe-to-unsafe crossings are 0.2 % against 0.5 %. The old
+     "9 % of the steps" claim was not defensible as a causal statement, and the effect it was
+     pointing at is **larger** than stated, not smaller.
+  2. **The solver latency statistic was an overwrite, not a median** (`stats["solve_time_s_median"]
+     = info["time_s"]` on every step). The samples are now collected and the median, P95 and P99
+     are computed from them.
+  3. **The mesh checker ran on every fifth episode**, so the envelope rate and the mesh rate in
+     the same table did not share a denominator. The re-run uses `--independent-stride 1`.
+- **The censoring diagnostic is the important new experiment.** The episode is TERMINATED when the
+  conservative envelope touches the obstacle - so the arm is stopped before it can touch for
+  real, and "the mesh checker found no contact" was a statement about a truncated trajectory.
+  `evaluation/physical_contact.py` runs the same policies with `terminate_on_contact=False` and
+  measures the physical outcome. **The first measurement already changes a headline: the
+  unfiltered policy's mesh-contact rate is 0 % censored and 50 % uncensored.** The filtered
+  policies never enter that regime at all (their trajectories are identical in both modes). The
+  honest statement is therefore not "the arm never really collided" but "the arm was stopped
+  before it could - and the filters are the ones that keep it out of that regime".
+- **The strong baseline the review asked for is in**: `speed_dependent_margin` (B4+) applies the
+  textbook stopping-distance margin `m(v) = m0 + v_close * tau + v_close^2 / (2 a_min)` to the
+  CLOSING speed, so the arm moving fast away from the wall needs no extra margin. If that trivial
+  rule matches the look-ahead filter, the expensive method is not earning its place.
+- **Nine training seeds** are now available (0-8, the archived configuration). The statistical
+  verdict is stable and, for the collision difference, stronger: execution-aware - QP (0 cm) is
+  **-7.3 points** of envelope collisions with a hierarchical interval of **[-11.1, -4.0]** that
+  excludes zero, on nine clusters. The completion difference over the safe fixed-margin QP stays
+  **not established** (+6.7 points against a 7.1-point spread) - and the reason is now the
+  substantive one, not the seed count.
+- The claim checker now verifies **260** claims, all matching.

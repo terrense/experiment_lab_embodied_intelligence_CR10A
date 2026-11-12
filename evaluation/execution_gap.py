@@ -67,8 +67,22 @@ def _run(env, make_policy, episodes: int, seed: int, margin: float) -> Dict:
       * ``claimed_after`` is what the filter's KINEMATIC reasoning implies for the next step,
         ``d_before + (c . a*vmax) * dt`` for the closest constrained pair;
       * ``d_after`` is what the plant actually did.
+
+    The margin breach is SPLIT, because a single rate cannot carry the causal claim:
+
+      * ``initially_unsafe``  the step STARTED below the margin. No filter can be expected to
+        restore the margin in one step from there; counting these as "the filter's claim
+        failed" is not defensible. (This was the defect in the original metric.)
+      * ``safe_to_unsafe``    the step STARTED at or above the margin and ENDED below it. **This
+        is the defensible number**: the filter was satisfied, the arm was safe, and the plant
+        moved it out. It is what the manuscript's "the filter's own claim fails in X % of its
+        steps" must mean.
+
+    Both are reported, with their rates over the compared steps, and the crossing rate is the
+    one the write-up quotes.
     """
     steps = claim_violations = prediction_failures = compared = 0
+    initially_unsafe = crossings = 0
     breaches = 0
     gaps = []
     for ep in range(episodes):
@@ -78,6 +92,7 @@ def _run(env, make_policy, episodes: int, seed: int, margin: float) -> Dict:
         for _ in range(env.cfg.max_steps):
             a = policy(obs)
             rec = trace[-1] if trace else {"feasible": True, "pairs": [], "a": a}
+            d_before = float(env.clearance(conservative=True))
             obs, _, term, trunc, info = env.step(a)
             d_after = float(env.clearance(conservative=True))
             steps += 1
@@ -96,6 +111,10 @@ def _run(env, make_policy, episodes: int, seed: int, margin: float) -> Dict:
                 gaps.append(d_after - best)
             if d_after < margin:
                 prediction_failures += 1
+                if d_before < margin:
+                    initially_unsafe += 1
+                else:
+                    crossings += 1
             if d_after < 0.0:
                 breaches += 1
             if term or trunc:
@@ -108,6 +127,11 @@ def _run(env, make_policy, episodes: int, seed: int, margin: float) -> Dict:
             "claim_violations": claim_violations,
             "prediction_failures": prediction_failures,
             "prediction_failure_rate": prediction_failures / max(compared, 1),
+            # the split: the crossing rate is the defensible "the filter's claim failed" number
+            "initially_unsafe": initially_unsafe,
+            "initially_unsafe_rate": initially_unsafe / max(compared, 1),
+            "safe_to_unsafe_crossings": crossings,
+            "safe_to_unsafe_crossing_rate": crossings / max(compared, 1),
             "envelope_breaches": breaches,
             "gap_mm_median": float(np.median(g) * 1000),
             "gap_mm_p05": float(np.percentile(g, 5) * 1000),
@@ -140,6 +164,7 @@ def main(argv=None) -> int:
 
     margins = [float(x) for x in a.sweep_margins.split(",") if x.strip()] or [None]
     print(f"{'margin':>8} {'method':>12} {'steps':>7} {'claim viol':>11} {'pred fail':>10} {'rate':>7} "
+          f"{'init unsafe':>12} {'crossing':>9} {'cross rate':>11} "
           f"{'gap med mm':>12} {'gap p05 mm':>12} {'gap worst mm':>13}")
     for m in margins:
         qm = a.qp_margin if m is None else m
@@ -160,6 +185,8 @@ def main(argv=None) -> int:
             print(f"{(margin or 0)*100:7.1f}c {name:>12} {rep['steps']:>7} "
                   f"{rep['claim_violations']:>11} {rep['prediction_failures']:>10} "
                   f"{rep['prediction_failure_rate']*100:>6.1f}% "
+                  f"{rep['initially_unsafe']:>12} {rep['safe_to_unsafe_crossings']:>9} "
+                  f"{rep['safe_to_unsafe_crossing_rate']*100:>10.1f}% "
                   f"{rep['gap_mm_median']:>12.2f} {rep['gap_mm_p05']:>12.2f} {rep['gap_mm_worst']:>13.2f}")
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
