@@ -490,7 +490,51 @@ distribution over training seeds.
 
 ---
 
-## 12. What is NOT in this document
+## 12. The censoring of the safety evaluation
+
+Source: `data/reports/learning/physical_contact.json`, script
+`evaluation/physical_contact.py`. **SIMULATION ONLY**: this diagnostic deliberately drives the arm
+into the obstacle and must never be run on hardware.
+
+The episode is TERMINATED at the first conservative-envelope contact. The trajectory the mesh
+checker sees is therefore **censored** - the arm was stopped at the envelope and never got the
+chance to reach a real contact. This is the measurement of what that censoring hides: the same
+policies, the same episodes (the frozen test range, 50 per cell, three training seeds), with the
+termination removed.
+
+| method | envelope contact | mesh contact, **censored** (the archived behaviour) | mesh contact, **uncensored** | minimum mesh clearance, censored / uncensored (median) |
+|---|---|---|---|---|
+| unfiltered policy | 39.3 % | **0.0 %** | **22.0 %** | 66.3 mm / 63.3 mm |
+| bounded all-pair QP (4 cm) | 0.0 % | 0.0 % | 0.0 % | 90.0 mm / 90.0 mm |
+| execution-aware (1 cm) | 0.0 % | 0.0 % | 0.0 % | 71.6 mm / 71.6 mm |
+
+Per training seed (the unfiltered policy):
+
+| training seed | envelope contact | mesh contact, censored | mesh contact, uncensored |
+|---|---|---|---|
+| 0 | 48.0 % | 0.0 % | 22.0 % |
+| 1 | 34.0 % | 0.0 % | 28.0 % |
+| 2 | 36.0 % | 0.0 % | 16.0 % |
+
+* **The archived collision rate was censored, and the censoring was optimistic.** The unfiltered
+  policy makes real mesh contact in 16-28 % of the episodes it touches the envelope in. The
+  earlier reading - "the arm never touched the wall, only its conservative envelope" - is wrong:
+  the arm was stopped before it could, and often it would have.
+* **The filters' result is stronger than the archived table showed.** Neither filtered arm ever
+  reaches the envelope, so their censored and uncensored trajectories are identical and their
+  mesh contact is 0 % in both. They are the only arms that never enter the regime in which
+  contact becomes possible.
+* **The instrument was right and the measurement was wrong.** The mesh checker stays; what had to
+  change is that it must be applied to a trajectory that was not truncated.
+* **This is a general property, not a quirk of this project:** any evaluation that terminates an
+  episode at the first *proxy* event measures the proxy, and reports a rate that is biased
+  towards "no harm done" by construction. The bias is invisible in the metric; it is only
+  visible when the termination is removed.
+
+---
+
+
+## 13. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.

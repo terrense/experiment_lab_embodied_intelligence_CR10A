@@ -88,7 +88,8 @@ def latency_summary(stats: Optional[Dict]) -> Optional[Dict]:
 
 
 def speed_dependent_margin(env, base_policy: Callable, margin0: float = 0.01,
-                           tau: float = 0.02, a_min: float = 1.0,
+                           tau: float = 0.022, a_min: float = 2.0,
+                           margin_max: float = 0.04,
                            v_close: Optional[float] = None, alpha: float = 5.0,
                            stats: Optional[Dict] = None) -> Callable:
     """B4+: the FIXED-margin QP with a SPEED-DEPENDENT margin (the cheap strong baseline).
@@ -98,17 +99,24 @@ def speed_dependent_margin(env, base_policy: Callable, margin0: float = 0.01,
     execution-aware filter's behaviour, then the look-ahead prediction is not needed - a
     textbook braking-distance margin is enough.
 
-    The margin is the standard stopping distance:
+    The margin is the standard stopping distance, in the units of the CLEARANCE (metres per
+    second of closing speed):
 
-        m(v) = m0 + v_close * tau + v_close^2 / (2 * a_min)
+        m(v) = min( margin_max, m0 + v_close * tau + v_close^2 / (2 * a_min) )
 
-    with `tau` the command-to-motion lag (the servo lag) and `a_min` the smallest deceleration
-    the arm can achieve. The margin is applied to the CLOSING speed towards the obstacle, i.e.
-    the rate at which the clearance shrinks, not to the joint speed: the arm moving fast AWAY
-    from the wall needs no extra margin.
+    with `tau` the command-to-motion lag (the servo lag this project measured: 2*zeta/omega =
+    48 ms for the lag and ~22 ms for the velocity tracking, so 22 ms is the conservative choice),
+    and `a_min` the smallest Cartesian deceleration the arm can achieve [m/s^2].
 
-    `v_close` defaults to the closing speed measured from the filter's own geometry (the rate at
-    which the closest constrained pair's clearance decreases under the nominal command).
+    **The cap is what makes this a FAIR baseline.** Without it the margin reaches half a metre
+    for a fast approach, the constraint becomes infeasible everywhere, and the filter becomes
+    actively harmful - it then drives the arm into the obstacle, which is not a strong baseline
+    but a straw man. With the cap at the SAME margin the tuned fixed-margin QP uses, B4+ can only
+    ever be *safer* than B4, never more conservative: it spends the margin where the risk is.
+
+    The margin is applied to the CLOSING speed towards the obstacle - the rate at which the
+    clearance shrinks - not to the joint speed: the arm moving fast AWAY from the wall needs no
+    extra margin.
     """
     from .qp_filter import solve_bounded_qp
     import mujoco
@@ -124,12 +132,12 @@ def speed_dependent_margin(env, base_policy: Callable, margin0: float = 0.01,
             c = n @ jp[:, env.dadr]
             if float(c @ c) < 1e-12:
                 continue
-            # the closing speed: the rate at which this pair's clearance shrinks
+            # the closing speed: the rate at which this pair's clearance shrinks [m/s]
             v_close_here = -float(c @ (a * env.cfg.max_joint_speed))
             vc = v_close if v_close is not None else max(v_close_here, 0.0)
-            m = margin0 + vc * tau + vc * vc / (2.0 * a_min)
+            m = min(margin_max, margin0 + vc * tau + vc * vc / (2.0 * a_min))
             constraints.append((c, -alpha * (d - m) / env.cfg.max_joint_speed))
-            pairs.append((float(d), c, float(vc)))
+            pairs.append((float(d), c, float(vc), float(m)))
         info = {"feasible": True, "residuals": np.zeros(0), "time_s": 0.0}
         if constraints:
             x, info = solve_bounded_qp(a, constraints, x_prev=state["prev"], rho=0.0)

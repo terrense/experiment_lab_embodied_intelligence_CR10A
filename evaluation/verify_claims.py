@@ -346,6 +346,34 @@ def main() -> int:
                     exp[2], "%", tol=0.1)
             c.check(f"replication {method}: mesh collisions", a.get("mesh_collision_rate"), 0.0, "%", tol=0.1)
 
+    print("\n== the censoring of the safety evaluation (physical_contact.json)")
+    pc = _load("physical_contact.json")
+    if pc is None:
+        c.check("physical_contact.json present", None, None)
+    else:
+        agg = pc.get("aggregate", {})
+        # the headline: the unfiltered policy's mesh contact is 0 % censored and 22 % uncensored
+        c.check("the unfiltered policy: envelope contact rate",
+                100 * agg["raw|censored"]["envelope_contact_rate"], 39.3, "%", tol=0.1)
+        c.check("the unfiltered policy: mesh contact, CENSORED",
+                100 * agg["raw|censored"]["mesh_contact_rate"], 0.0, "%", tol=0.1)
+        c.check("the unfiltered policy: mesh contact, UNCENSORED",
+                100 * agg["raw|uncensored"]["mesh_contact_rate"], 22.0, "%", tol=0.1)
+        c.check("the unfiltered policy: the censored trajectory rate",
+                100 * agg["raw|uncensored"]["envelope_contact_rate"], 39.3, "%", tol=0.1)
+        # the filters never enter the regime, so censoring does not apply to them
+        for method in ("qp", "exec"):
+            c.check(f"the {method} filter: envelope contact rate",
+                    100 * agg[f"{method}|censored"]["envelope_contact_rate"], 0.0, "%", tol=0.1)
+            c.check(f"the {method} filter: mesh contact, censored",
+                    100 * agg[f"{method}|censored"]["mesh_contact_rate"], 0.0, "%", tol=0.1)
+            c.check(f"the {method} filter: mesh contact, uncensored",
+                    100 * agg[f"{method}|uncensored"]["mesh_contact_rate"], 0.0, "%", tol=0.1)
+        c.check("the unfiltered policy's minimum mesh clearance, censored (mm)",
+                1000 * agg["raw|censored"]["min_mesh_clearance_m_median"], 66.3, "mm", tol=0.1)
+        c.check("the unfiltered policy's minimum mesh clearance, uncensored (mm)",
+                1000 * agg["raw|uncensored"]["min_mesh_clearance_m_median"], 63.3, "mm", tol=0.1)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

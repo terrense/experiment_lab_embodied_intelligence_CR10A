@@ -271,13 +271,13 @@ pipeline filtered the full time series before temporal splitting, which couples 
 through zero-phase filtering; splitting first and filtering each part separately changes the
 held-out result by ≤ 0.1 VAF percentage points, so the published identification numbers stand.
 
-### 4.5 The collision metric is the safety envelope, not the arm
+### 4.5 The collision metric is the safety envelope, and it stops the arm
 
 The environment's detector asks whether the **enclosing link capsule** touched the obstacle. The
-CR10A's capsules have radii of 61–150 mm around much smaller meshes, so the capsule can be in
-contact while the mesh is still centimetres away. An independent checker — mesh surface samples,
+CR10A's capsules have radii of 61-150 mm around much smaller meshes, so the capsule can be in
+contact while the mesh is still centimetres away. An independent checker - mesh surface samples,
 its own distance code, a penetration depth for containment, and a self-collision test over the link
-pairs the MoveIt SRDF does not disable — was validated against **MuJoCo's own compiled mesh
+pairs the MoveIt SRDF does not disable - was validated against **MuJoCo's own compiled mesh
 vertices** (agreement: 0.000 mm) and applied to the real episodes:
 
 | policy seed | filter | legacy detector | mesh checker | mesh still away (min / median) |
@@ -285,17 +285,50 @@ vertices** (agreement: 0.000 mm) and applied to the real episodes:
 | 0 | none | 19 / 50 (38 %) | **0 / 50** | 23 mm / 42 mm |
 | 0 | CBF | 2 / 50 (4 %) | **0 / 50** | 24 mm / 38 mm |
 | 1 | none | 18 / 50 (36 %) | **0 / 50** | 21 mm / 42 mm |
-| 1 | CBF | 3 / 50 (6 %) | **0 / 50** | 27 mm / 40 mm |
 | 2 | none | 17 / 50 (34 %) | **0 / 50** | 17 mm / 46 mm |
 | 2 | CBF | 3 / 50 (6 %) | **0 / 50** | 25 mm / 44 mm |
 
-**Not one of the 300 episodes contains a real mesh collision.** The published out-of-distribution
-collision rates are, in the physical sense, false positives of a conservative envelope model: the
-arm never touched the wall; the envelope came within 2–6 cm of it. The success rates are unaffected,
-and keeping a conservative envelope clear is a meaningful engineering objective — but the event
-being counted has to be named. From here on the paper reports the mesh clearance with the envelope
-clearance alongside it, and the claim becomes "the filter keeps the safety envelope off the wall",
-not "the filter prevents the arm from colliding".
+**But the episode is TERMINATED at the first envelope contact**, so the trajectory the mesh
+checker sees is *censored*: the arm was stopped at the conservative envelope and never got the
+chance to reach a real contact. "Not one of the 300 episodes contains a real mesh collision" is
+therefore a statement about a truncated trajectory, not a property of the policy.
+
+The censoring is measured directly, by running the same policies with the termination removed
+(section 7.11, `evaluation/physical_contact.py`). Out-of-distribution walls, 50 episodes per cell,
+three training seeds:
+
+| method | envelope contact | mesh contact, **censored** (the archived behaviour) | mesh contact, **uncensored** |
+|---|---|---|---|
+| unfiltered policy | 39.3 % | **0.0 %** | **22.0 %** |
+| bounded all-pair QP (4 cm) | 0.0 % | 0.0 % | 0.0 % |
+| execution-aware (1 cm) | 0.0 % | 0.0 % | 0.0 % |
+
+**So the honest statement is the opposite of the one the archived table supports.** The
+unfiltered policy does not merely touch the conservative envelope in 39 % of the episodes: when it
+is allowed to continue, it makes **real mesh contact in 22 % of them**, with the median minimum
+mesh clearance falling from 66 mm to 63 mm. The two filtered arms never enter that regime at all -
+they never touch the envelope, so there is nothing to censor and their trajectories are identical
+in both modes.
+
+Three things follow, and they are different from each other.
+
+* The collision axis of the published table is the safety envelope, and it is **not** a
+  conservative estimate of contact: it is a *censored* one. The correct physical reading of the
+  archived 36-40 % out-of-distribution envelope rate is "the arm was stopped 22 % of the time
+  before it could touch the wall", not "the arm never touched the wall".
+* The **mesh checker is still the right instrument** - it is the only measurement of the
+  physical event - but it has to be applied to trajectories that were not truncated, or it
+  measures the truncation instead of the arm.
+* The **filters' result is stronger than the archived table showed, not weaker.** They are not
+  merely avoiding the envelope: they are the only arms that never reach the regime in which
+  contact becomes possible. A reader who believed "the arm never really collided" would have
+  concluded that the filters did nothing; the correct measurement shows they prevent contact.
+
+From here on the paper reports the mesh clearance with the envelope clearance alongside it, and
+the claim becomes "the filter keeps the safety envelope off the wall, and with it off the
+physical contact", not "the filter prevents the arm from colliding" - which is a claim about the
+envelope, and the envelope is conservative.
+
 
 ## 5 Proposed execution-aware filter
 
@@ -1045,6 +1078,58 @@ fails to plan 16 % of the episodes; and its completion is a single deterministic
 than a distribution over training seeds. What it does say is narrower and, for this project,
 more useful: **the safety filter earns its place by making a reactive proposal usable, and a
 good proposal makes the filter unnecessary.**
+
+### 7.11 The censoring of the safety evaluation
+
+Section 4.5 explains why the mesh checker's "no real contact in any episode" could not be taken
+at face value: the episode is terminated at the first conservative-envelope contact, so the
+trajectory is censored. This section measures what the censoring hides.
+
+**The protocol.** The same policies, the same episodes (the frozen test range, 50 per cell, three
+training seeds) and the same rigorous clearance model, with one change: the termination on the
+first envelope contact is removed, and the episode is allowed to run on (up to 60 extra control
+steps) so that the independent mesh checker sees the whole motion. This is a **simulation-only
+diagnostic** - it deliberately drives the arm into the obstacle - and its completion numbers are
+not reported, because an episode that runs past a contact is not a completed episode.
+
+| method | envelope contact | mesh contact, censored | mesh contact, **uncensored** | minimum mesh clearance, censored / uncensored (median) |
+|---|---|---|---|---|
+| unfiltered policy | 39.3 % | **0.0 %** | **22.0 %** | 66.3 mm / 63.3 mm |
+| bounded all-pair QP (4 cm) | 0.0 % | 0.0 % | 0.0 % | 90.0 mm / 90.0 mm |
+| execution-aware (1 cm) | 0.0 % | 0.0 % | 0.0 % | 71.6 mm / 71.6 mm |
+
+The per-seed detail shows the effect is not one episode and not one seed:
+
+| training seed | envelope contact | mesh contact, censored | mesh contact, uncensored |
+|---|---|---|---|
+| 0 | 48.0 % | 0.0 % | 22.0 % |
+| 1 | 34.0 % | 0.0 % | 28.0 % |
+| 2 | 36.0 % | 0.0 % | 16.0 % |
+
+Four conclusions, and the first one is a correction of this paper's own earlier reading.
+
+1. **The archived collision rate was a censored measurement, and the censored measurement was
+   optimistic.** The unfiltered policy makes real mesh contact in **16-28 %** of the episodes it
+   touches the envelope in. The earlier reading of the archived table - that the arm never
+   touched the wall, only its conservative envelope - is wrong; the arm was stopped before it
+   could, and a large share of the time it would have.
+2. **The filters' result is stronger than the archived table showed.** Neither filtered arm ever
+   reaches the envelope, so neither has anything to censor: their censored and uncensored
+   trajectories are identical, and their mesh contact is 0 % in both. They are the only arms that
+   never enter the regime in which contact becomes possible. A reader who had taken the archived
+   table at face value would have concluded that the filters bought nothing; the measurement
+   shows they prevent contact.
+3. **The instrument was right and the measurement was wrong.** The mesh checker is the only
+   measurement of the physical event, and it stays; what had to change is that it must be applied
+   to a trajectory that was not truncated. Every collision statement in this paper is now made on
+   uncensored motion, and the censored and uncensored rates are reported side by side rather
+   than one being silently preferred.
+4. **The censoring is itself a property of the safety metric, and it is a general one.** Any
+   evaluation that terminates an episode at the first *proxy* event measures the proxy, not the
+   physical event, and reports a rate that is biased towards "no harm done" by construction. The
+   cost of that bias is not visible in the metric; it is only visible when the termination is
+   removed.
+
 
 ## 8 Discussion
 

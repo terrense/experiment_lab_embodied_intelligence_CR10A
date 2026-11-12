@@ -1,0 +1,271 @@
+{
+ "task": "wall_ood",
+ "split": "test",
+ "seed_start": 20000,
+ "episodes": 50,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "qp_margin": 0.04,
+ "exec_margin": 0.01,
+ "post_contact_steps": 60,
+ "note": "SIMULATION ONLY. The uncensored run deliberately drives the arm past the conservative envelope contact to measure the PHYSICAL outcome. It must never be run on hardware, and its completion numbers are not reported.",
+ "rows": [
+  {
+   "policy_seed": 0,
+   "method": "raw",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.48,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.0603342644319409,
+   "min_mesh_clearance_m_min": 0.014731471773144673,
+   "trajectory_length_median": 301.0,
+   "wall_s": 474.1
+  },
+  {
+   "policy_seed": 0,
+   "method": "raw",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.48,
+   "mesh_contact_rate": 0.22,
+   "min_mesh_clearance_m_median": 0.053463231654547916,
+   "min_mesh_clearance_m_min": -0.019998932713206505,
+   "trajectory_length_median": 301.0,
+   "wall_s": 547.2
+  },
+  {
+   "policy_seed": 0,
+   "method": "qp",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08456800060663813,
+   "min_mesh_clearance_m_min": 0.06317991531758495,
+   "trajectory_length_median": 301.0,
+   "wall_s": 954.9
+  },
+  {
+   "policy_seed": 0,
+   "method": "qp",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08456800060663813,
+   "min_mesh_clearance_m_min": 0.06317991531758495,
+   "trajectory_length_median": 301.0,
+   "wall_s": 978.0
+  },
+  {
+   "policy_seed": 0,
+   "method": "exec",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.06855526927379713,
+   "min_mesh_clearance_m_min": 0.03761805876326177,
+   "trajectory_length_median": 301.0,
+   "wall_s": 985.3
+  },
+  {
+   "policy_seed": 0,
+   "method": "exec",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.06855526927379713,
+   "min_mesh_clearance_m_min": 0.03761805876326177,
+   "trajectory_length_median": 301.0,
+   "wall_s": 974.8
+  },
+  {
+   "policy_seed": 1,
+   "method": "raw",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.34,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.06793067407567087,
+   "min_mesh_clearance_m_min": 0.020317141305367978,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2094.1
+  },
+  {
+   "policy_seed": 1,
+   "method": "raw",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.34,
+   "mesh_contact_rate": 0.28,
+   "min_mesh_clearance_m_median": 0.06793067407567087,
+   "min_mesh_clearance_m_min": -0.019999795892679195,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2130.8
+  },
+  {
+   "policy_seed": 1,
+   "method": "qp",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08800911192983155,
+   "min_mesh_clearance_m_min": 0.06589047479736987,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2213.3
+  },
+  {
+   "policy_seed": 1,
+   "method": "qp",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08800911192983155,
+   "min_mesh_clearance_m_min": 0.06589047479736987,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2211.3
+  },
+  {
+   "policy_seed": 1,
+   "method": "exec",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07145655369692716,
+   "min_mesh_clearance_m_min": 0.032602951139003064,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2240.1
+  },
+  {
+   "policy_seed": 1,
+   "method": "exec",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07145655369692716,
+   "min_mesh_clearance_m_min": 0.032602951139003064,
+   "trajectory_length_median": 301.0,
+   "wall_s": 2243.2
+  },
+  {
+   "policy_seed": 2,
+   "method": "raw",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.36,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07053686339250223,
+   "min_mesh_clearance_m_min": 0.012391539862289847,
+   "trajectory_length_median": 301.0,
+   "wall_s": 515.4
+  },
+  {
+   "policy_seed": 2,
+   "method": "raw",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.36,
+   "mesh_contact_rate": 0.16,
+   "min_mesh_clearance_m_median": 0.06859875117010562,
+   "min_mesh_clearance_m_min": -0.019999371631369445,
+   "trajectory_length_median": 301.0,
+   "wall_s": 572.7
+  },
+  {
+   "policy_seed": 2,
+   "method": "qp",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.09738245264689561,
+   "min_mesh_clearance_m_min": 0.06312404814497531,
+   "trajectory_length_median": 301.0,
+   "wall_s": 5708.0
+  },
+  {
+   "policy_seed": 2,
+   "method": "qp",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.09738245264689561,
+   "min_mesh_clearance_m_min": 0.06312404814497531,
+   "trajectory_length_median": 301.0,
+   "wall_s": 5676.4
+  },
+  {
+   "policy_seed": 2,
+   "method": "exec",
+   "mode": "censored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07466102515073475,
+   "min_mesh_clearance_m_min": 0.03190592316913488,
+   "trajectory_length_median": 301.0,
+   "wall_s": 5696.5
+  },
+  {
+   "policy_seed": 2,
+   "method": "exec",
+   "mode": "uncensored",
+   "episodes": 50,
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07466102515073475,
+   "min_mesh_clearance_m_min": 0.03190592316913488,
+   "trajectory_length_median": 301.0,
+   "wall_s": 5670.7
+  }
+ ],
+ "aggregate": {
+  "raw|censored": {
+   "envelope_contact_rate": 0.39333333333333337,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.066267267300038,
+   "min_mesh_clearance_m_worst": 0.0603342644319409
+  },
+  "raw|uncensored": {
+   "envelope_contact_rate": 0.39333333333333337,
+   "mesh_contact_rate": 0.22,
+   "min_mesh_clearance_m_median": 0.06333088563344147,
+   "min_mesh_clearance_m_worst": 0.053463231654547916
+  },
+  "qp|censored": {
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08998652172778843,
+   "min_mesh_clearance_m_worst": 0.08456800060663813
+  },
+  "qp|uncensored": {
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.08998652172778843,
+   "min_mesh_clearance_m_worst": 0.08456800060663813
+  },
+  "exec|censored": {
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07155761604048634,
+   "min_mesh_clearance_m_worst": 0.06855526927379713
+  },
+  "exec|uncensored": {
+   "envelope_contact_rate": 0.0,
+   "mesh_contact_rate": 0.0,
+   "min_mesh_clearance_m_median": 0.07155761604048634,
+   "min_mesh_clearance_m_worst": 0.06855526927379713
+  }
+ }
+}

@@ -648,3 +648,31 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   **not established** (+6.7 points against a 7.1-point spread) - and the reason is now the
   substantive one, not the seed count.
 - The claim checker now verifies **260** claims, all matching.
+- **The censoring diagnostic is DONE, and it corrects this project's own headline.** The episode
+  is terminated at the first conservative-envelope contact, so the trajectory the mesh checker
+  sees is truncated and the arm never gets the chance to touch for real. Measured directly (same
+  policies, same episodes, the termination removed; `evaluation/physical_contact.py`):
+  | method | envelope contact | mesh contact, CENSORED | mesh contact, UNCENSORED |
+  |---|---|---|---|
+  | unfiltered policy | 39.3 % | **0.0 %** | **22.0 %** |
+  | bounded all-pair QP (4 cm) | 0.0 % | 0.0 % | 0.0 % |
+  | execution-aware (1 cm) | 0.0 % | 0.0 % | 0.0 % |
+  Per seed the uncensored mesh contact is 22 % / 28 % / 16 %. **So the archived reading - "the
+  arm never touched the wall, only its conservative envelope" - was wrong: the arm was stopped
+  before it could, and in 16-28 % of those episodes it would have.** And the FILTERS' result is
+  stronger than the archived table showed: neither filtered arm ever reaches the envelope, so
+  their censored and uncensored trajectories are identical and their mesh contact is 0 % in both.
+  A reader who had taken the archived table at face value would have concluded the filters bought
+  nothing; the measurement shows they prevent contact.
+  This is now stated in the manuscript's section 4.5 (which no longer claims "not one of the 300
+  episodes contains a real mesh collision"), in the new section 7.11, in the abstract, in
+  docs/RESULTS.md section 12 and in the README.
+- **The B4+ baseline was a straw man on the first attempt, and the fix is the interesting part.**
+  The speed-dependent margin `m(v) = m0 + v_close*tau + v_close^2/(2*a_min)` with `a_min = 1`
+  m/s^2 reaches HALF A METRE for a fast approach, the constraint becomes infeasible everywhere,
+  and the filter becomes actively harmful - it then drives the arm into the obstacle (0 %
+  completion, MORE collisions than no filter at all). The fair version CAPS the margin at the same
+  4 cm the tuned fixed-margin QP uses, so B4+ can only be safer than B4, never more
+  conservative: it spends the margin where the risk is (1.5 cm approaching slowly, 4 cm
+  approaching fast). The parameters are now `a_min = 2.0` m/s^2 (a plausible Cartesian
+  deceleration) and `tau = 22 ms` (the measured velocity-tracking lag of the servo).

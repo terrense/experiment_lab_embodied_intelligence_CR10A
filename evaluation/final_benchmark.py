@@ -83,8 +83,13 @@ def main(argv=None) -> int:
                     help="B4+: the base clearance margin, before the speed-dependent part")
     ap.add_argument("--speed-tau", type=float, default=0.02,
                     help="B4+: the command-to-motion lag [s] in the stopping-distance margin")
-    ap.add_argument("--speed-a-min", type=float, default=1.0,
-                    help="B4+: the smallest deceleration the arm can achieve [rad/s^2]")
+    ap.add_argument("--speed-a-min", type=float, default=2.0,
+                    help="B4+: the smallest Cartesian deceleration the arm can achieve [m/s^2]")
+    ap.add_argument("--speed-margin-max", type=float, default=0.04,
+                    help="B4+: the cap on the speed-dependent margin. It is the SAME margin the "
+                         "tuned fixed-margin QP uses, so B4+ can only be safer than B4, never "
+                         "more conservative - without the cap the margin reaches half a metre, "
+                         "the constraint is infeasible everywhere and the filter is harmful")
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "learning" / "final_benchmark.json")
     a = ap.parse_args(argv)
 
@@ -141,7 +146,8 @@ def main(argv=None) -> int:
             # matches the execution-aware filter, the look-ahead prediction is not needed.
             from ex_learning.safety_filter import speed_dependent_margin
             return speed_dependent_margin(env, base(env), margin0=a.speed_margin0,
-                                          tau=a.speed_tau, a_min=a.speed_a_min, stats=stats)
+                                          tau=a.speed_tau, a_min=a.speed_a_min,
+                                          margin_max=a.speed_margin_max, stats=stats)
         raise ValueError(method)
 
     print(f"{'seed':>4} {'task':9} {'method':11} {'legacy':>15} {'corrected':>11} {'mesh':>8} {'self':>7} "
