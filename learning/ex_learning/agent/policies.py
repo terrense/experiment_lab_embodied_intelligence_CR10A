@@ -85,6 +85,7 @@ class ScriptedFSM(AgentPolicy):
         self.retreat_needed = False
         self.holding = False
         self.gave_up = False
+        self.planned_target: Optional[int] = None
 
     def reset(self, obs: Dict) -> None:
         self.plans_on_target = 0
@@ -92,6 +93,7 @@ class ScriptedFSM(AgentPolicy):
         self.retreat_needed = False
         self.holding = False
         self.gave_up = False
+        self.planned_target = None
 
     def act(self, obs: Dict) -> Dict:
         status = obs.get("last_status", "")
@@ -125,6 +127,14 @@ class ScriptedFSM(AgentPolicy):
             self.needs_replan = True
             return {"skill": "replan", "target_index": target}
 
+        # The current target changed (the previous inspection completed): the path in hand is
+        # for the WRONG target, so it has to be planned again. Without this the FSM keeps
+        # following the old path while the distance to the new target grows.
+        if target != self.planned_target:
+            self.needs_replan = True
+            self.planned_target = target
+            self.plans_on_target = 0
+
         if self.retreat_needed:
             self.retreat_needed = False
             return {"skill": "retreat", "target_index": target}
@@ -133,10 +143,13 @@ class ScriptedFSM(AgentPolicy):
             self.gave_up = False
             self.needs_replan = True
             nxt = min(target + 1, obs.get("targets_total", 3) - 1)
+            self.planned_target = nxt
+            self.plans_on_target = 0
             return {"skill": "plan_motion", "target_index": nxt}
         if self.needs_replan:
             self.needs_replan = False
             self.plans_on_target += 1
+            self.planned_target = target
             return {"skill": "plan_motion", "target_index": target}
         # close to the target: hold still so the inspection can complete
         if obs.get("distance_to_target_m", 1.0) < 0.02 and obs.get("hold_steps", 0) < 4:

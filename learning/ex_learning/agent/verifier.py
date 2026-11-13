@@ -136,6 +136,10 @@ def summarise(verdicts: List[Dict]) -> Dict:
     def med(key):
         vals = [v[key] for v in verdicts if v.get(key) is not None and math.isfinite(v[key])]
         return float(np.median(vals)) if vals else None
+    def worst(key):
+        # an episode in which the arm never moved has an INFINITE clearance, not a missing one
+        vals = [v[key] for v in verdicts if v.get(key) is not None and math.isfinite(v[key])]
+        return min(vals) if vals else None
     return {
         "episodes": len(verdicts),
         "completion_rate": frac("completed"),
@@ -147,8 +151,7 @@ def summarise(verdicts: List[Dict]) -> Dict:
         "mean_tool_calls": float(np.mean([v["tool_calls"] for v in verdicts])),
         "mean_reward": float(np.mean([v["reward"] for v in verdicts])),
         "median_min_mesh_clearance_m": med("min_mesh_clearance_m"),
-        "min_min_mesh_clearance_m": min(v["min_mesh_clearance_m"] for v in verdicts
-                                         if math.isfinite(v["min_mesh_clearance_m"])),
+        "min_min_mesh_clearance_m": worst("min_mesh_clearance_m"),
         "mean_steps": float(np.mean([v["steps"] for v in verdicts])),
         "mean_wall_s": float(np.mean([v["wall_s"] for v in verdicts])),
     }

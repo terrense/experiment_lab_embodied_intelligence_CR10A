@@ -94,6 +94,10 @@ class SkillLayer:
         self.exec_model = exec_model
         self.path: Optional[List[np.ndarray]] = None
         self.target: Optional[np.ndarray] = None
+        #: the waypoint follower of the CURRENT path. It has to survive across `execute_path`
+        #: calls: the follower keeps the index of the waypoint it is heading for, and building a
+        #: new one on every call would send the arm back to the BEGINNING of the path every time.
+        self._follower = None
         self.plan_time_s: float = 0.0
         self.last_plan_status: str = "ok"
         #: the joint trajectory of the steps taken since the last `take_trajectory()` call. The
@@ -177,6 +181,7 @@ class SkillLayer:
             path = planner.plan(q_start, q_goal)
             if path is not None:
                 self.path = [np.asarray(p, float) for p in path]
+                self._follower = None        # the new path needs a new follower
                 self.plan_time_s = time.time() - t0
                 self.last_plan_status = "ok"
                 self.env._set_q(q_start)
@@ -186,6 +191,7 @@ class SkillLayer:
                                     "ik_error_m": round(_err, 5),
                                     "free_realisations": len(free)}, seconds=self.plan_time_s)
         self.path = None
+        self._follower = None
         self.plan_time_s = time.time() - t0
         self.last_plan_status = "plan_failed"
         # the planner MOVED the arm while it searched (it checks configurations in place), so the
@@ -215,7 +221,9 @@ class SkillLayer:
             return SkillResult("execute_path", "plan_failed", "there is no path to follow")
 
         env = self.env
-        follower = path_follower(self.path, env, speed=self.plan_speed)
+        if self._follower is None:
+            self._follower = path_follower(self.path, env, speed=self.plan_speed)
+        follower = self._follower
         policy = follower
         if self.use_filter:
             policy = cbf_policy_qp(env, follower, margin=self.margin, alpha=5.0, rho=0.0)
@@ -285,13 +293,35 @@ class SkillLayer:
                            "" if not collided else "the retreat itself was stopped by the envelope",
                            {"min_clearance_m": float(env.clearance(conservative=True))}, steps=steps)
 
-    def inspect_state(self) -> SkillResult:
-        """Read the state: the clearance, the filter's claim and whether it intervened."""
+    def hold(self, steps: int) -> None:
+        """Hold the arm still for `steps` control steps.
+
+        This is what an inspection IS: the arm stays at the pose while the sensor reads. The
+        command is zero, and the arm is where it was - which is also the honest way to count an
+        inspection: holding the arm still for the inspection duration, not making several tool
+        calls that happen to leave it in the same place.
+        """
+        for _ in range(steps):
+            self.trajectory.append(self.env.q().copy())
+            obs, r, term, trunc, info = self.env.step(np.zeros(6))
+            self.trajectory.append(self.env.q().copy())
+            if term or trunc:
+                break
+
+    def inspect_state(self, hold_steps: int = 0) -> SkillResult:
+        """Read the state: the clearance, the filter's claim and whether it intervened.
+
+        With `hold_steps` the arm first HOLDS its pose for that many control steps - the
+        inspection itself.
+        """
+        if hold_steps:
+            self.hold(hold_steps)
         d = float(self.env.clearance(conservative=True))
         return SkillResult("inspect_state", "ok", "",
                            {"clearance_m": round(d, 4),
                             "tcp": [round(float(v), 4) for v in self.env.tcp()],
                             "has_path": self.path is not None,
+                            "held_steps": hold_steps,
                             "target": None if self.target is None
                             else [round(float(v), 4) for v in self.target]})
 

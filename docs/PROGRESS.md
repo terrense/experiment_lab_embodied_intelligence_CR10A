@@ -676,3 +676,44 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   conservative: it spends the margin where the risk is (1.5 cm approaching slowly, 4 cm
   approaching fast). The parameters are now `a_min = 2.0` m/s^2 (a plausible Cartesian
   deceleration) and `tau = 22 ms` (the measured velocity-tracking lag of the servo).
+- **B4+ is DONE, and the latency objection is WITHDRAWN.** The two objections that could have
+  killed the result were tested:
+  1. **The cheap strong alternative.** A speed-dependent stopping-distance margin
+     `m(v) = min(4 cm, 1 cm + v_close*22 ms + v_close^2/(2*2 m/s^2))`, applied to the CLOSING
+     speed, capped at the same 4 cm the tuned fixed-margin QP uses (so it can only be safer than
+     it, never more conservative). **It does not reproduce the result**: 46.0 % completion against
+     the fixed QP's 45.3 % - it does not reach the margin-0 completion of 54.0 % - and it pays
+     **8.7 % corrected collisions** (per seed: 4 %, 6 %, 16 %) where the fixed 4 cm margin has
+     none and the look-ahead filter has none. The adaptive margin is LESS conservative on average
+     (1.5 cm instead of 4 cm when approaching slowly), and that is exactly where the contacts come
+     from. The look-ahead constraint knows where the arm WILL be; the stopping-distance margin only
+     knows how fast it is closing.
+     (The first attempt at this baseline was a straw man: with a_min = 1 m/s^2 the margin reaches
+     half a metre, the constraint is infeasible everywhere, and the filter drives the arm INTO the
+     obstacle - 0 % completion and more collisions than no filter. The cap is what makes it fair.)
+  2. **The latency.** The manuscript claimed the execution-aware filter costs ~8x more per control
+     step. That came from the defective statistic (the "median" was the LAST solve, overwritten
+     every step). With the statistic fixed: **0.890 ms median against the QP's 0.755 ms - 1.18x,
+     and 1.05x at the P95 - 4.5 % of the 20 ms control period.** The objection does not survive
+     its own investigation.
+  Both are now in the manuscript (section 7.12), in docs/RESULTS.md (section 13), in the README
+  (M5.9) and in the falsification criterion of docs/RESEARCH_PLAN.md, which is re-examined
+  rather than rewritten. **Falsification criterion 1: the collision-rate part is now the
+  STRONGEST part of the result (the cheap alternative does not match it), the latency part is
+  withdrawn, and the completion part remains not established** - with the substantive reason (the
+  between-seed spread is of the same size as the difference), not the seed count.
+- **The latency is now collected properly**: the samples are kept, the median/P95/P99 are computed
+  from them, and the report stores the summary plus a fixed histogram rather than fourteen
+  thousand raw floats (the report went from 4.6 MB to 0.03 MB and the distribution is preserved).
+- **Figure 6 was redrawn** with the corrected metric: the left panel now shows the steps the arm
+  spends INSIDE the margin (the quantity that separates the two formulations) and the crossing
+  rates are annotated, because they are two orders of magnitude smaller and would be invisible on
+  the same axis. The README caption was rewritten to match.
+- **The agent line's task had three real defects, all found by running it**: the inspection hold
+  cost five tool calls (it is now ONE call that holds the arm still), the waypoint follower was
+  rebuilt on every execution (so the arm walked back to the start of the path), the episode was
+  6 s long (a path around the wall needs 30 s), and the FSM did not notice that the target had
+  changed. The inspection points are now derived from the episode's own goal configuration by a
+  base-joint sweep, so they are reachable by construction - the previous fixed Cartesian offsets
+  put them in a region the planner connects to in only two thirds of the attempts, which made the
+  episodes a measure of the planner's luck rather than of the agent's decisions.

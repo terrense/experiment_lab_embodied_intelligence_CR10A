@@ -534,7 +534,60 @@ Per training seed (the unfiltered policy):
 ---
 
 
-## 13. What is NOT in this document
+## 13. The cheap strong alternative, and the latency
+
+Source: `data/reports/learning/final_benchmark_b4plus.json`, script
+`evaluation/final_benchmark.py --methods raw qp qp_speed qp0 exec --independent-stride 1`.
+The frozen test range, 50 episodes per cell, three training seeds, and **every episode checked
+by the mesh checker** (stride 1), so the envelope rate and the mesh rate share a denominator.
+
+**B4+**: the fixed-margin QP with a **speed-dependent** margin — the textbook stopping distance
+applied to the CLOSING speed (the rate at which the clearance shrinks), capped at the same 4 cm
+the tuned fixed-margin QP uses, so it can only be safer than it and never more conservative:
+`m(v) = min(4 cm, 1 cm + v_close * 22 ms + v_close^2 / (2 * 2 m/s^2))`.
+
+| method | completion | legacy envelope | corrected | **mesh** |
+|---|---|---|---|---|
+| unfiltered policy | 36.0 % | 38.7 % | 40.7 % | **0 %** |
+| bounded all-pair QP (4 cm, fixed) | 45.3 % | **0 %** | **0 %** | **0 %** |
+| **bounded all-pair QP, speed-dependent margin (B4+)** | **46.0 %** | **0 %** | **8.7 %** | **0 %** |
+| bounded all-pair QP (0 cm) | 54.0 % | 8.0 % | 19.3 % | **0 %** |
+| **execution-aware (1 cm)** | **54.0 %** | **0 %** | **0 %** | **0 %** |
+
+Per training seed (B4+ and the execution-aware filter):
+
+| seed | B4+ (completion / corrected collisions) | execution-aware (completion / corrected collisions) |
+|---|---|---|
+| 0 | 52 % / 4 % | 72 % / 0 % |
+| 1 | 44 % / 6 % | 46 % / 0 % |
+| 2 | 42 % / 16 % | 44 % / 0 % |
+
+* **The cheap alternative does not reproduce the result.** The speed-dependent margin buys the
+  same completion as the tuned fixed margin (46.0 % against 45.3 %) and no more — it does not
+  reach the margin-0 completion of 54.0 % — and it pays **8.7 % corrected collisions** for it,
+  where the fixed 4 cm margin has none. The adaptive margin is *less* conservative on average
+  (1.5 cm instead of 4 cm when approaching slowly), and that is exactly where the contacts come
+  from. The look-ahead constraint, which knows where the arm will actually be, gets the
+  unconstrained filter's completion with none of its collisions; the stopping-distance margin,
+  which only knows how fast the arm is closing, gets neither.
+* **The latency objection is withdrawn.** The manuscript previously reported that the
+  execution-aware filter costs about eight times more per control step than the kinematic QP.
+  That number came from a defective statistic — the field that claimed to be a median was the
+  latency of the *last* solve, overwritten on every step. With the statistic fixed:
+
+| method | median | P95 | P99 | share of the 20 ms control period (median) |
+|---|---|---|---|---|
+| bounded all-pair QP (4 cm) | 0.755 ms | 3.315 ms | 5.194 ms | 3.8 % |
+| speed-dependent margin (B4+) | 0.747 ms | 2.068 ms | 5.161 ms | 3.7 % |
+| **execution-aware (1 cm)** | **0.890 ms** | **3.471 ms** | **5.506 ms** | **4.5 %** |
+
+  The execution-aware filter is **1.18× the kinematic QP at the median and 1.05× at the P95**, and
+  it uses 4.5 % of the control period.
+
+---
+
+
+## 14. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.

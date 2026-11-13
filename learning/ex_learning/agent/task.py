@@ -42,9 +42,19 @@ import numpy as np
 INSPECT_RADIUS = 0.02
 INSPECT_STEPS = 5
 
-#: the target offsets used to build A, B, C. They are spread around the reachable workspace so
-#: the arm really has to go around the wall for at least one of them.
-TARGET_OFFSETS = ((0.10, 0.05, -0.05), (-0.05, -0.12, 0.08), (0.12, 0.10, 0.02))
+#: The three inspection points are the TCP positions of the episode's own goal configuration
+#: with the BASE joint rotated by these angles. Two reasons for this construction:
+#:
+#:   * they are reachable by construction - the goal configuration is, and a small base rotation
+#:     keeps them in the same well-connected region of the workspace. The earlier construction
+#:     (a fixed Cartesian OFFSET from the goal) put the targets in a region the planner connects
+#:     to in only about two thirds of the attempts, which made the episodes a measure of the
+#:     planner's luck rather than of the agent's decisions;
+#:   * they are the SAME kind of point as the episode's goal, which is what the planner was
+#:     measured on (84 % planning success on the out-of-distribution walls).
+#:
+#: The angles are in radians. The base joint is J1.
+TARGET_BASE_ANGLES = (0.0, 0.26, -0.26)
 
 
 @dataclass
@@ -54,8 +64,9 @@ class FaultSpec:
     target_moved: float = 0.15
     stale_feedback: float = 0.10
     blocked_execution: float = 0.05
-    max_steps_per_episode: int = 900          # 18 s at 50 Hz
-    max_calls_per_episode: int = 24
+    max_steps_per_episode: int = 1500         # 30 s at 50 Hz
+    max_calls_per_episode: int = 40          # a generous budget: running out of it
+                                                     # must be a failure, not the norm
 
 
 class InspectionTask:
@@ -96,26 +107,24 @@ class InspectionTask:
         self.stale_until_step = -1
         self._obs_history = []
 
-        # The targets are built around the episode's own goal, offset so that the arm has to
-        # travel. They are CARTESIAN points: the agent gets no privileged joint configuration.
-        #
-        # A target must be REACHABLE, or the task is not the task it claims to be. The offsets are
-        # therefore validated against the arm's own kinematics: a target that the IK cannot
-        # realise is replaced by the episode's own (reachable) goal, and the substitution is
-        # recorded, so the report can say how often it happened.
-        base = np.asarray(self.env.goal, float).copy()
+        # The three inspection points. They are CARTESIAN points: the agent gets no privileged
+        # joint configuration. (The task DESIGNER does use the episode's goal configuration - it
+        # has to choose where the inspections are - but the agent is only ever told the
+        # Cartesian positions.)
+        q_saved = self.env.q().copy()
+        q_goal = np.asarray(getattr(self.env, "q_goal", self.env.q()), float).copy()
         self.targets = []
         self.substituted_targets = 0
         for i in range(self.n_targets):
-            if i == 0:
-                # the first target IS the episode goal: reachable by construction
-                self.targets.append(base.copy())
-                continue
-            off = np.asarray(TARGET_OFFSETS[i % len(TARGET_OFFSETS)], float)
-            cand = base + off
+            angle = TARGET_BASE_ANGLES[i % len(TARGET_BASE_ANGLES)]
+            q = q_goal.copy()
+            q[0] += angle
+            self.env._set_q(q)
+            cand = self.env.tcp().copy()
+            self.env._set_q(q_saved)
             if not self._reachable(cand):
                 self.substituted_targets += 1
-                cand = base.copy()
+                cand = np.asarray(self.env.goal, float).copy()
             self.targets.append(cand)
         return self.observation()
 
@@ -175,6 +184,9 @@ class InspectionTask:
         if skill == "execute_path" and self.maybe_fire("blocked_execution"):
             return "blocked_execution"
         if skill == "inspect_state" and self.maybe_fire("stale_feedback"):
+            # a PERCEPTION fault: the tool worked, but the readings the agent gets are old. It
+            # must NOT change the tool's status - the agent has to notice the stale readings
+            # itself, and the status is what the verifier's "invalid call" count is built on.
             self.stale_until_step = self.steps + 5
             return "stale_feedback"
         if skill in ("plan_motion", "replan") and self.maybe_fire("target_moved"):
@@ -241,14 +253,20 @@ class InspectionTask:
         self.last_failure = result.failure_reason
         self.calls += 1
         self.steps += result.steps
-        # The inspection counter is about the ARM'S POSITION, not about the tool's status: if the
-        # arm is inside the radius of the current target, the inspection is progressing, whatever
-        # the last tool call reported. (An earlier version only counted an 'ok' execution, which
-        # meant a call that ended in a timeout at the target counted for nothing.)
+        # The inspection counter is about the ARM'S POSITION and the TIME it has been there, not
+        # about the tool's status: if the arm is inside the radius of the current target, the
+        # inspection is progressing, whatever the last tool call reported. (An earlier version
+        # only counted an 'ok' execution, which meant a call that ended in a timeout at the target
+        # counted for nothing.)
+        #
+        # An `inspect_state` call HOLDS the arm still for the inspection duration, so it
+        # contributes the whole hold at once; an execution contributes the steps it spent inside
+        # the radius.
         if result.skill in ("execute_path", "inspect_state"):
             tgt = self.targets[self.current_target]
-            if float(np.linalg.norm(tgt - self.env.tcp())) < INSPECT_RADIUS:
-                self.hold_steps += 1
+            inside = float(np.linalg.norm(tgt - self.env.tcp())) < INSPECT_RADIUS
+            if inside:
+                self.hold_steps += int(result.data.get("held_steps", 0) or result.steps)
                 if self.hold_steps >= INSPECT_STEPS:
                     self.current_target = min(self.current_target + 1, self.n_targets - 1)
                     self.hold_steps = 0

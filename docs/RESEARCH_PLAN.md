@@ -457,16 +457,26 @@ here so that a negative outcome cannot be quietly reinterpreted later.
 
 1. If a **tuned fixed-margin bounded QP (B4)** matches the proposed method on collision rate,
    completion and latency → *the execution-model contribution does not hold.*
-   **PARTIALLY TRIGGERED (2026-11-06, simulation only).** The three parts come out differently:
-   * **collision rate — MATCHED.** Both the QP at 4 cm and the execution-aware filter are at
-     0 % envelope collisions on the frozen test range, in all three training seeds;
+   **PARTIALLY TRIGGERED (2026-11-06), RE-EXAMINED 2026-11-13 (simulation only).** The three
+   parts come out differently:
+   * **collision rate — NOT MATCHED, and this is now the strongest part of the result.** Both the
+     QP at 4 cm and the execution-aware filter are at 0 % envelope collisions on the frozen test
+     range, in all nine training seeds. The **cheap alternative a reviewer asks for** - a
+     speed-dependent stopping-distance margin (B4+) - does **not** match it: it reaches the tuned
+     fixed margin's completion (46.0 % against 45.3 %) and no more, and it pays **8.7 % corrected
+     collisions** for it, where the look-ahead filter pays none. The adaptive margin is *less*
+     conservative on average (1.5 cm instead of 4 cm when approaching slowly), and that is
+     exactly where the contacts come from;
    * **completion — NOT SEPARATED.** Out of distribution the execution-aware filter reaches
-     54.0 % against the QP's 45.3 %, but the per-seed differences are +22, +2 and +2 points
-     against a between-seed spread of 8 points. Three training seeds cannot resolve an 8-point
-     mean from an 8-point spread, so the paper reports the two as **indistinguishable on
-     completion at equal safety**, not as a win;
-   * **latency — TRIGGERED AGAINST THE METHOD.** The execution-aware filter costs ~8× more per
-     control step than the QP (a 14-way batched prediction and a larger constrained program);
+     54.0 % against the QP's 45.3 %, but with nine training seeds the mean difference
+     (+6.7 points) is of the same size as the between-seed spread of the difference (7.1
+     points), so the paper reports the two as **indistinguishable on completion at equal
+     safety**, not as a win;
+   * **latency — WITHDRAWN.** The eightfold figure came from a defective statistic: the field
+     that claimed to be a median was the latency of the LAST solve, overwritten on every step.
+     With the statistic fixed, the execution-aware filter costs **1.18× the QP at the median**
+     (0.890 ms against 0.755 ms) and 1.05× at the P95 - **4.5 % of the 20 ms control period**.
+     A filter that uses 4.5 % of its budget is not the reason a safety argument fails;
    * and the **execution-model mechanism itself is not supported**: the ablation removes the
      coast term and changes nothing, so the benefit belongs to the look-ahead constraint
      structure, not to the plant model.

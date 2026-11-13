@@ -15,11 +15,13 @@ gaps, each reproduced before it was fixed: a barrier projection that could viola
 constraint (in 9.6 % of the active-constraint steps), a dead joint-limit mask, a capsule-to-box
 distance that is an over-estimate rather than a lower bound, and a collision test that only ran at
 the end of a control step. The corrected evaluation changes the verdict in at most five of fifty
-episodes, so the published table survives — but an independent mesh-geometry checker shows that the
-collision axis of that table counts the *conservative safety envelope* (the enclosing link
-capsules), not the arm: across 300 evaluated out-of-distribution episodes the arm never touched
-the wall, while the envelope came within 17–65 mm of it. We therefore reformulate the claim and
-report a bounded all-pair kinematic QP as a strong baseline, on the frozen, untouched test range.
+episodes, so the published table survives — but the collision axis of that table counts the
+*conservative safety envelope* (the enclosing link capsules), and the episode is **terminated**
+when that envelope touches, so the arm is stopped before it can touch for real. Removing the
+termination shows the unfiltered policy making real mesh contact in 22 % of the episodes. We
+therefore reformulate the claim, report a bounded all-pair kinematic QP as a strong baseline, and
+add the cheap alternative a reviewer asks for: a speed-dependent stopping-distance margin. On the
+frozen, untouched test range.
 
 On that baseline we measure the premise directly. A kinematic filter's guarantee is a statement
 about the *command*, and the command is not the motion. The metric needed a correction first: the
@@ -39,11 +41,12 @@ difference (+6.7 points) is of the same size as the between-seed spread (7.1). T
 reported honestly as well: the gain comes from the look-ahead structure, not from the explicit
 plant model, whose coast term changes nothing.
 
-A third measurement reframes the headline collision finding: the episode is **terminated** when
-the conservative envelope touches the obstacle, so the arm is stopped before it can touch for
-real. Measured without that termination, the unfiltered policy makes real mesh contact in 50 %
-of the episodes — the "no real contact" result was an artefact of the termination, not a
-property of the policy. The filtered policies never enter that regime at all.
+The cheap alternative does not reproduce the result: a speed-dependent stopping-distance margin
+reaches the completion of the tuned fixed margin (46.0 % against 45.3 %) and no more, and pays
+8.7 % corrected collisions for it, where the look-ahead filter pays none. And the latency
+objection is withdrawn: with the statistic corrected, the execution-aware filter costs 1.18× the
+kinematic QP at the median (0.89 ms against 0.76 ms, 4.5 % of the 20 ms control period), not the
+eightfold figure a defective statistic had produced.
 
 Two further measurements sharpen what the filter still does not do, and one reframes what it is
 for.
@@ -1131,6 +1134,67 @@ Four conclusions, and the first one is a correction of this paper's own earlier 
    removed.
 
 
+### 7.12 The cheap strong alternative, and the latency
+
+Two objections can kill this result, and both are cheap to test.
+
+**The cheap alternative: a speed-dependent margin.** If a textbook braking-distance margin
+reproduces the look-ahead filter, then the look-ahead prediction is unnecessary. The margin is
+the standard stopping distance applied to the **closing** speed — the rate at which the clearance
+shrinks, not the joint speed, because an arm moving fast *away* from the wall needs no extra
+margin:
+
+    m(v) = min( margin_max, m0 + v_close * tau + v_close^2 / (2 a_min) )
+
+with `tau` the measured velocity-tracking lag of the servo (22 ms) and `a_min` a plausible
+Cartesian deceleration (2 m/s^2). The cap at `margin_max` is what makes it a **fair** baseline:
+without it the margin reaches half a metre for a fast approach, the constraint becomes
+infeasible everywhere, and the filter turns actively harmful — it drives the arm into the
+obstacle, which is a straw man and not a baseline. With the cap at the same 4 cm the tuned
+fixed-margin QP uses, this baseline can only be *safer* than the fixed one, never more
+conservative: it spends the margin where the risk is (1.5 cm approaching slowly, 4 cm
+approaching fast).
+
+Out-of-distribution walls, the frozen test range, 50 episodes per cell, three training seeds,
+**every episode checked by the mesh checker** (stride 1, so the envelope rate and the mesh rate
+share a denominator):
+
+| method | completion | legacy envelope | corrected | **mesh** |
+|---|---|---|---|---|
+| unfiltered policy | 36.0 % | 38.7 % | 40.7 % | **0 %** |
+| bounded all-pair QP (4 cm, fixed) | 45.3 % | **0 %** | **0 %** | **0 %** |
+| **bounded all-pair QP, speed-dependent margin (B4+)** | **46.0 %** | **0 %** | **8.7 %** | **0 %** |
+| bounded all-pair QP (0 cm) | 54.0 % | 8.0 % | 19.3 % | **0 %** |
+| **execution-aware (1 cm)** | **54.0 %** | **0 %** | **0 %** | **0 %** |
+
+**The cheap alternative does not reproduce the result, and the reason is instructive.** The
+speed-dependent margin buys the same completion as the tuned fixed margin (46.0 % against
+45.3 %) and no more — it does not reach the margin-0 completion of 54.0 % — and it pays for that
+with **8.7 % corrected collisions**, where the fixed 4 cm margin has none. The adaptive margin
+is *less* conservative on average (1.5 cm instead of 4 cm when approaching slowly), and that is
+exactly where the contacts come from. The look-ahead constraint, which knows where the arm will
+actually be, gets the completion of the unconstrained filter with none of its collisions; the
+stopping-distance margin, which only knows how fast the arm is closing, gets neither.
+
+**The latency objection is withdrawn.** The manuscript previously reported that the
+execution-aware filter costs about eight times more per control step than the kinematic QP.
+That number came from a defective statistic — the field that claimed to be a median was the
+latency of the *last* solve, overwritten on every step. With the statistic fixed (the samples
+are collected and the median, P95 and P99 are computed from them), the solver latency per
+control step is:
+
+| method | median | P95 | P99 | share of the 20 ms control period (median) |
+|---|---|---|---|---|
+| bounded all-pair QP (4 cm) | 0.755 ms | 3.315 ms | 5.194 ms | 3.8 % |
+| speed-dependent margin (B4+) | 0.747 ms | 2.068 ms | 5.161 ms | 3.7 % |
+| **execution-aware (1 cm)** | **0.890 ms** | **3.471 ms** | **5.506 ms** | **4.5 %** |
+
+The execution-aware filter is **1.18× the kinematic QP at the median and 1.05× at the P95**, and
+it uses 4.5 % of the control period. The latency objection does not survive its own
+investigation: a filter that costs four and a half per cent of its budget is not the reason a
+safety argument fails.
+
+
 ## 8 Discussion
 
 The strongest current observation is not that RL solves manipulation. It is that a policy can
@@ -1173,6 +1237,18 @@ margin — and a filter that reasons about the **stopping tail**, which §7.9 me
 of clearance after the command is cut, against a margin of 10 mm. So is a tuning split that does
 not overlap the training range, since the current one cannot resolve the differences the method
 produces.
+
+§7.12 removes two of the three ways this result could have been dismissed. The cheap
+alternative — a speed-dependent stopping-distance margin, the thing a reviewer asks for — does
+**not** reproduce it: it matches the tuned fixed margin's completion (46.0 % against 45.3 %) and
+no more, and it pays 8.7 % corrected collisions for it, where the look-ahead filter pays none.
+And the latency objection, which rested on a defective statistic, is withdrawn: the
+execution-aware filter costs **1.18× the kinematic QP at the median** (0.89 ms against 0.76 ms,
+4.5 % of the 20 ms control period), not the eightfold figure previously reported. What remains
+is the completion argument, which §7.7.1 shows is **not** established against the *safe*
+fixed-margin filter — and that is now the honest boundary of the claim: the look-ahead constraint
+buys the unconstrained filter's completion with none of its collisions, at a latency nobody can
+object to, and it does not beat the best safe fixed-margin filter on completion.
 
 §7.10 adds the other half of the answer, and it is a humbling one for this project. The filter
 is what makes a *reactive* proposal usable — 38.7 % → 56.7 % completion and 38.7 % → 0 %

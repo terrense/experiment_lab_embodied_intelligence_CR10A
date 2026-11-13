@@ -107,8 +107,12 @@ def test_the_trainer_collects_a_group_and_trains_on_it():
     t = GRPOTrainer(policy, group_size=4, seed=0)
     rec = t.step("a prompt", rollout_fn)
     assert len(rec["rewards"]) == 4
+    assert set(rec["rewards"]) <= {0.0, 1.0}
     assert policy.trained == 1
-    assert rec["mean_reward"] == pytest.approx(0.5)
+    # the stub samples from the two completions at random, so the group's mean is whatever the
+    # draw gave - what has to hold is that it is the mean of the group, not a fixed value
+    assert rec["mean_reward"] == pytest.approx(sum(rec["rewards"]) / 4)
+    assert 0.0 <= rec["mean_reward"] <= 1.0
 
 
 def test_the_trainer_counts_the_degenerate_groups():

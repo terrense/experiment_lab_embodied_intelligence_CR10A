@@ -113,12 +113,32 @@ def _cell_worker(job):
                 "min_self_clearance_m_median": float(np.median(selfmins)),
                 "self_collision_rate": selfcoll / len(idx)}
 
+    # The solver latency is a headline number (a filter that cannot run inside the control
+    # period is not deployable), so it is summarised here: the median, P95 and P99 of the
+    # per-step solve times, plus a fixed histogram. The raw per-step samples are NOT kept in the
+    # report - there are thousands of them per cell and they would make the file unreadable - but
+    # the histogram preserves the distribution, and the summary is what the documents quote.
+    from ex_learning.safety_filter import latency_summary
+    latency = latency_summary(stats)
+    hist = None
+    if stats.get("solve_times_s"):
+        arr = np.asarray(stats["solve_times_s"], float)
+        edges = np.arange(0.0, 0.0205, 0.0005)
+        counts, _ = np.histogram(arr, bins=edges)
+        hist = {"bin_edges_s": edges.tolist(), "counts": counts.tolist(),
+                "note": "the solver latency per control step"}
+    filter_stats = {k: v for k, v in stats.items() if k != "solve_times_s"}
+    if latency:
+        filter_stats["latency"] = latency
+    if hist is not None:
+        filter_stats["latency_histogram"] = hist
+
     return {"policy_seed": s, "task": task, "method": method,
             "success_rate": sum(r["success"] for r in rec) / len(rec),
             "legacy_collision_rate": sum(r["collision"] for r in rec) / len(rec),
             "corrected_collision_rate": sum(c["collision"] for c in corr) / len(corr),
             "final_dist_m_median": float(np.median([r["final_dist_m"] for r in rec])),
-            "filter_stats": {k: v for k, v in stats.items()},
+            "filter_stats": filter_stats,
             "mesh": mesh, "wall_s": round(time.time() - t0, 1)}
 
 

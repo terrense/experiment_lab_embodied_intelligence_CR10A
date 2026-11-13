@@ -27,6 +27,8 @@ from .verifier import EpisodeRecord, Verifier
 #: how many control steps each skill is allowed to take
 EXECUTE_STEPS = 1500
 RETREAT_STEPS = 120
+#: the number of control steps an inspection holds the arm still for
+INSPECT_STEPS = 5
 
 #: what an injected fault does to the tool that was called. The fault is not a note: the tool
 #: FAILS, with the status the real failure would produce, so the policy learns that failures
@@ -34,8 +36,10 @@ RETREAT_STEPS = 120
 FAULT_STATUS = {
     "plan_failure": "plan_failed",
     "blocked_execution": "blocked",
-    "stale_feedback": "stale",
     "target_moved": "stale",
+    # "stale_feedback" is deliberately NOT here: it is a PERCEPTION fault. The tool worked and
+    # the readings the agent receives are old. Making the status fail would turn a perception
+    # fault into a tool failure and charge the agent for something the tool did not do.
 }
 
 FAULT_REASON = {
@@ -84,20 +88,21 @@ def run_episode(env, task: InspectionTask, skills: SkillLayer, policy, seed: int
                                          target=task.targets[task.current_target])
         elif skill_name == "replan":
             skills.path = None
+            skills._follower = None
             result = skills.plan_motion(task.targets[task.current_target])
         elif skill_name == "retreat":
             result = skills.retreat(max_steps=RETREAT_STEPS)
         elif skill_name == "inspect_state":
-            result = skills.inspect_state()
+            result = skills.inspect_state(hold_steps=INSPECT_STEPS)
         elif skill_name == "finish":
             result = skills.finish()
         else:
-            result = skills.inspect_state()
+            result = skills.inspect_state(hold_steps=INSPECT_STEPS)
             result.status = "timeout"
             result.failure_reason = f"unknown skill {skill_name!r}"
 
         # an injected fault makes the tool FAIL, with the status the real fault would produce
-        if fault:
+        if fault and fault in FAULT_STATUS:
             result.status = FAULT_STATUS[fault]
             result.failure_reason = (result.failure_reason + "; " + FAULT_REASON[fault]).strip("; ")
         task.note_skill(result)

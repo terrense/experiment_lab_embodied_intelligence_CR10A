@@ -374,6 +374,45 @@ def main() -> int:
         c.check("the unfiltered policy's minimum mesh clearance, uncensored (mm)",
                 1000 * agg["raw|uncensored"]["min_mesh_clearance_m_median"], 63.3, "mm", tol=0.1)
 
+    print("\n== the cheap strong alternative and the latency (final_benchmark_b4plus.json)")
+    b4 = _load("final_benchmark_b4plus.json")
+    if b4 is None:
+        c.check("final_benchmark_b4plus.json present", None, None)
+    else:
+        c.check("the B4+ run checks every episode with the mesh checker",
+                float(b4["independent_stride"]), 1.0, "", tol=0.5)
+        for method, exp in (("raw", (36.0, 38.7, 40.7)),
+                            ("qp", (45.3, 0.0, 0.0)),
+                            ("qp_speed", (46.0, 0.0, 8.7)),
+                            ("qp0", (54.0, 8.0, 19.3)),
+                            ("exec", (54.0, 0.0, 0.0))):
+            a = _agg(b4["rows"], method, "wall_ood")
+            c.check(f"B4+ {method}: completion", a.get("success_rate"), exp[0], "%", tol=0.1)
+            c.check(f"B4+ {method}: legacy envelope", a.get("legacy_collision_rate"), exp[1],
+                    "%", tol=0.1)
+            c.check(f"B4+ {method}: corrected collisions", a.get("corrected_collision_rate"),
+                    exp[2], "%", tol=0.1)
+            c.check(f"B4+ {method}: mesh collisions", a.get("mesh_collision_rate"), 0.0, "%", tol=0.1)
+        # the latency: the execution-aware filter is 1.18x the QP at the median, not 8x
+        for method, exp in (("qp", (0.755, 3.315, 5.194)),
+                            ("qp_speed", (0.747, 2.068, 5.161)),
+                            ("exec", (0.890, 3.471, 5.506))):
+            rows = [r for r in b4["rows"] if r["method"] == method]
+            for key, idx in (("median_s", 0), ("p95_s", 1), ("p99_s", 2)):
+                vals = [r["filter_stats"]["latency"][key] for r in rows
+                        if r.get("filter_stats", {}).get("latency")]
+                if vals:
+                    c.check(f"B4+ {method}: the solver latency {key} (ms)",
+                            1000 * sum(vals) / len(vals), exp[idx], "ms", tol=0.002)
+        qp_lat = sum(r["filter_stats"]["latency"]["median_s"] for r in b4["rows"]
+                     if r["method"] == "qp") / 3
+        ex_lat = sum(r["filter_stats"]["latency"]["median_s"] for r in b4["rows"]
+                     if r["method"] == "exec") / 3
+        c.check("the execution-aware filter's latency, as a multiple of the QP's",
+                ex_lat / qp_lat, 1.18, "", tol=0.01)
+        c.check("the execution-aware filter's share of the 20 ms control period",
+                100 * ex_lat / 0.020, 4.5, "%", tol=0.05)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

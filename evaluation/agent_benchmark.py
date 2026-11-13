@@ -128,7 +128,10 @@ def main(argv=None) -> int:
     ap.add_argument("--plan-checks", type=int, default=20_000)
     ap.add_argument("--plan-candidates", type=int, default=4)
     ap.add_argument("--plan-speed", type=float, default=0.6)
-    ap.add_argument("--max-steps", type=int, default=300)
+    ap.add_argument("--max-steps", type=int, default=1500,
+                    help="the episode length in control steps (30 s at 50 Hz). It has to "
+                         "match the execution budget: a path around the wall is far "
+                         "longer than the 6 s the original wall task allowed")
     ap.add_argument("--max-plans-per-target", type=int, default=3)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--no-filter", action="store_true",
