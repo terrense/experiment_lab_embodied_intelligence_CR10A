@@ -163,18 +163,24 @@ class InspectionTask:
         return False
 
     def apply_faults(self, skill: str) -> Optional[str]:
-        """Apply the faults that are due for this skill call. Returns a note if one fired."""
+        """Apply the faults that are due for this skill call. Returns the FAULT NAME if one fired.
+
+        A fault makes the tool FAIL, exactly as it would in reality: the planner exhausting its
+        budget means the plan failed, an interrupted execution means the execution was blocked. A
+        fault that only produced a sentence in the failure reason would leave the status 'ok',
+        and the policy would learn that failures are free.
+        """
         if skill == "plan_motion" and self.maybe_fire("plan_failure"):
-            return "the planner exhausted its budget on this attempt"
+            return "plan_failure"
         if skill == "execute_path" and self.maybe_fire("blocked_execution"):
-            return "the execution was interrupted by the safety layer"
+            return "blocked_execution"
         if skill == "inspect_state" and self.maybe_fire("stale_feedback"):
             self.stale_until_step = self.steps + 5
-            return "the feedback served to the agent is 5 steps old"
+            return "stale_feedback"
         if skill in ("plan_motion", "replan") and self.maybe_fire("target_moved"):
             i = self.current_target
             self.targets[i] = self.targets[i] + self.rng.normal(0.0, 0.03, 3)
-            return "the target moved while the agent was thinking"
+            return "target_moved"
         return None
 
     # ------------------------------------------------------------------ observation
@@ -235,7 +241,11 @@ class InspectionTask:
         self.last_failure = result.failure_reason
         self.calls += 1
         self.steps += result.steps
-        if result.skill == "execute_path" and result.status == "ok":
+        # The inspection counter is about the ARM'S POSITION, not about the tool's status: if the
+        # arm is inside the radius of the current target, the inspection is progressing, whatever
+        # the last tool call reported. (An earlier version only counted an 'ok' execution, which
+        # meant a call that ended in a timeout at the target counted for nothing.)
+        if result.skill in ("execute_path", "inspect_state"):
             tgt = self.targets[self.current_target]
             if float(np.linalg.norm(tgt - self.env.tcp())) < INSPECT_RADIUS:
                 self.hold_steps += 1

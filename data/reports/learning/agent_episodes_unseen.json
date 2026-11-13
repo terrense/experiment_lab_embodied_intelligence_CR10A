@@ -1,0 +1,1024 @@
+{
+ "fsm": [
+  {
+   "episode": 0,
+   "seed": 20000,
+   "skill_calls": [
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.568,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.57,
+      "ik_error_m": 7e-05,
+      "free_realisations": 16
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "blocked",
+     "failure_reason": "the target was not reached (901 mm away); the execution was interrupted by the safety layer",
+     "steps": 300,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 2.4042,
+      "target_error_m": 0.9007
+     }
+    },
+    {
+     "skill": "retreat",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "min_clearance_m": 0.12868492496920453
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.585,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.58,
+      "ik_error_m": 7e-05,
+      "free_realisations": 16
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (898 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 2.3893,
+      "target_error_m": 0.8978
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.22,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.22,
+      "ik_error_m": 7e-05,
+      "free_realisations": 16
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.205,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.2,
+      "ik_error_m": 7e-05,
+      "free_realisations": 16
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.128,
+      "tcp": [
+       0.3445,
+       0.5799,
+       0.7973
+      ],
+      "has_path": true,
+      "target": [
+       -0.5196,
+       0.7065,
+       0.5896
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 6.209,
+     "data": {
+      "waypoints": 5,
+      "plan_s": 6.21,
+      "ik_error_m": 3e-05,
+      "free_realisations": 15
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 6.629,
+     "data": {
+      "waypoints": 5,
+      "plan_s": 6.63,
+      "ik_error_m": 3e-05,
+      "free_realisations": 15
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (925 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 7.4856,
+      "target_error_m": 0.9254
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 6.247,
+     "data": {
+      "waypoints": 5,
+      "plan_s": 6.25,
+      "ik_error_m": 3e-05,
+      "free_realisations": 15
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 7.627,
+     "data": {
+      "waypoints": 5,
+      "plan_s": 7.63,
+      "ik_error_m": 3e-05,
+      "free_realisations": 15
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.1289,
+      "tcp": [
+       0.347,
+       0.5771,
+       0.7985
+      ],
+      "has_path": true,
+      "target": [
+       -0.5696,
+       0.5865,
+       0.6696
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.478,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.48,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.448,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.45,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.469,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.47,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.1289,
+      "tcp": [
+       0.347,
+       0.5771,
+       0.7985
+      ],
+      "has_path": true,
+      "target": [
+       -0.3996,
+       0.8065,
+       0.6096
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.474,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.47,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.511,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.51,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.489,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.49,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "blocked",
+     "failure_reason": "the target was not reached (802 mm away); the execution was interrupted by the safety layer",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 4.9727,
+      "target_error_m": 0.8023
+     }
+    },
+    {
+     "skill": "retreat",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "min_clearance_m": 0.12887847115674556
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.44,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.44,
+      "ik_error_m": 3e-05,
+      "free_realisations": 26
+     }
+    }
+   ],
+   "faults": [
+    "blocked_execution",
+    "plan_failure",
+    "plan_failure",
+    "plan_failure",
+    "plan_failure",
+    "plan_failure",
+    "blocked_execution",
+    "plan_failure"
+   ],
+   "reward": -9.2,
+   "reward_terms": {
+    "success": 2.0,
+    "invalid_calls": -10.0,
+    "tool_calls": -1.2000000000000002,
+    "unsafe": -0.0
+   },
+   "inspections_done": 2,
+   "envelope_contacts": 0,
+   "min_mesh_clearance_m": 0.20915284044279317
+  },
+  {
+   "episode": 1,
+   "seed": 20001,
+   "skill_calls": [
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 1.001,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 1.0,
+      "ik_error_m": 3e-05,
+      "free_realisations": 33
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 2.2,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 2.2,
+      "ik_error_m": 3e-05,
+      "free_realisations": 33
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 2.178,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 2.18,
+      "ik_error_m": 3e-05,
+      "free_realisations": 33
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (645 mm away)",
+     "steps": 300,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.6426,
+      "target_error_m": 0.6449
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.32,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.32,
+      "ik_error_m": 3e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.329,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.33,
+      "ik_error_m": 3e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (645 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.6349,
+      "target_error_m": 0.6448
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.323,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.32,
+      "ik_error_m": 3e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "stale",
+     "failure_reason": "the target moved while the agent was thinking",
+     "steps": 0,
+     "seconds": 0.606,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 0.61,
+      "ik_error_m": 2e-05,
+      "free_realisations": 27
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.592,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 0.59,
+      "ik_error_m": 2e-05,
+      "free_realisations": 27
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.594,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 0.59,
+      "ik_error_m": 2e-05,
+      "free_realisations": 27
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (660 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 7.6623,
+      "target_error_m": 0.6598
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.802,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 0.8,
+      "ik_error_m": 2e-05,
+      "free_realisations": 28
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.655,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 0.66,
+      "ik_error_m": 2e-05,
+      "free_realisations": 28
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.0867,
+      "tcp": [
+       -0.1446,
+       -0.3097,
+       1.0037
+      ],
+      "has_path": true,
+      "target": [
+       -0.2526,
+       -0.8018,
+       0.5778
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.837,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.84,
+      "ik_error_m": 7e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.939,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.94,
+      "ik_error_m": 7e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.82,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.82,
+      "ik_error_m": 7e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "blocked",
+     "failure_reason": "the target was not reached (698 mm away); the execution was interrupted by the safety layer",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 8.686,
+      "target_error_m": 0.698
+     }
+    },
+    {
+     "skill": "retreat",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "min_clearance_m": 0.08844468252927389
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 0.983,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.98,
+      "ik_error_m": 7e-05,
+      "free_realisations": 34
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.0886,
+      "tcp": [
+       -0.1422,
+       -0.3099,
+       1.0029
+      ],
+      "has_path": true,
+      "target": [
+       -0.3045,
+       -0.8844,
+       0.6405
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.931,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.93,
+      "ik_error_m": 4e-05,
+      "free_realisations": 27
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "stale",
+     "failure_reason": "the target moved while the agent was thinking",
+     "steps": 0,
+     "seconds": 2.577,
+     "data": {
+      "waypoints": 3,
+      "plan_s": 2.58,
+      "ik_error_m": 2e-05,
+      "free_realisations": 26
+     }
+    }
+   ],
+   "faults": [
+    "plan_failure",
+    "target_moved",
+    "plan_failure",
+    "plan_failure",
+    "blocked_execution",
+    "plan_failure",
+    "target_moved"
+   ],
+   "reward": -9.2,
+   "reward_terms": {
+    "success": 2.0,
+    "invalid_calls": -10.0,
+    "tool_calls": -1.2000000000000002,
+    "unsafe": -0.0
+   },
+   "inspections_done": 2,
+   "envelope_contacts": 0,
+   "min_mesh_clearance_m": 0.07987451316575803
+  },
+  {
+   "episode": 2,
+   "seed": 20002,
+   "skill_calls": [
+    {
+     "skill": "plan_motion",
+     "status": "stale",
+     "failure_reason": "the target moved while the agent was thinking",
+     "steps": 0,
+     "seconds": 1.334,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 1.33,
+      "ik_error_m": 3e-05,
+      "free_realisations": 39
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 2.979,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 2.98,
+      "ik_error_m": 3e-05,
+      "free_realisations": 39
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 2.007,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 2.01,
+      "ik_error_m": 3e-05,
+      "free_realisations": 39
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (445 mm away)",
+     "steps": 300,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.9058,
+      "target_error_m": 0.4451
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.392,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.39,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.424,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.42,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (444 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.898,
+      "target_error_m": 0.4441
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.418,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.42,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.452,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.45,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (443 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.8901,
+      "target_error_m": 0.4431
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.528,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.53,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.552,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.55,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (442 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.8823,
+      "target_error_m": 0.4421
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.63,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.63,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 0.719,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 0.72,
+      "ik_error_m": 3e-05,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (441 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 3.8744,
+      "target_error_m": 0.4411
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "stale",
+     "failure_reason": "the target moved while the agent was thinking",
+     "steps": 0,
+     "seconds": 15.16,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 15.16,
+      "ik_error_m": 6e-05,
+      "free_realisations": 47
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 15.46,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 15.46,
+      "ik_error_m": 6e-05,
+      "free_realisations": 47
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "plan_failed",
+     "failure_reason": "the planner exhausted its budget on this attempt",
+     "steps": 0,
+     "seconds": 17.121,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 17.12,
+      "ik_error_m": 6e-05,
+      "free_realisations": 47
+     }
+    },
+    {
+     "skill": "inspect_state",
+     "status": "stale",
+     "failure_reason": "the feedback served to the agent is 5 steps old",
+     "steps": 0,
+     "seconds": 0.0,
+     "data": {
+      "clearance_m": 0.0905,
+      "tcp": [
+       -0.0872,
+       -0.3431,
+       0.9788
+      ],
+      "has_path": true,
+      "target": [
+       -0.1218,
+       -0.7076,
+       0.8273
+      ]
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 16.321,
+     "data": {
+      "waypoints": 4,
+      "plan_s": 16.32,
+      "ik_error_m": 6e-05,
+      "free_realisations": 47
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 13.202,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 13.2,
+      "ik_error_m": 0.00012,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "plan_motion",
+     "status": "ok",
+     "failure_reason": "",
+     "steps": 0,
+     "seconds": 13.339,
+     "data": {
+      "waypoints": 2,
+      "plan_s": 13.34,
+      "ik_error_m": 0.00012,
+      "free_realisations": 40
+     }
+    },
+    {
+     "skill": "execute_path",
+     "status": "timeout",
+     "failure_reason": "the target was not reached (580 mm away)",
+     "steps": 1,
+     "seconds": 0.0,
+     "data": {
+      "final_waypoint_error_m": 4.2697,
+      "target_error_m": 0.5799
+     }
+    }
+   ],
+   "faults": [
+    "target_moved",
+    "target_moved",
+    "plan_failure",
+    "stale_feedback"
+   ],
+   "reward": -10.2,
+   "reward_terms": {
+    "success": 1.0,
+    "invalid_calls": -10.0,
+    "tool_calls": -1.2000000000000002,
+    "unsafe": -0.0
+   },
+   "inspections_done": 1,
+   "envelope_contacts": 0,
+   "min_mesh_clearance_m": 0.1950835230105151
+  }
+ ]
+}

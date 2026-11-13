@@ -28,6 +28,23 @@ from .verifier import EpisodeRecord, Verifier
 EXECUTE_STEPS = 1500
 RETREAT_STEPS = 120
 
+#: what an injected fault does to the tool that was called. The fault is not a note: the tool
+#: FAILS, with the status the real failure would produce, so the policy learns that failures
+#: cost something and the verifier's "invalid call" count is honest.
+FAULT_STATUS = {
+    "plan_failure": "plan_failed",
+    "blocked_execution": "blocked",
+    "stale_feedback": "stale",
+    "target_moved": "stale",
+}
+
+FAULT_REASON = {
+    "plan_failure": "the planner exhausted its budget on this attempt",
+    "blocked_execution": "the execution was interrupted by the safety layer",
+    "stale_feedback": "the feedback served to the agent is 5 steps old",
+    "target_moved": "the target moved while the agent was thinking",
+}
+
 
 def _boxes_from_env(env) -> List[Dict]:
     """The scene boxes AS THEY ARE for the current episode (the wall moves every reset)."""
@@ -58,12 +75,13 @@ def run_episode(env, task: InspectionTask, skills: SkillLayer, policy, seed: int
             task.current_target = int(np.clip(target_index, 0, task.n_targets - 1))
 
         # the faults that are due for this call
-        note = task.apply_faults(skill_name)
+        fault = task.apply_faults(skill_name)
 
         if skill_name == "plan_motion":
             result = skills.plan_motion(task.targets[task.current_target])
         elif skill_name == "execute_path":
-            result = skills.execute_path(max_steps=EXECUTE_STEPS)
+            result = skills.execute_path(max_steps=EXECUTE_STEPS,
+                                         target=task.targets[task.current_target])
         elif skill_name == "replan":
             skills.path = None
             result = skills.plan_motion(task.targets[task.current_target])
@@ -78,8 +96,10 @@ def run_episode(env, task: InspectionTask, skills: SkillLayer, policy, seed: int
             result.status = "timeout"
             result.failure_reason = f"unknown skill {skill_name!r}"
 
-        if note:
-            result.failure_reason = (result.failure_reason + "; " + note).strip("; ")
+        # an injected fault makes the tool FAIL, with the status the real fault would produce
+        if fault:
+            result.status = FAULT_STATUS[fault]
+            result.failure_reason = (result.failure_reason + "; " + FAULT_REASON[fault]).strip("; ")
         task.note_skill(result)
         rec.skill_calls.append(result.to_dict())
 

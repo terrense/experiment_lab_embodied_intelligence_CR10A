@@ -200,7 +200,9 @@ The audited defects and their fixes: [`docs/EVALUATOR_AUDIT.md`](docs/EVALUATOR_
 working plan with the falsification criteria and their outcome:
 [`docs/RESEARCH_PLAN.md`](docs/RESEARCH_PLAN.md). The dated work log:
 [`docs/PROGRESS.md`](docs/PROGRESS.md). The compute assessment for the remote server:
-[`docs/REMOTE_COMPUTE.md`](docs/REMOTE_COMPUTE.md).
+[`docs/REMOTE_COMPUTE.md`](docs/REMOTE_COMPUTE.md). Connecting a language model to the agent line
+(three environment variables, no committed credential):
+[`docs/AGENT_LLM.md`](docs/AGENT_LLM.md).
 
 Failures found and fixed on the way (all documented with regression tests):
 - PPO learned to **crash on purpose** under a −distance reward.

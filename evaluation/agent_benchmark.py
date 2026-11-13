@@ -87,7 +87,35 @@ def policy_factory(args, name: str):
     raise SystemExit(f"unknown policy {name!r}")
 
 
+def _episode_worker(job):
+    """One episode of one policy. It runs in its own process.
+
+    The episodes are independent and each one costs a planning budget, so they are run in
+    parallel; and each one is WRITTEN AS IT FINISHES, so a suspended machine costs one episode
+    rather than the whole run. That happened on this project before: the laptop suspended, WSL
+    restarted, and every running job was lost.
+    """
+    (a, name, ep, seed0) = job
+    from ex_learning.agent import run_episode
+
+    env, task, skills = make_task(a)
+    policy = policy_factory(a, name)()
+    rec = run_episode(env, task, skills, policy, seed0 + ep, episode=ep)
+    verdict = Verifier().evaluate(rec)
+    record = {"episode": ep, "seed": rec.seed,
+              "skill_calls": rec.skill_calls,
+              "faults": getattr(rec, "faults", []),
+              "reward": verdict["reward"],
+              "reward_terms": verdict["reward_terms"],
+              "inspections_done": rec.inspections_done,
+              "envelope_contacts": rec.envelope_contacts,
+              "min_mesh_clearance_m": verdict["min_mesh_clearance_m"]}
+    return ep, verdict, record
+
+
 def main(argv=None) -> int:
+    import concurrent.futures as cf
+
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--task", default="wall_ood")
@@ -102,6 +130,7 @@ def main(argv=None) -> int:
     ap.add_argument("--plan-speed", type=float, default=0.6)
     ap.add_argument("--max-steps", type=int, default=300)
     ap.add_argument("--max-plans-per-target", type=int, default=3)
+    ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--no-filter", action="store_true",
                     help="run the skills WITHOUT the safety layer (the ablation)")
     ap.add_argument("--llm-model", default=None)
@@ -113,9 +142,6 @@ def main(argv=None) -> int:
                     default=ROOT / "data" / "reports" / "learning" / "agent_episodes.json")
     a = ap.parse_args(argv)
 
-    from ex_learning.agent import run_episode
-
-    verifier = Verifier()
     out: Dict = {"task": a.task, "episodes": a.episodes, "seed0": a.seed0,
                  "fault_profile": a.fault_profile, "targets": a.targets,
                  "margin": a.margin, "filter": not a.no_filter,
@@ -124,21 +150,25 @@ def main(argv=None) -> int:
 
     for name in a.policies:
         t0 = time.time()
-        verdicts = []
-        records = []
-        for ep in range(a.episodes):
-            env, task, skills = make_task(a)
-            policy = policy_factory(a, name)()
-            rec = run_episode(env, task, skills, policy, a.seed0 + ep, episode=ep)
-            verdicts.append(verifier.evaluate(rec))
-            records.append({"episode": ep, "seed": rec.seed,
-                            "skill_calls": rec.skill_calls,
-                            "faults": getattr(rec, "faults", []),
-                            "reward": verdicts[-1]["reward"],
-                            "reward_terms": verdicts[-1]["reward_terms"],
-                            "inspections_done": rec.inspections_done,
-                            "envelope_contacts": rec.envelope_contacts,
-                            "min_mesh_clearance_m": verdicts[-1]["min_mesh_clearance_m"]})
+        verdicts: List[Dict] = []
+        records: List[Dict] = []
+        jobs = [(a, name, ep, a.seed0) for ep in range(a.episodes)]
+        workers = max(1, min(a.workers, len(jobs)))
+        with cf.ProcessPoolExecutor(max_workers=workers) as pool:
+            for ep, verdict, record in pool.map(_episode_worker, jobs):
+                verdicts.append(verdict)
+                records.append(record)
+                # written as the episodes finish: a suspended machine costs one episode
+                out["policies"][name] = {"summary": summarise(verdicts), "verdicts": verdicts}
+                episodes_out[name] = records
+                a.out.parent.mkdir(parents=True, exist_ok=True)
+                a.out.write_text(json.dumps(out, indent=1))
+                a.episodes_out.parent.mkdir(parents=True, exist_ok=True)
+                a.episodes_out.write_text(json.dumps(episodes_out, indent=1))
+                print(f"  {name}: episode {ep + 1}/{a.episodes}  "
+                      f"reward {verdict['reward']:+.2f}  "
+                      f"inspections {verdict['inspections_done']}  "
+                      f"mesh {verdict['min_mesh_clearance_m'] * 1000:.0f} mm", flush=True)
         summary = summarise(verdicts)
         summary["wall_s"] = round(time.time() - t0, 1)
         out["policies"][name] = {"summary": summary, "verdicts": verdicts}

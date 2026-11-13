@@ -198,8 +198,16 @@ class SkillLayer:
                            seconds=self.plan_time_s)
 
     # ------------------------------------------------------------------ execution
-    def execute_path(self, max_steps: int = 300) -> SkillResult:
-        """Follow the current path. The safety filter is active unless `use_filter` is False."""
+    def execute_path(self, max_steps: int = 300, target=None,
+                     arrive_radius: float = 0.02) -> SkillResult:
+        """Follow the current path. The safety filter is active unless `use_filter` is False.
+
+        The call succeeds when the arm is inside `arrive_radius` of the TARGET - not when it
+        reaches the last waypoint. The two are not the same thing: the last waypoint is an IK
+        solution of the target, and the servo may never hold it exactly (the solution can sit at
+        the edge of the workspace). The task's criterion is the inspection radius, so that is
+        what the tool reports.
+        """
         from ex_learning.planner import path_follower
         from ex_learning.safety_filter import cbf_policy_qp
 
@@ -227,14 +235,26 @@ class SkillLayer:
                                    {"collision": True}, steps=steps)
             if term or trunc:
                 break
-            # the path is done when the last waypoint is reached
+            # the call is done when the arm is inside the inspection radius of the target
+            if target is not None and float(np.linalg.norm(np.asarray(target, float) - env.tcp())) < arrive_radius:
+                break
+            # ... or when the last waypoint is reached
             if np.max(np.abs(self.path[-1] - env.q())) < 0.02:
                 break
         reached = float(np.linalg.norm(self.path[-1] - env.q()))
-        status = "ok" if reached < 0.05 else "timeout"
-        return SkillResult("execute_path", status,
-                           "" if status == "ok" else f"the path was not finished ({reached:.3f} m left)",
-                           {"final_waypoint_error_m": round(reached, 4)}, steps=steps)
+        if target is not None:
+            dist = float(np.linalg.norm(np.asarray(target, float) - env.tcp()))
+            status = "ok" if dist < arrive_radius else "timeout"
+            reason = "" if status == "ok" else (
+                f"the target was not reached ({dist * 1000:.0f} mm away)")
+        else:
+            status = "ok" if reached < 0.05 else "timeout"
+            reason = "" if status == "ok" else f"the path was not finished ({reached:.3f} m left)"
+        return SkillResult("execute_path", status, reason,
+                           {"final_waypoint_error_m": round(reached, 4),
+                            "target_error_m": round(float(np.linalg.norm(
+                                np.asarray(target, float) - env.tcp())), 4) if target is not None else None},
+                           steps=steps)
 
     def retreat(self, max_steps: int = 120, speed: float = 0.4) -> SkillResult:
         """Move away from the closest obstacle, along the negative of the clearance gradient."""

@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import concurrent.futures as cf
 import sys
 import time
 from pathlib import Path
@@ -45,6 +46,80 @@ from episode_manifest import manifest_hash, build_manifest, splits_for  # noqa: 
 
 TASKS = ("wall_obs", "wall_rand", "wall_ood")
 SEEDS = (0, 1, 2)
+
+
+def _cell_worker(job):
+    """One (policy seed, task, method) cell, in its own process.
+
+    The independent mesh checker is the expensive part (it re-derives the link geometry and the
+    distances for every configuration of every trajectory), so the cells run in parallel.
+    """
+    (a, s, task, method, seed, exec_params) = job
+    from ex_learning.eval_ppo import ppo_policy_factory
+    from ex_learning.safety_filter import cbf_policy_legacy, cbf_policy_qp
+
+    exec_model = None
+    if exec_params is not None:
+        from ex_learning.execution_model import ServoExecutionModel
+        exec_model = ServoExecutionModel(**exec_params)
+
+    def make_filtered(env, base, method, stats=None):
+        if method == "raw":
+            return base(env)
+        if method == "cbf_legacy":
+            return cbf_policy_legacy(env, base(env), margin=a.cbf_margin, alpha=a.cbf_alpha)
+        if method == "qp":
+            return cbf_policy_qp(env, base(env), margin=a.qp_margin, alpha=a.cbf_alpha, rho=0.0,
+                                 stats=stats)
+        if method == "qp0":
+            return cbf_policy_qp(env, base(env), margin=a.qp0_margin, alpha=a.cbf_alpha, rho=0.0,
+                                 stats=stats)
+        if method == "exec":
+            from ex_learning.safety_filter import cbf_policy_exec
+            return cbf_policy_exec(env, base(env), exec_model, margin=a.exec_margin, stats=stats)
+        if method == "qp_speed":
+            from ex_learning.safety_filter import speed_dependent_margin
+            return speed_dependent_margin(env, base(env), margin0=a.speed_margin0,
+                                          tau=a.speed_tau, a_min=a.speed_a_min,
+                                          margin_max=a.speed_margin_max, stats=stats)
+        raise ValueError(method)
+
+    t0 = time.time()
+    model = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
+    base = ppo_policy_factory(model, task)
+    legacy_env = _make(task, False, a.dynamics)
+    corrected_env = _make(task, True, a.dynamics)
+    stats: Dict = {}
+    rec = run_and_record(legacy_env, lambda e: make_filtered(e, base, method, stats),
+                         a.episodes, seed)
+    corr = [replay(corrected_env, r["actions"], r["seed"]) for r in rec]
+
+    from independent_collision import IndependentCollisionChecker
+    checker = IndependentCollisionChecker()
+    mesh = {"collision_rate": None, "min_clearance_m_median": None,
+            "min_self_clearance_m_median": None, "self_collision_rate": None,
+            "episodes": 0}
+    idx = list(range(0, len(rec), a.independent_stride))
+    if idx:
+        coll, mins, selfmins, selfcoll = 0, [], [], 0
+        for i in idx:
+            res = checker.check_trajectory(rec[i]["trajectory"], rec[i]["boxes"])
+            coll += int(res["collision"])
+            mins.append(res["min_clearance_m"])
+            selfmins.append(res["min_self_clearance_m"])
+            selfcoll += int(res["self_collision"])
+        mesh = {"episodes": len(idx), "collision_rate": coll / len(idx),
+                "min_clearance_m_median": float(np.median(mins)),
+                "min_self_clearance_m_median": float(np.median(selfmins)),
+                "self_collision_rate": selfcoll / len(idx)}
+
+    return {"policy_seed": s, "task": task, "method": method,
+            "success_rate": sum(r["success"] for r in rec) / len(rec),
+            "legacy_collision_rate": sum(r["collision"] for r in rec) / len(rec),
+            "corrected_collision_rate": sum(c["collision"] for c in corr) / len(corr),
+            "final_dist_m_median": float(np.median([r["final_dist_m"] for r in rec])),
+            "filter_stats": {k: v for k, v in stats.items()},
+            "mesh": mesh, "wall_s": round(time.time() - t0, 1)}
 
 
 def main(argv=None) -> int:
@@ -79,6 +154,8 @@ def main(argv=None) -> int:
                     help="the plant: the one the archived policies were trained on, or the one "
                          "identified on the real CR10A (a robustness check)")
     ap.add_argument("--independent-stride", type=int, default=5)
+    ap.add_argument("--workers", type=int, default=6,
+                    help="the cells are independent and run in parallel processes")
     ap.add_argument("--speed-margin0", type=float, default=0.01,
                     help="B4+: the base clearance margin, before the speed-dependent part")
     ap.add_argument("--speed-tau", type=float, default=0.02,
@@ -105,11 +182,14 @@ def main(argv=None) -> int:
     checker = IndependentCollisionChecker()
 
     exec_model = None
+    exec_params = None
     if "exec" in a.methods:
         from ex_learning.execution_model import ServoExecutionModel
         m = json.loads(a.exec_report.read_text())["identification"]["model"]
         exec_model = ServoExecutionModel(omega=m["omega"], zeta=m["zeta"], v_gain=m["v_gain"],
                                          dt=m["dt"], sub=m.get("sub", 10))
+        exec_params = {"omega": m["omega"], "zeta": m["zeta"], "v_gain": m["v_gain"],
+                       "dt": m["dt"], "sub": m.get("sub", 10)}
 
     man = build_manifest(tuple(a.tasks), a.manifest_version) if a.manifest_version \
         else build_manifest(tuple(a.tasks))
@@ -152,51 +232,31 @@ def main(argv=None) -> int:
 
     print(f"{'seed':>4} {'task':9} {'method':11} {'legacy':>15} {'corrected':>11} {'mesh':>8} {'self':>7} "
           f"{'dist mm':>9} {'t_succ':>8}")
-    for s in a.seeds:
-        model = ROOT / "data" / "reports" / "learning" / f"ppo_wall_rand_s{s}"
-        for task in a.tasks:
-            base = ppo_policy_factory(model, task)
-            for method in a.methods:
-                t0 = time.time()
-                legacy_env = _make(task, False, a.dynamics)
-                corrected_env = _make(task, True, a.dynamics)
-                stats: Dict = {}
-                rec = run_and_record(legacy_env, lambda e: make_filtered(e, base, method, stats),
-                                     a.episodes, seed)
-                corr = [replay(corrected_env, r["actions"], r["seed"]) for r in rec]
-
-                mesh = {"collision_rate": None, "min_clearance_m_median": None,
-                        "min_self_clearance_m_median": None, "self_collision_rate": None,
-                        "episodes": 0}
-                idx = list(range(0, len(rec), a.independent_stride))
-                if idx:
-                    coll, mins, selfmins, selfcoll = 0, [], [], 0
-                    for i in idx:
-                        res = checker.check_trajectory(rec[i]["trajectory"], rec[i]["boxes"])
-                        coll += int(res["collision"])
-                        mins.append(res["min_clearance_m"])
-                        selfmins.append(res["min_self_clearance_m"])
-                        selfcoll += int(res["self_collision"])
-                    mesh = {"episodes": len(idx), "collision_rate": coll / len(idx),
-                            "min_clearance_m_median": float(np.median(mins)),
-                            "min_self_clearance_m_median": float(np.median(selfmins)),
-                            "self_collision_rate": selfcoll / len(idx)}
-
-                row = {"policy_seed": s, "task": task, "method": method,
-                       "success_rate": sum(r["success"] for r in rec) / len(rec),
-                       "legacy_collision_rate": sum(r["collision"] for r in rec) / len(rec),
-                       "corrected_collision_rate": sum(c["collision"] for c in corr) / len(corr),
-                       "final_dist_m_median": float(np.median([r["final_dist_m"] for r in rec])),
-                       "filter_stats": {k: v for k, v in stats.items()},
-                       "mesh": mesh, "wall_s": round(time.time() - t0, 1)}
+    # The cells are independent, so they run in PARALLEL processes, and each cell is written as
+    # it finishes. Both matter on this machine: the independent mesh checker is the expensive
+    # part, and the laptop suspends (which restarts WSL and kills every running job - that has
+    # happened more than once on this project). A cell that is already in the output file is not
+    # re-run.
+    jobs = [(s, task, method) for s in a.seeds for task in a.tasks for method in a.methods]
+    done = {(r["policy_seed"], r["task"], r["method"]) for r in out["rows"]}
+    jobs = [j for j in jobs if j not in done]
+    if jobs:
+        workers = max(1, min(a.workers, len(jobs)))
+        with cf.ProcessPoolExecutor(max_workers=workers) as pool:
+            for row in pool.map(_cell_worker, [(a, j[0], j[1], j[2], seed, exec_params)
+                                               for j in jobs]):
                 out["rows"].append(row)
-                print(f"{s:>4} {task:9} {method:11} "
+                a.out.parent.mkdir(parents=True, exist_ok=True)
+                a.out.write_text(json.dumps(out, indent=1))
+                print(f"{row['policy_seed']:>4} {row['task']:9} {row['method']:11} "
                       f"{row['success_rate']*100:6.0f}%/{row['legacy_collision_rate']*100:3.0f}% "
                       f"{row['corrected_collision_rate']*100:9.0f}% "
-                      f"{(mesh['collision_rate'] or 0)*100:6.0f}% {(mesh['self_collision_rate'] or 0)*100:5.0f}% "
+                      f"{(row['mesh']['collision_rate'] or 0)*100:6.0f}% "
+                      f"{(row['mesh']['self_collision_rate'] or 0)*100:5.0f}% "
                       f"{'':>9} {row['wall_s']:7.0f}")
                 sys.stdout.flush()
 
+    out["rows"].sort(key=lambda r: (r["policy_seed"], r["task"], a.methods.index(r["method"])))
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(out, indent=1))
     print(f"\nwrote {a.out}")

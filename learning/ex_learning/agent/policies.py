@@ -84,12 +84,14 @@ class ScriptedFSM(AgentPolicy):
         self.needs_replan = True
         self.retreat_needed = False
         self.holding = False
+        self.gave_up = False
 
     def reset(self, obs: Dict) -> None:
         self.plans_on_target = 0
         self.needs_replan = True
         self.retreat_needed = False
         self.holding = False
+        self.gave_up = False
 
     def act(self, obs: Dict) -> Dict:
         status = obs.get("last_status", "")
@@ -99,23 +101,39 @@ class ScriptedFSM(AgentPolicy):
         if status == "plan_failed":
             self.plans_on_target += 1
             if self.plans_on_target >= self.max_plans_per_target:
-                # give up on this target and move on
-                self.needs_replan = True
+                # GIVE UP on this target and move to the next one. Re-planning the same
+                # unreachable target forever is not a recovery, it is a stall, and the reward
+                # prices the tool calls it burns.
                 self.plans_on_target = 0
+                self.needs_replan = True
+                self.gave_up = True
                 return {"skill": "inspect_state", "target_index": target}
             self.needs_replan = True
             return {"skill": "replan", "target_index": target}
         if status == "blocked":
-            self.retreat_needed = True
+            # back off first, and back off ONCE: the flag is not set, so the next call plans
+            # again instead of retreating twice
             self.needs_replan = True
             return {"skill": "retreat", "target_index": target}
         if status == "stale":
+            self.needs_replan = True
+            return {"skill": "replan", "target_index": target}
+        if status == "timeout":
+            # the execution ran out of its budget without reaching the target: the path is not
+            # working, so planning it again is the only sensible move. Without this rule the FSM
+            # loops on the same path until the call budget runs out.
             self.needs_replan = True
             return {"skill": "replan", "target_index": target}
 
         if self.retreat_needed:
             self.retreat_needed = False
             return {"skill": "retreat", "target_index": target}
+        if self.gave_up:
+            # move on to the next target: the current one could not be planned
+            self.gave_up = False
+            self.needs_replan = True
+            nxt = min(target + 1, obs.get("targets_total", 3) - 1)
+            return {"skill": "plan_motion", "target_index": nxt}
         if self.needs_replan:
             self.needs_replan = False
             self.plans_on_target += 1
