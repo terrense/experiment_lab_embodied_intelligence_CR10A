@@ -112,8 +112,10 @@ OOD success from 21 % to 31 % (+10 points, +48 % relative — **not** a doubling
 APF's 50 %). All of these numbers come from the *legacy* collision evaluator, and the collision
 metric itself counts the conservative safety **envelope** (the enclosing link capsules), not the
 arm: an independent mesh-geometry checker finds no real contact in any of the 300 evaluated
-episodes. The audited defects, the corrected protocol and the Week-1 gate result are in
-`docs/RESEARCH_PLAN.md` and `docs/EVALUATOR_AUDIT.md`.
+episodes. **Correction (2026-11-13):** those trajectories are CENSORED — the episode ends at the
+first envelope contact — and without that termination the unfiltered policy makes real mesh
+contact in 22 % of the out-of-distribution episodes. The audited defects, the corrected protocol
+and the Week-1 gate result are in `docs/RESEARCH_PLAN.md` and `docs/EVALUATOR_AUDIT.md`.
 
 ---
 
@@ -162,9 +164,13 @@ episodes. The audited defects, the corrected protocol and the Week-1 gate result
      now solved on the *intersection* of the command box with the barrier half-space, because the
      original project-then-clip could violate its own constraint.)
    - **⚠ The collision metric is the conservative safety ENVELOPE (the enclosing link capsules),
-     not the arm.** An independent mesh-geometry checker finds **no real contact in any of the
-     300 evaluated episodes** — the arm never touched the wall; the envelope came within 2–6 cm.
-     What the filter demonstrably controls is *how far the envelope stays from the wall*.
+     not the arm, and it STOPS the arm.** An independent mesh-geometry checker finds **no real
+     contact in any of the 300 evaluated episodes** — but the episode is terminated at the first
+     envelope contact, so those trajectories are censored. Measured without the termination
+     (2026-11-13), the unfiltered policy makes real mesh contact in **22 %** of the
+     out-of-distribution episodes; the filtered arms never reach the envelope, so their claim
+     stands unchanged. What the filter demonstrably controls is *how far the envelope — and
+     therefore the arm — stays from the wall*.
 
 ### Things we tried that did **not** work (so the reader does not re-suggest them)
 - DLS straight line on any wall scene → collides (4 % / 96 % on the fixed wall).

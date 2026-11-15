@@ -9,19 +9,19 @@
  "policies": {
   "fsm": {
    "summary": {
-    "episodes": 16,
+    "episodes": 22,
     "completion_rate": 0.0,
     "mean_inspections": 2.0,
     "mesh_collision_rate": 0.0,
     "envelope_contact_rate": 0.0,
     "censored_trajectory_rate": 0.0,
-    "mean_invalid_calls": 7.0,
-    "mean_tool_calls": 26.625,
-    "mean_reward": -6.33125,
-    "median_min_mesh_clearance_m": 0.1078471656876636,
+    "mean_invalid_calls": 8.045454545454545,
+    "mean_tool_calls": 27.363636363636363,
+    "mean_reward": -7.413636363636365,
+    "median_min_mesh_clearance_m": 0.10907755386413856,
     "min_min_mesh_clearance_m": 0.0718975657776701,
-    "mean_steps": 1139.8125,
-    "mean_wall_s": 155.86562500000002
+    "mean_steps": 1097.2727272727273,
+    "mean_wall_s": 13545.248181818182
    },
    "verdicts": [
     {
@@ -7580,6 +7580,3040 @@
          -0.3396,
          -0.6698,
          0.6872
+        ]
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 16,
+     "seed": 20016,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.17445128948717373,
+     "min_self_clearance_m": 0.03213162794874815,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 29,
+     "tool_calls": 40,
+     "steps": 613,
+     "steps_after_first_contact": 0,
+     "wall_s": 147625.8,
+     "censored": false,
+     "reward": -29.0,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -29.0,
+      "tool_calls": -2.0,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 26.102,
+       "data": {
+        "plan_s": 26.1,
+        "free_realisations": 23
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 30.188,
+       "data": {
+        "plan_s": 30.19,
+        "free_realisations": 23
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 34.228,
+       "data": {
+        "plan_s": 34.23,
+        "free_realisations": 23
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.1446,
+         -0.8137,
+         0.5737
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5912,
+         0.4716,
+         0.7354
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.745,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 0.75,
+        "ik_error_m": 5e-05,
+        "free_realisations": 12
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.615,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 0.62,
+        "ik_error_m": 5e-05,
+        "free_realisations": 12
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "blocked",
+       "failure_reason": "the execution was interrupted by the safety layer",
+       "steps": 493,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0621,
+        "target_error_m": 0.0189
+       }
+      },
+      {
+       "skill": "retreat",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 120,
+       "seconds": 0.0,
+       "data": {
+        "min_clearance_m": 0.15800471230976743
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 34.94,
+       "data": {
+        "plan_s": 34.94,
+        "free_realisations": 14
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 31.524,
+       "data": {
+        "plan_s": 31.52,
+        "free_realisations": 14
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 31.161,
+       "data": {
+        "plan_s": 31.16,
+        "free_realisations": 14
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.4786,
+         0.6694,
+         0.7126
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 25.092,
+       "data": {
+        "plan_s": 25.09,
+        "free_realisations": 14
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 23.587,
+       "data": {
+        "plan_s": 23.59,
+        "free_realisations": 14
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 24.855,
+       "data": {
+        "plan_s": 24.86,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 26.867,
+       "data": {
+        "plan_s": 26.87,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5261,
+         0.6821,
+         0.7155
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 24.982,
+       "data": {
+        "plan_s": 24.98,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 24.621,
+       "data": {
+        "plan_s": 24.62,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.305,
+       "data": {
+        "plan_s": 21.3,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5261,
+         0.6821,
+         0.7155
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.994,
+       "data": {
+        "plan_s": 21.99,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.19,
+       "data": {
+        "plan_s": 21.19,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 20.58,
+       "data": {
+        "plan_s": 20.58,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5261,
+         0.6821,
+         0.7155
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.511,
+       "data": {
+        "plan_s": 21.51,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 23.163,
+       "data": {
+        "plan_s": 23.16,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 26.975,
+       "data": {
+        "plan_s": 26.97,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5261,
+         0.6821,
+         0.7155
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 28.325,
+       "data": {
+        "plan_s": 28.33,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 27.537,
+       "data": {
+        "plan_s": 27.54,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 27.132,
+       "data": {
+        "plan_s": 27.13,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5261,
+         0.6821,
+         0.7155
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 25.563,
+       "data": {
+        "plan_s": 25.56,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 146844.467,
+       "data": {
+        "plan_s": 146844.47,
+        "free_realisations": 21
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 47.121,
+       "data": {
+        "plan_s": 47.12,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 40.505,
+       "data": {
+        "plan_s": 40.5,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.158,
+        "tcp": [
+         -0.6033,
+         0.5015,
+         0.7004
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5635,
+         0.7117,
+         0.6587
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 41.764,
+       "data": {
+        "plan_s": 41.76,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 41.451,
+       "data": {
+        "plan_s": 41.45,
+        "free_realisations": 22
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 17,
+     "seed": 20017,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.14824420581182554,
+     "min_self_clearance_m": 0.0321973430863572,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 31,
+     "tool_calls": 40,
+     "steps": 0,
+     "steps_after_first_contact": 0,
+     "wall_s": 147718.21,
+     "censored": false,
+     "reward": -31.0,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -31.0,
+      "tool_calls": -2.0,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 26.149,
+       "data": {
+        "plan_s": 26.15,
+        "free_realisations": 17
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 28.38,
+       "data": {
+        "plan_s": 28.38,
+        "free_realisations": 17
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.3323,
+         -0.7638,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 30.953,
+       "data": {
+        "plan_s": 30.95,
+        "free_realisations": 13
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 33.142,
+       "data": {
+        "plan_s": 33.14,
+        "free_realisations": 13
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 31.834,
+       "data": {
+        "plan_s": 31.83,
+        "free_realisations": 13
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 29.058,
+       "data": {
+        "plan_s": 29.06,
+        "free_realisations": 13
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.1821,
+         -0.7922,
+         0.5805
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 26.537,
+       "data": {
+        "plan_s": 26.54,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 23.594,
+       "data": {
+        "plan_s": 23.59,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 22.745,
+       "data": {
+        "plan_s": 22.74,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 24.511,
+       "data": {
+        "plan_s": 24.51,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 24.41,
+       "data": {
+        "plan_s": 24.41,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 24.391,
+       "data": {
+        "plan_s": 24.39,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.654,
+       "data": {
+        "plan_s": 21.65,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.332,
+       "data": {
+        "plan_s": 21.33,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 22.555,
+       "data": {
+        "plan_s": 22.55,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 20.51,
+       "data": {
+        "plan_s": 20.51,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 20.498,
+       "data": {
+        "plan_s": 20.5,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 21.921,
+       "data": {
+        "plan_s": 21.92,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget; the planner exhausted its budget on this attempt",
+       "steps": 0,
+       "seconds": 24.943,
+       "data": {
+        "plan_s": 24.94,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 27.873,
+       "data": {
+        "plan_s": 27.87,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 29.333,
+       "data": {
+        "plan_s": 29.33,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 26.598,
+       "data": {
+        "plan_s": 26.6,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 27.889,
+       "data": {
+        "plan_s": 27.89,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 25.994,
+       "data": {
+        "plan_s": 25.99,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 146853.146,
+       "data": {
+        "plan_s": 146853.15,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 43.947,
+       "data": {
+        "plan_s": 43.95,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 44.629,
+       "data": {
+        "plan_s": 44.63,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.0803,
+        "tcp": [
+         -0.6044,
+         0.4511,
+         0.8435
+        ],
+        "has_path": false,
+        "held_steps": 5,
+        "target": [
+         -0.5175,
+         -0.6527,
+         0.559
+        ]
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "no collision-free path was found within the planning budget; the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 42.098,
+       "data": {
+        "plan_s": 42.1,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 39.344,
+       "data": {
+        "plan_s": 39.34,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 38.821,
+       "data": {
+        "plan_s": 38.82,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "no collision-free path was found within the planning budget",
+       "steps": 0,
+       "seconds": 39.066,
+       "data": {
+        "plan_s": 39.07,
+        "free_realisations": 16
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 18,
+     "seed": 20018,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.10457022648234737,
+     "min_self_clearance_m": 0.0007340783621437806,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 0,
+     "tool_calls": 40,
+     "steps": 1129,
+     "steps_after_first_contact": 0,
+     "wall_s": 20.58,
+     "censored": false,
+     "reward": 0.0,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -0.0,
+      "tool_calls": -2.0,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.611,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 0.61,
+        "ik_error_m": 3e-05,
+        "free_realisations": 33
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 358,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0337,
+        "target_error_m": 0.0199
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 8.553,
+       "data": {
+        "waypoints": 5,
+        "plan_s": 8.55,
+        "ik_error_m": 7e-05,
+        "free_realisations": 39
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 20,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 8.9511,
+        "target_error_m": 0.0174
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 2.444,
+       "data": {
+        "waypoints": 5,
+        "plan_s": 2.44,
+        "ik_error_m": 5e-05,
+        "free_realisations": 27
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 751,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0518,
+        "target_error_m": 0.0192
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1575,
+        "tcp": [
+         -0.4132,
+         -0.6369,
+         0.7831
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1575,
+        "tcp": [
+         -0.4131,
+         -0.637,
+         0.7829
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4131,
+         -0.637,
+         0.7828
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.413,
+         -0.6371,
+         0.7827
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.413,
+         -0.6372,
+         0.7827
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.413,
+         -0.6372,
+         0.7826
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6372,
+         0.7826
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6372,
+         0.7826
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6372,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1576,
+        "tcp": [
+         -0.4129,
+         -0.6373,
+         0.7825
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4121,
+         -0.6452,
+         0.767
+        ]
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 19,
+     "seed": 20019,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.14060698769767677,
+     "min_self_clearance_m": 0.0003734952142890999,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 2,
+     "tool_calls": 8,
+     "steps": 1500,
+     "steps_after_first_contact": 0,
+     "wall_s": 31.3,
+     "censored": false,
+     "reward": -0.4,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -2.0,
+      "tool_calls": -0.4,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 8.992,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 8.99,
+        "ik_error_m": 5e-05,
+        "free_realisations": 38
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 355,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0423,
+        "target_error_m": 0.0196
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.964,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 0.96,
+        "ik_error_m": 5e-05,
+        "free_realisations": 39
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 407,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0453,
+        "target_error_m": 0.0194
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "stale",
+       "failure_reason": "the target moved while the agent was thinking",
+       "steps": 0,
+       "seconds": 2.831,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 2.83,
+        "ik_error_m": 3e-05,
+        "free_realisations": 33
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 2.855,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 2.85,
+        "ik_error_m": 3e-05,
+        "free_realisations": 33
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 3.089,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 3.09,
+        "ik_error_m": 3e-05,
+        "free_realisations": 33
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "timeout",
+       "failure_reason": "the target was not reached (29 mm away)",
+       "steps": 738,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0563,
+        "target_error_m": 0.0291
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 20,
+     "seed": 20020,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.1470976984175388,
+     "min_self_clearance_m": 0.0007268692312480127,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 2,
+     "tool_calls": 8,
+     "steps": 1500,
+     "steps_after_first_contact": 0,
+     "wall_s": 30.2,
+     "censored": false,
+     "reward": -0.4,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -2.0,
+      "tool_calls": -0.4,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 7.32,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 7.32,
+        "ik_error_m": 7e-05,
+        "free_realisations": 35
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 493,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0872,
+        "target_error_m": 0.0198
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.727,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 0.73,
+        "ik_error_m": 6e-05,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 369,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.1408,
+        "target_error_m": 0.02
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "the planner exhausted its budget on this attempt",
+       "steps": 0,
+       "seconds": 3.141,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 3.14,
+        "ik_error_m": 4e-05,
+        "free_realisations": 31
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 3.402,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 3.4,
+        "ik_error_m": 4e-05,
+        "free_realisations": 31
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 3.509,
+       "data": {
+        "waypoints": 3,
+        "plan_s": 3.51,
+        "ik_error_m": 4e-05,
+        "free_realisations": 31
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "timeout",
+       "failure_reason": "the target was not reached (792 mm away)",
+       "steps": 638,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 2.6477,
+        "target_error_m": 0.7921
+       }
+      }
+     ],
+     "notes": []
+    },
+    {
+     "episode": 21,
+     "seed": 20021,
+     "completed": false,
+     "inspections_done": 2,
+     "inspections_required": 3,
+     "mesh_collision": false,
+     "min_mesh_clearance_m": 0.10277673981932413,
+     "min_self_clearance_m": 0.0006539918065785641,
+     "envelope_contacts": 0,
+     "unsafe_events": 0,
+     "invalid_calls": 1,
+     "tool_calls": 40,
+     "steps": 1161,
+     "steps_after_first_contact": 0,
+     "wall_s": 75.52,
+     "censored": false,
+     "reward": -1.0,
+     "reward_terms": {
+      "success": 2.0,
+      "invalid_calls": -1.0,
+      "tool_calls": -2.0,
+      "unsafe": -0.0
+     },
+     "skill_calls": [
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 7.813,
+       "data": {
+        "waypoints": 4,
+        "plan_s": 7.81,
+        "ik_error_m": 9e-05,
+        "free_realisations": 16
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 282,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0342,
+        "target_error_m": 0.0196
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 6.471,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 6.47,
+        "ik_error_m": 6e-05,
+        "free_realisations": 20
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 406,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0854,
+        "target_error_m": 0.0196
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "plan_failed",
+       "failure_reason": "the planner exhausted its budget on this attempt",
+       "steps": 0,
+       "seconds": 17.091,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 17.09,
+        "ik_error_m": 0.00013,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 17.283,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 17.28,
+        "ik_error_m": 0.00013,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "plan_motion",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 18.166,
+       "data": {
+        "waypoints": 2,
+        "plan_s": 18.17,
+        "ik_error_m": 0.00013,
+        "free_realisations": 22
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 471,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.1,
+        "target_error_m": 0.0198
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.139,
+        "tcp": [
+         -0.4344,
+         -0.6211,
+         0.7006
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1389,
+        "tcp": [
+         -0.4344,
+         -0.6211,
+         0.7006
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1389,
+        "tcp": [
+         -0.4344,
+         -0.6211,
+         0.7005
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 1,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.0907,
+        "target_error_m": 0.0185
+       }
+      },
+      {
+       "skill": "execute_path",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 1,
+       "seconds": 0.0,
+       "data": {
+        "final_waypoint_error_m": 0.087,
+        "target_error_m": 0.0175
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1388,
+        "tcp": [
+         -0.4329,
+         -0.62,
+         0.6995
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4328,
+         -0.62,
+         0.6995
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4328,
+         -0.62,
+         0.6995
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4327,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4327,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4327,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4326,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4325,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4325,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
+        ]
+       }
+      },
+      {
+       "skill": "inspect_state",
+       "status": "ok",
+       "failure_reason": "",
+       "steps": 0,
+       "seconds": 0.0,
+       "data": {
+        "clearance_m": 0.1387,
+        "tcp": [
+         -0.4325,
+         -0.62,
+         0.6994
+        ],
+        "has_path": true,
+        "held_steps": 5,
+        "target": [
+         -0.4203,
+         -0.6117,
+         0.6918
         ]
        }
       }

@@ -40,8 +40,11 @@ defensively in places:
 2. **The collision column names the metric.** The headline OOD collision rates count the
    conservative safety envelope, not the arm. Section 4.5 states this and gives the independent
    measurement.
-3. **Pending work is labelled pending.** The proposed execution-aware filter is specified, not
-   measured. Section 5 and Table 2 mark it as such. There is no hardware result.
+3. **Pending work is labelled pending.** The proposed execution-aware filter is measured in
+   simulation (sections 7.5–7.12) and **not** on hardware: there is no hardware result, and
+   Table 2 says so. The parts of the specification that are NOT implemented - the command
+   sequence optimisation, the stopping verification inside the filter, the nonlinear re-check in
+   the loop - are listed in section 5.0 and are not claimed.
 4. **Negative results are kept.** The filtered policy does not dominate the classical potential
    field out of distribution; the APF baseline still reaches 50 % where the filtered policy
    reaches 30.7 %. That is in the paper, not hidden in a footnote.
@@ -76,16 +79,25 @@ Read this before quoting any number from it:
 
 - **The execution-aware filter's completion advantage over the SAFE fixed-margin QP is not
   established.** On the frozen test range it reaches 54.0 % out of distribution against the QP's
-  45.3 %, but the per-seed differences are +22, +2 and +2 points against a between-seed spread
-  of 8 points. Three training seeds cannot resolve that, and the paper says the two are
+  45.3 %, but with nine training seeds the mean difference (+6.7 points) is of the same size as
+  the between-seed spread of the difference (7.1 points), and the paper says the two are
   indistinguishable at equal safety.
-- **What IS established, in all three seeds:** the look-ahead constraint reproduces the
-  completion of an *unconstrained-margin* QP (54.0 %) while that QP collides in 16–22 % of the
-  same episodes.
+- **What IS established, in all nine seeds:** the look-ahead constraint reproduces the completion
+  of an *unconstrained-margin* QP (54.0 %) while that QP collides in 16–22 % of the same
+  episodes — and the collision difference is **separable** (hierarchical CI [−11.1, −4.0]
+  points, excluding zero).
+- **The cheap alternative a reviewer asks for does not reproduce it.** A speed-dependent
+  stopping-distance margin reaches the tuned fixed margin's completion (46.0 % against 45.3 %)
+  and pays 8.7 % corrected collisions for it, where the look-ahead filter pays none.
+- **The latency objection is withdrawn.** The execution-aware filter costs 1.18× the kinematic
+  QP at the median (0.89 ms against 0.76 ms), i.e. 4.5 % of the 20 ms control period.
 - **The improvement in the filter's own consistency comes from the look-ahead structure, not from
   the explicit plant model.** The ablation (`account_execution=False`) shows it: dropping the
   coast term changes the frontier not at all.
 - **The collision axis of the historical table counts the conservative safety envelope, not the
-  arm.** An independent mesh checker finds no real contact in any of the 300 evaluated episodes,
-  and none in any cell of the confirmatory run.
+  arm — and the episode is TERMINATED when that envelope touches.** An independent mesh checker
+  finds no real contact in any of the 300 evaluated episodes and none in any cell of the
+  confirmatory run, but those trajectories are censored: measured without the termination, the
+  unfiltered policy makes real mesh contact in **22 %** of the out-of-distribution episodes. The
+  filtered arms never reach the envelope, so their claim is unchanged.
 - **No hardware result exists.** Every number in the paper is simulated.

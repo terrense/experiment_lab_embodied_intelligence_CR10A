@@ -83,10 +83,20 @@ radii of 61–150 mm, so the capsule can be in contact while the mesh is still *
 | 2 | none | 17 / 50 (34 %) | **0 / 50** | 17 mm / 46 mm |
 | 2 | CBF | 3 / 50 (6 %) | **0 / 50** | 25 mm / 44 mm |
 
-**Not one of the 300 episodes contains a real mesh collision.** The published "36 % out-of-
-distribution collisions" (54/150) and "5 %" (8/150) are, in the physical sense, **false positives
-of the conservative capsule model**: the arm never touched the wall — the *safety envelope* did,
-by 2 to 6 cm.
+**On the archived trajectories, not one of the 300 episodes contains a real mesh collision.**
+The published "36 % out-of-distribution collisions" (54/150) and "5 %" (8/150) were therefore
+read as **false positives of the conservative capsule model**: the arm did not touch the wall —
+the *safety envelope* did, by 2 to 6 cm.
+
+> **CORRECTED 2026-11-13 (see `docs/RESULTS.md` section 12).** That reading was wrong, and the
+> reason is the **termination**: the episode ENDS at the first envelope contact, so the
+> trajectories the mesh checker sees are censored — the arm was stopped at the envelope and never
+> got the chance to reach a real contact. Measured with the termination removed
+> (`evaluation/physical_contact.py`), the **unfiltered policy makes real mesh contact in 22 % of
+> the out-of-distribution episodes**. The two filtered arms never reach the envelope, so their
+> censored and uncensored numbers are identical and their claim is unaffected: they keep the
+> envelope — and therefore the arm — off the wall. The archived table is not wrong; it is a
+> measurement of *when the arm was stopped*, and it has to be quoted with that label.
 
 The success rates are unaffected, and the envelope comparison is still a meaningful engineering
 comparison (keeping a conservative envelope clear IS a design goal, and it is the quantity the

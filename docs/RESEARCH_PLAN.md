@@ -272,6 +272,15 @@ difference from an 8-point between-seed spread**. The plan therefore adds a comp
 enough additional seeds to make the spread an estimate rather than an anecdote — 6 locally, and
 12 more on the server when the owner connects it.
 
+> **CLOSED 2026-11-13 (locally).** Nine seeds (0–8) are now trained with the archived
+> configuration, so the spread is an estimate rather than an anecdote. **The verdict did not
+> change, and its reason did.** With nine clusters the completion difference over the safe
+> fixed-margin filter is +6.7 points against a between-seed spread of **7.1** points — the same
+> order of magnitude, so still `NOT_SEPARABLE`, but now for the substantive reason rather than
+> for want of seeds. The **collision** difference, by contrast, is separable: −7.3 points with a
+> hierarchical interval of [−11.1, −4.0] that excludes zero. More seeds of the same kind would
+> not change the completion verdict; a different operating point or a different task would.
+
 ---
 
 Each week has a **checkable deliverable** and a **decision gate**. The gate is the point: it is
@@ -402,9 +411,9 @@ falsification criterion 1**.
 - ✅ the **confirmatory run on the frozen test range** (20000–20199, never inspected before) with
   three detectors per episode: the execution-aware filter reproduces the completion of an
   **unconstrained-margin** QP (54.0 % out of distribution) with **0 % collisions**, where that QP
-  collides in 16–22 % of the same episodes — in all three training seeds. Its completion
-  advantage over the *safe* fixed-margin QP is **not** established (+22/+2/+2 points against an
-  8-point between-seed spread);
+  collides in 16–22 % of the same episodes — in all nine training seeds, with a hierarchical
+  interval that excludes zero. Its completion advantage over the *safe* fixed-margin QP is
+  **not** established (+6.7 points against a 7.1-point between-seed spread);
 - ✅ the **robustness check on the identified plant** (`--dynamics identified_run02`: 40.6 kg
   instead of the placeholder's 24.8 kg): the same pattern and the same numbers to within a point.
 

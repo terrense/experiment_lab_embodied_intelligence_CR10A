@@ -327,8 +327,10 @@ Reading:
   as indistinguishable at equal safety;
 
 * the archived out-of-distribution envelope-collision rate **reproduces on the untouched test
-  range** (38.7 % against the published 36 %), and the **mesh checker finds no real contact in
-  any cell** — the conclusion of §3 holds on data that was never used to reach it;
+  range** (38.7 % against the published 36 %), and the mesh checker finds no real contact in any
+  cell **on the censored trajectories** — the conclusion of §3 holds on data that was never used
+  to reach it, with the censoring caveat of §12: the unfiltered policy makes real contact in
+  22 % of the episodes when it is allowed to continue;
 * the corrected detector changes the verdict by 0.6–2.0 percentage points for the weak filters
   and by **11 points** for the QP at margin 0 (8.0 % legacy → 19.3 % corrected). A margin of zero
   is not a safety setting, and the corrected detector is what shows it;
