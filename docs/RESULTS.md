@@ -252,6 +252,15 @@ detector differs). 3 policy seeds × 50 episodes per cell.
 | **execution-aware (1 cm)** | OOD walls | **54.0 %** | **0 %** | **0 %** | **0 %** | 69.0 mm |
 | **execution-aware (1 cm)** | all | **71.8 %** | **0 %** | **0 %** | **0 %** | 101.8 mm |
 
+**The collision columns are CENSORED (see section 12).** The episode is terminated at the first
+conservative-envelope contact, so the "legacy envelope" and "corrected" columns count *the
+episodes in which the arm was stopped*, and the "mesh" column is computed on the truncated
+trajectory. Measured without the termination, the unfiltered policy makes **real mesh contact in
+22.0 %** of the out-of-distribution episodes against the 0 % the mesh column reports here; the two
+filtered arms never reach the envelope, so their censored and uncensored numbers are identical.
+Read the row as *"the arm was stopped in this share of the episodes"*.
+
+
 The per-seed breakdown, out-of-distribution walls, 50 episodes per cell:
 
 | policy seed | QP (4 cm) | QP (0 cm) | execution-aware (1 cm) |

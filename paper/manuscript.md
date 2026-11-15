@@ -785,6 +785,18 @@ only the detector differs. 3 policy seeds × 50 episodes per cell; episode manif
 | **execution-aware (1 cm)** | OOD walls | **54.0 %** | **0 %** | **0 %** | **0 %** | 69.0 mm |
 | **execution-aware (1 cm)** | all | **71.8 %** | **0 %** | **0 %** | **0 %** | 101.8 mm |
 
+**The collision columns of this table are CENSORED, and §7.11 measures what that hides.** The
+episode is terminated at the first conservative-envelope contact, so the "legacy envelope" and
+"corrected" columns count *the episodes in which the arm was stopped*, and the "mesh" column is
+computed on the truncated trajectory. On the out-of-distribution walls the same policies,
+measured without the termination, make **real mesh contact in 22.0 %** of the episodes
+(unfiltered) against the 0 % the mesh column reports here; the two filtered arms never reach the
+envelope, so their censored and uncensored numbers are identical. The columns are left as they
+are — they are the archived measurement and the table has to be reproducible from it — but the
+row must be read as *"the arm was stopped in this share of the episodes"*, not as *"the arm
+collided in this share of the episodes"*.
+
+
 The per-seed breakdown is what makes this table readable, because the aggregate hides a
 one-seed effect. Out-of-distribution walls, 50 episodes per cell, completion and (corrected)
 collision rate:
