@@ -21,15 +21,35 @@ import numpy as np
 
 class JointRRTConnect:
     def __init__(self, env, margin: float = 0.005, step: float = 0.25, edge_res: float = 0.015,
-                 max_checks: int = 60_000, rng: Optional[np.random.Generator] = None) -> None:
+                 max_checks: int = 60_000, rng: Optional[np.random.Generator] = None,
+                 time_budget_s: Optional[float] = None) -> None:
         # budget in collision CHECKS, not seconds: independent of CPU load, reproducible
         self.env, self.margin, self.step, self.edge_res, self.max_checks = env, margin, step, edge_res, max_checks
         self.rng = rng or np.random.default_rng(0)
+        # An optional WALL-CLOCK budget. The check budget alone does not bound the time a search
+        # takes, and that matters for a planner used as an AGENT'S TOOL: a failed search with a
+        # 20k-check budget burns minutes of wall clock, and a tool call that takes minutes cannot
+        # be part of a decision loop. With the clock in the loop every attempt is bounded.
+        self.time_budget_s = time_budget_s
+        self.t0 = 0.0
+        self.timed_out = False
         lo, hi = env.lo.copy(), env.hi.copy()
         lo[[0, 3, 5]] = np.maximum(lo[[0, 3, 5]], [-math.pi / 2, -math.pi, -math.pi])
         hi[[0, 3, 5]] = np.minimum(hi[[0, 3, 5]], [math.pi / 2, math.pi, math.pi])
         self.lo, self.hi = lo, hi
         self.checks = 0
+
+    def out_of_time(self) -> bool:
+        if self.time_budget_s is None:
+            return False
+        # time.monotonic(), not time.time(): the wall clock JUMPS when the machine suspends
+        # (this laptop does, and it has produced durations of 40 hours for a 5-second search).
+        # A monotonic clock does not move across a suspend, so the budget measures the work and
+        # not the interruptions.
+        if time.monotonic() - self.t0 > self.time_budget_s:
+            self.timed_out = True
+            return True
+        return False
 
     def valid(self, q: np.ndarray) -> bool:
         self.checks += 1
@@ -60,11 +80,15 @@ class JointRRTConnect:
         return ("reached" if dist <= self.step else "advanced"), len(nodes) - 1
 
     def plan(self, q_start: np.ndarray, q_goal: np.ndarray) -> Optional[List[np.ndarray]]:
+        self.t0 = time.monotonic()
+        self.timed_out = False
         if not (self.valid(q_start) and self.valid(q_goal)):
             return None
         A, pa, B, pb = [q_start.copy()], [-1], [q_goal.copy()], [-1]
         a_is_start = True
         while self.checks < self.max_checks:
+            if self.out_of_time():
+                break
             q_rand = self.rng.uniform(self.lo, self.hi)
             status, ia = self._extend(A, pa, q_rand)
             if status != "trapped":

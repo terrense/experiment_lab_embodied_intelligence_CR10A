@@ -413,6 +413,33 @@ def main() -> int:
         c.check("the execution-aware filter's share of the 20 ms control period",
                 100 * ex_lat / 0.020, 4.5, "%", tol=0.05)
 
+    print("\n== the B4+ replication on the second untouched range")
+    b4r = _load("final_benchmark_b4plus_replication.json")
+    if b4r is None:
+        c.check("final_benchmark_b4plus_replication.json present", None, None)
+    else:
+        c.check("the replication is on the 30000-30199 range",
+                0.0 if b4r["seed_start"] == 30000 else 1.0, 0.0)
+        for method, exp in (("raw", (40.7, 32.0, 33.3)),
+                            ("qp", (52.0, 0.0, 0.0)),
+                            ("qp_speed", (51.3, 0.0, 6.0)),
+                            ("qp0", (56.0, 7.3, 16.0)),
+                            ("exec", (56.7, 0.0, 0.0))):
+            a = _agg(b4r["rows"], method, "wall_ood")
+            c.check(f"replication {method}: completion", a.get("success_rate"), exp[0], "%", tol=0.1)
+            c.check(f"replication {method}: legacy envelope", a.get("legacy_collision_rate"), exp[1],
+                    "%", tol=0.1)
+            c.check(f"replication {method}: corrected collisions",
+                    a.get("corrected_collision_rate"), exp[2], "%", tol=0.1)
+            c.check(f"replication {method}: mesh collisions", a.get("mesh_collision_rate"), 0.0,
+                    "%", tol=0.1)
+        ex_lat = sum(r["filter_stats"]["latency"]["median_s"] for r in b4r["rows"]
+                     if r["method"] == "exec") / 3
+        c.check("the execution-aware filter's latency on the replication range (ms)",
+                1000 * ex_lat, 0.621, "ms", tol=0.002)
+        c.check("the execution-aware filter's share of the control period, replication (%)",
+                100 * ex_lat / 0.020, 3.1, "%", tol=0.05)
+
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
     if rb is not None:

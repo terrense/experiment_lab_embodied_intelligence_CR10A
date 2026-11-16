@@ -717,3 +717,27 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   base-joint sweep, so they are reachable by construction - the previous fixed Cartesian offsets
   put them in a region the planner connects to in only two thirds of the attempts, which made the
   episodes a measure of the planner's luck rather than of the agent's decisions.
+- **The B4+ comparison REPLICATES on the second untouched range** (30000-30199, manifest v2,
+  `--independent-stride 1`):
+
+  | method | test range: completion / corrected | replication: completion / corrected |
+  |---|---|---|
+  | unfiltered policy | 36.0 % / 40.7 % | 40.7 % / 33.3 % |
+  | bounded all-pair QP (4 cm, fixed) | 45.3 % / **0 %** | 52.0 % / **0 %** |
+  | **speed-dependent margin (B4+)** | 46.0 % / **8.7 %** | 51.3 % / **6.0 %** |
+  | bounded all-pair QP (0 cm) | 54.0 % / 19.3 % | 56.0 % / 16.0 % |
+  | **execution-aware (1 cm)** | **54.0 % / 0 %** | **56.7 % / 0 %** |
+
+  Same pattern on both ranges. The latency, measured the same way: the execution-aware filter is
+  **1.18x** the QP at the median on one range and **0.89x** on the other - the same order, both
+  under a millisecond, both under 5 % of the 20 ms control period. The eightfold figure was an
+  artefact of the defective statistic.
+- **The planner now has a WALL-CLOCK budget**, because it is an agent's tool: the check budget
+  alone does not bound the time a search takes, and a failed 20k-check search burned minutes (the
+  agent baseline spent 14.5 planning calls per episode, with 56 % of them failing). The budget
+  uses `time.monotonic()`, not `time.time()`: this laptop SUSPENDS, and the wall clock jumps
+  across a suspend - it produced a "146 874 s" duration for a search that takes seconds, which
+  is the clock-jump artefact the project has noted before.
+- **The `target_moved` fault now fires ONCE per target.** It used to fire on every planning call,
+  so every retry moved the goal again - a moving goalpost rather than a recovery problem, and it
+  drowned the agent's decisions in planner failures.

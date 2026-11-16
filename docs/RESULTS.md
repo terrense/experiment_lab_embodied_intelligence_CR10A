@@ -574,13 +574,28 @@ Per training seed (B4+ and the execution-aware filter):
 | 2 | 42 % / 16 % | 44 % / 0 % |
 
 * **The cheap alternative does not reproduce the result.** The speed-dependent margin buys the
-  same completion as the tuned fixed margin (46.0 % against 45.3 %) and no more — it does not
-  reach the margin-0 completion of 54.0 % — and it pays **8.7 % corrected collisions** for it,
+  same completion as the tuned fixed margin (46.0 % against 45.3 %) and no more - it does not
+  reach the margin-0 completion of 54.0 % - and it pays **8.7 % corrected collisions** for it,
   where the fixed 4 cm margin has none. The adaptive margin is *less* conservative on average
   (1.5 cm instead of 4 cm when approaching slowly), and that is exactly where the contacts come
   from. The look-ahead constraint, which knows where the arm will actually be, gets the
   unconstrained filter's completion with none of its collisions; the stopping-distance margin,
   which only knows how fast the arm is closing, gets neither.
+* **The whole comparison replicates on the second untouched range** (30000-30199, manifest v2;
+  `data/reports/learning/final_benchmark_b4plus_replication.json`):
+
+| method | test range: completion / corrected | replication range: completion / corrected |
+|---|---|---|
+| unfiltered policy | 36.0 % / 40.7 % | 40.7 % / 33.3 % |
+| bounded all-pair QP (4 cm, fixed) | 45.3 % / **0 %** | 52.0 % / **0 %** |
+| **speed-dependent margin (B4+)** | 46.0 % / **8.7 %** | 51.3 % / **6.0 %** |
+| bounded all-pair QP (0 cm) | 54.0 % / 19.3 % | 56.0 % / 16.0 % |
+| **execution-aware (1 cm)** | **54.0 % / 0 %** | **56.7 % / 0 %** |
+
+  Same pattern on both ranges: the speed-dependent margin lands on the tuned fixed margin's
+  completion and pays 6-9 % corrected collisions for it; the look-ahead filter reaches the
+  unconstrained filter's completion with none.
+
 * **The latency objection is withdrawn.** The manuscript previously reported that the
   execution-aware filter costs about eight times more per control step than the kinematic QP.
   That number came from a defective statistic — the field that claimed to be a median was the
@@ -592,8 +607,10 @@ Per training seed (B4+ and the execution-aware filter):
 | speed-dependent margin (B4+) | 0.747 ms | 2.068 ms | 5.161 ms | 3.7 % |
 | **execution-aware (1 cm)** | **0.890 ms** | **3.471 ms** | **5.506 ms** | **4.5 %** |
 
-  The execution-aware filter is **1.18× the kinematic QP at the median and 1.05× at the P95**, and
-  it uses 4.5 % of the control period.
+  On the replication range the same measurement gives 0.621 ms for the execution-aware filter
+  (3.1 % of the control period) and 0.697 ms for the kinematic QP, so the execution-aware filter
+  is **1.18× the QP at the median on one range and 0.89× on the other**: the same order, both
+  under a millisecond, both under 5 % of the control period.
 
 ---
 

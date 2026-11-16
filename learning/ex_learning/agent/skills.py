@@ -78,7 +78,8 @@ class SkillLayer:
     def __init__(self, env, margin: float = 0.02, plan_margin: Optional[float] = None,
                  plan_checks: int = 20_000,
                  plan_candidates: int = 4, plan_speed: float = 0.6,
-                 use_filter: bool = True, exec_model=None) -> None:
+                 use_filter: bool = True, exec_model=None,
+                 plan_time_budget_s: Optional[float] = 5.0) -> None:
         self.env = env
         # the execution filter's margin, and the planner's margin. The planner must keep MORE
         # clearance than the filter enforces: the execution lags the plan (the execution gap this
@@ -89,6 +90,10 @@ class SkillLayer:
         self.plan_margin = plan_margin if plan_margin is not None else 2.0 * margin
         self.plan_checks = plan_checks
         self.plan_candidates = plan_candidates
+        #: the WALL-CLOCK budget of ONE planning attempt. The check budget alone does not bound
+        #: the time a search takes, and this is a tool the agent calls: a call that takes minutes
+        #: cannot be part of a decision loop.
+        self.plan_time_budget_s = plan_time_budget_s
         self.plan_speed = plan_speed
         self.use_filter = use_filter
         self.exec_model = exec_model
@@ -177,7 +182,8 @@ class SkillLayer:
         rng = np.random.default_rng(1000 + int(abs(hash(tuple(np.round(self.target, 4)))) % 10_000))
         for _err, _clr, q_goal in free[:self.plan_candidates]:
             planner = JointRRTConnect(self.env, margin=self.plan_margin, step=0.15, edge_res=0.015,
-                                      max_checks=self.plan_checks, rng=rng)
+                                      max_checks=self.plan_checks, rng=rng,
+                                      time_budget_s=self.plan_time_budget_s)
             path = planner.plan(q_start, q_goal)
             if path is not None:
                 self.path = [np.asarray(p, float) for p in path]
@@ -189,7 +195,9 @@ class SkillLayer:
                 return SkillResult("plan_motion", "ok", "",
                                    {"waypoints": len(self.path), "plan_s": round(self.plan_time_s, 2),
                                     "ik_error_m": round(_err, 5),
-                                    "free_realisations": len(free)}, seconds=self.plan_time_s)
+                                    "free_realisations": len(free),
+                                    "timed_out": bool(planner.timed_out)},
+                                   seconds=self.plan_time_s)
         self.path = None
         self._follower = None
         self.plan_time_s = time.time() - t0
@@ -200,7 +208,8 @@ class SkillLayer:
         self.env.q_ref = q_start.copy()
         return SkillResult("plan_motion", "plan_failed",
                            "no collision-free path was found within the planning budget",
-                           {"plan_s": round(self.plan_time_s, 2), "free_realisations": len(free)},
+                           {"plan_s": round(self.plan_time_s, 2), "free_realisations": len(free),
+                            "timed_out": bool(planner.timed_out)},
                            seconds=self.plan_time_s)
 
     # ------------------------------------------------------------------ execution

@@ -1188,6 +1188,22 @@ exactly where the contacts come from. The look-ahead constraint, which knows whe
 actually be, gets the completion of the unconstrained filter with none of its collisions; the
 stopping-distance margin, which only knows how fast the arm is closing, gets neither.
 
+**The whole comparison replicates on a second untouched range.** The replication range
+30000–30199 (manifest version 2) was run with the same policies, the same margins and the same
+mesh checker on every episode:
+
+| method | test range: completion / corrected | replication range: completion / corrected |
+|---|---|---|
+| unfiltered policy | 36.0 % / 40.7 % | 40.7 % / 33.3 % |
+| bounded all-pair QP (4 cm, fixed) | 45.3 % / **0 %** | 52.0 % / **0 %** |
+| **speed-dependent margin (B4+)** | 46.0 % / **8.7 %** | 51.3 % / **6.0 %** |
+| bounded all-pair QP (0 cm) | 54.0 % / 19.3 % | 56.0 % / 16.0 % |
+| **execution-aware (1 cm)** | **54.0 % / 0 %** | **56.7 % / 0 %** |
+
+The pattern is the same on both ranges: the speed-dependent margin lands on the tuned fixed
+margin's completion and pays 6–9 % corrected collisions for it, while the look-ahead filter
+reaches the unconstrained filter's completion with none.
+
 **The latency objection is withdrawn.** The manuscript previously reported that the
 execution-aware filter costs about eight times more per control step than the kinematic QP.
 That number came from a defective statistic — the field that claimed to be a median was the
@@ -1201,10 +1217,12 @@ control step is:
 | speed-dependent margin (B4+) | 0.747 ms | 2.068 ms | 5.161 ms | 3.7 % |
 | **execution-aware (1 cm)** | **0.890 ms** | **3.471 ms** | **5.506 ms** | **4.5 %** |
 
-The execution-aware filter is **1.18× the kinematic QP at the median and 1.05× at the P95**, and
-it uses 4.5 % of the control period. The latency objection does not survive its own
-investigation: a filter that costs four and a half per cent of its budget is not the reason a
-safety argument fails.
+On the replication range the same measurement gives 0.621 ms for the execution-aware filter
+(3.1 % of the control period) and 0.697 ms for the kinematic QP. So the execution-aware filter
+is **1.18× the kinematic QP at the median on one range and 0.89× on the other**: the two are the
+same order, both under a millisecond, and both use under 5 % of the control period. The latency
+objection does not survive its own investigation: a filter that costs four per cent of its budget
+is not the reason a safety argument fails.
 
 
 ## 8 Discussion

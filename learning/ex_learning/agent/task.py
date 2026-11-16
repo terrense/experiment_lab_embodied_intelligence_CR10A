@@ -93,6 +93,8 @@ class InspectionTask:
         self.faults_fired: List[str] = []
         self.stale_until_step = -1
         self._obs_history: List[Dict] = []
+        #: the targets whose position has already been perturbed by the fault
+        self._moved_targets: set = set()
 
     # ------------------------------------------------------------------ lifecycle
     def reset(self, seed: int) -> Dict:
@@ -106,6 +108,7 @@ class InspectionTask:
         self.faults_fired = []
         self.stale_until_step = -1
         self._obs_history = []
+        self._moved_targets = set()
 
         # The three inspection points. They are CARTESIAN points: the agent gets no privileged
         # joint configuration. (The task DESIGNER does use the episode's goal configuration - it
@@ -191,8 +194,13 @@ class InspectionTask:
             return "stale_feedback"
         if skill in ("plan_motion", "replan") and self.maybe_fire("target_moved"):
             i = self.current_target
-            self.targets[i] = self.targets[i] + self.rng.normal(0.0, 0.03, 3)
-            return "target_moved"
+            # The fault fires ONCE per target. If it fired on every planning call, the target
+            # would drift every time the agent retried - which is not a recovery problem, it is
+            # a moving goalpost, and it would drown the agent's decisions in planner failures.
+            if i not in self._moved_targets:
+                self._moved_targets.add(i)
+                self.targets[i] = self.targets[i] + self.rng.normal(0.0, 0.03, 3)
+                return "target_moved"
         return None
 
     # ------------------------------------------------------------------ observation
