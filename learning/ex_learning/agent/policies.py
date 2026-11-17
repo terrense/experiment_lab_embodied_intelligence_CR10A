@@ -151,8 +151,12 @@ class ScriptedFSM(AgentPolicy):
             self.plans_on_target += 1
             self.planned_target = target
             return {"skill": "plan_motion", "target_index": target}
-        # close to the target: hold still so the inspection can complete
-        if obs.get("distance_to_target_m", 1.0) < 0.02 and obs.get("hold_steps", 0) < 4:
+        # close to the target: hold still so the inspection can complete. The threshold is the
+        # TASK'S inspection radius, not a number of its own: with a stale threshold the FSM
+        # never holds, every execute_path call returns after one step because the arm is already
+        # there, and the inspection never completes.
+        from .task import INSPECT_RADIUS
+        if obs.get("distance_to_target_m", 1.0) < INSPECT_RADIUS and obs.get("hold_steps", 0) < 4:
             return {"skill": "inspect_state", "target_index": target}
         return {"skill": "execute_path", "target_index": target}
 

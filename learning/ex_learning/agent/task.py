@@ -38,8 +38,15 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-#: the inspection radius [m] and the number of steps the arm must hold inside it
-INSPECT_RADIUS = 0.02
+#: The inspection radius [m] and the number of steps the arm must hold inside it.
+#:
+#: The radius is set by the PLANT, not by taste. The measured tracking error of this servo is
+#: 3-15 mm (docs/M4_MUJOCO.md), and the arm's observed error at the end of a followed path is
+#: 22-30 mm, because the waypoint follower stops when the last waypoint is 0.03 rad away and the
+#: servo lags behind that. A 2 cm radius puts the criterion inside the plant's own error: the
+#: arm arrives just outside it and the inspection can never complete. 3.5 cm is above the
+#: observed arrival error with room for the drift during the hold.
+INSPECT_RADIUS = 0.035
 INSPECT_STEPS = 5
 
 #: The three inspection points are the TCP positions of the episode's own goal configuration
@@ -87,6 +94,10 @@ class InspectionTask:
         self.rng = rng or np.random.default_rng(0)
         self.targets: List[np.ndarray] = []
         self.current_target = 0
+        #: The number of COMPLETED inspections. It cannot be read off `current_target`, because
+        #: the target index is CAPPED at the last one: after the third inspection the index is
+        #: still 2, and reading the count off it reported two inspections for a finished task.
+        self.inspections_completed = 0
         self.hold_steps = 0
         self.steps = 0
         self.calls = 0
@@ -102,6 +113,7 @@ class InspectionTask:
         obs, info = self.env.reset(seed=seed)
         self.rng = np.random.default_rng(seed)
         self.current_target = 0
+        self.inspections_completed = 0
         self.hold_steps = 0
         self.steps = 0
         self.calls = 0
@@ -261,25 +273,25 @@ class InspectionTask:
         self.last_failure = result.failure_reason
         self.calls += 1
         self.steps += result.steps
-        # The inspection counter is about the ARM'S POSITION and the TIME it has been there, not
-        # about the tool's status: if the arm is inside the radius of the current target, the
-        # inspection is progressing, whatever the last tool call reported. (An earlier version
-        # only counted an 'ok' execution, which meant a call that ended in a timeout at the target
-        # counted for nothing.)
+        # An INSPECTION is a HOLD, not a transit. Only the `inspect_state` call - which holds the
+        # arm still for the inspection duration - contributes to the counter, and only while the
+        # arm is inside the radius of the CURRENT target.
         #
-        # An `inspect_state` call HOLDS the arm still for the inspection duration, so it
-        # contributes the whole hold at once; an execution contributes the steps it spent inside
-        # the radius.
-        if result.skill in ("execute_path", "inspect_state"):
+        # Crediting an execution's steps was a real bug: the execution of a path takes hundreds of
+        # steps of TRAVELLING, and counting them as "holding at the target" completed the
+        # inspection the moment the arm arrived, so the target index ran ahead of the arm and the
+        # episode ended with the arm at the wrong place.
+        if result.skill == "inspect_state":
             tgt = self.targets[self.current_target]
             inside = float(np.linalg.norm(tgt - self.env.tcp())) < INSPECT_RADIUS
             if inside:
                 self.hold_steps += int(result.data.get("held_steps", 0) or result.steps)
                 if self.hold_steps >= INSPECT_STEPS:
+                    self.inspections_completed += 1
                     self.current_target = min(self.current_target + 1, self.n_targets - 1)
                     self.hold_steps = 0
 
     def done(self) -> bool:
-        return (self.current_target >= self.n_targets - 1 and self.hold_steps >= INSPECT_STEPS
+        return (self.inspections_completed >= self.n_targets
                 or self.calls >= self.faults.max_calls_per_episode
                 or self.steps >= self.faults.max_steps_per_episode)

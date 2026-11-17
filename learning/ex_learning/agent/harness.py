@@ -122,8 +122,7 @@ def run_episode(env, task: InspectionTask, skills: SkillLayer, policy, seed: int
 
     rec.envelope_contacts = envelope_contacts
     # the inspections completed: the number of targets the arm has reached AND held
-    rec.inspections_done = min(task.current_target + (1 if task.hold_steps >= 1 else 0),
-                                task.n_targets)
+    rec.inspections_done = task.inspections_completed
     rec.steps = task.steps
     rec.wall_s = time.time() - t0
     rec.faults = list(task.faults_fired)

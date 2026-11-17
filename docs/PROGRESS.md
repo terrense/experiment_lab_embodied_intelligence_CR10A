@@ -741,3 +741,30 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
 - **The `target_moved` fault now fires ONCE per target.** It used to fire on every planning call,
   so every retry moved the goal again - a moving goalpost rather than a recovery problem, and it
   drowned the agent's decisions in planner failures.
+- **The agent line's task had six real defects, all found by RUNNING it** (not by reading it).
+  Each one changed the measured baseline, so each one is worth stating:
+  1. **The IK's random restarts came from the arm's FULL joint range**, so it found goal
+     realisations with J1 at 294 deg - configurations the planner can never connect to, because
+     it samples J1 in +-pi/2. The restarts (and the IK's descent, which walked out of the box
+     too - it ended at J4 = -6.0 rad) now come from the PLANNER'S sampling box. This was the
+     single biggest cause of the weak baseline.
+  2. **An execution's steps were credited as "holding at the target"**, so the inspection
+     completed the moment the arm ARRIVED and the target index ran ahead of the arm. An
+     inspection is a HOLD: only the `inspect_state` call, which holds the arm still, counts.
+  3. **The completed inspections could not be read off the target index**, because that index is
+     CAPPED at the last target: a finished task reported two inspections out of three. There is
+     now a counter of its own.
+  4. **The inspection radius was inside the plant's own tracking error.** The measured servo
+     tracking error is 3-15 mm and the arm's observed error at the end of a followed path is
+     22-30 mm (the follower stops at the last waypoint, 0.03 rad away, and the servo lags), so a
+     2 cm radius could never be met. The radius is 3.5 cm - set by the plant, not by taste.
+  5. **The FSM did not notice that the target had changed**, so it kept following the old path
+     while the distance to the new target grew; and its "am I close enough" threshold was its own
+     number rather than the task's.
+  6. **The planner had no wall-clock budget**, and a failed 20k-check search burned minutes: the
+     baseline spent 14.5 planning calls per episode with 56 % of them failing. The budget is per
+     CALL (shared across the goal realisations) and uses `time.monotonic()`, because this laptop
+     SUSPENDS and the wall clock jumps across a suspend - it produced a "146 874 s" duration for a
+     search that takes seconds.
+  The `target_moved` fault also now fires ONCE per target: it used to fire on every planning
+  call, so every retry moved the goal again - a moving goalpost rather than a recovery problem.

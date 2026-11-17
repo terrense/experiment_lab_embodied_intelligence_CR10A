@@ -90,9 +90,11 @@ class SkillLayer:
         self.plan_margin = plan_margin if plan_margin is not None else 2.0 * margin
         self.plan_checks = plan_checks
         self.plan_candidates = plan_candidates
-        #: the WALL-CLOCK budget of ONE planning attempt. The check budget alone does not bound
-        #: the time a search takes, and this is a tool the agent calls: a call that takes minutes
-        #: cannot be part of a decision loop.
+        #: The WALL-CLOCK budget of ONE `plan_motion` CALL, shared across the goal realisations
+        #: the call tries. The check budget alone does not bound the time a search takes, and
+        #: this is a tool the agent calls: a call that takes minutes cannot be part of a decision
+        #: loop. The budget is per CALL and not per candidate, so that the number of realisations
+        #: the call can try depends on how long they take rather than being fixed.
         self.plan_time_budget_s = plan_time_budget_s
         self.plan_speed = plan_speed
         self.use_filter = use_filter
@@ -117,6 +119,14 @@ class SkillLayer:
         return out
 
     # ------------------------------------------------------------------ planning
+    def planner_box(self) -> Tuple[np.ndarray, np.ndarray]:
+        """The joint box the planner samples: the arm's limits, tightened on the joints whose
+        full range is of no use (the base rotation and the two wrist joints)."""
+        lo, hi = self.env.lo.copy(), self.env.hi.copy()
+        lo[[0, 3, 5]] = np.maximum(lo[[0, 3, 5]], [-math.pi / 2, -math.pi, -math.pi])
+        hi[[0, 3, 5]] = np.minimum(hi[[0, 3, 5]], [math.pi / 2, math.pi, math.pi])
+        return lo, hi
+
     def realise_goal(self, cartesian_goal: np.ndarray, tries: int = 60,
                      steps: int = 250, tol: float = 0.002
                      ) -> List[Tuple[float, float, np.ndarray]]:
@@ -138,8 +148,14 @@ class SkillLayer:
         ref_saved = np.asarray(self.env.q_ref, float).copy()
         out: List[Tuple[float, float, np.ndarray]] = []
         rng = np.random.default_rng(1000 + int(abs(hash(tuple(np.round(cartesian_goal, 4)))) % 10_000))
+        # The random restarts are drawn from the PLANNER'S sampling box, not from the arm's full
+        # joint range. The planner samples J1 in +-pi/2 (and J4, J6 in +-pi), because the rest of
+        # the base rotation is of no use to this arm - and a goal realisation outside that box is
+        # a configuration the planner can never connect to. Sampling the full range produced goal
+        # realisations with J1 at 5.1 rad (294 deg), and every plan to them failed.
+        lo, hi = self.planner_box()
         for i in range(tries):
-            q = np.array(q_saved if i == 0 else rng.uniform(self.env.lo, self.env.hi), float)
+            q = np.array(q_saved if i == 0 else rng.uniform(lo, hi), float)
             self.env._set_q(q)
             for _ in range(steps):
                 e = cartesian_goal - self.env.tcp()
@@ -150,7 +166,10 @@ class SkillLayer:
                     dq = J.T @ np.linalg.solve(J @ J.T + 0.05 ** 2 * np.eye(3), e)
                 except np.linalg.LinAlgError:
                     break
-                q = np.clip(q + dq, self.env.lo, self.env.hi)
+                # clipped to the PLANNER'S box, not only to the arm's limits: the descent can
+                # walk out of the box (it ended at J4 = -6.0 rad, outside the planner's reach),
+                # and a realisation the planner cannot connect to is a realisation in vain.
+                q = np.clip(q + dq, lo, hi)
                 self.env._set_q(q)
             err = float(np.linalg.norm(cartesian_goal - self.env.tcp()))
             out.append((err, float(self.env.clearance()), q.copy()))
@@ -165,7 +184,7 @@ class SkillLayer:
         """Plan a path to a Cartesian target. Returns `plan_failed` when no path is found."""
         from ex_learning.planner import JointRRTConnect
 
-        t0 = time.time()
+        t0 = time.monotonic()      # monotonic: the wall clock jumps on this laptop
         self.target = np.asarray(cartesian_goal, float).copy()
         q_start = self.env.q().copy()
         cands = self.realise_goal(self.target)
@@ -180,15 +199,22 @@ class SkillLayer:
         # only the collision-free realisations can be planned to
         free = [c for c in cands if c[1] > self.plan_margin and c[0] < 0.02]
         rng = np.random.default_rng(1000 + int(abs(hash(tuple(np.round(self.target, 4)))) % 10_000))
+        deadline = (time.monotonic() + self.plan_time_budget_s
+                    if self.plan_time_budget_s is not None else None)
+        timed_out = False
         for _err, _clr, q_goal in free[:self.plan_candidates]:
+            remaining = None if deadline is None else max(deadline - time.monotonic(), 0.0)
+            if remaining is not None and remaining <= 0.0:
+                timed_out = True
+                break
             planner = JointRRTConnect(self.env, margin=self.plan_margin, step=0.15, edge_res=0.015,
                                       max_checks=self.plan_checks, rng=rng,
-                                      time_budget_s=self.plan_time_budget_s)
+                                      time_budget_s=remaining)
             path = planner.plan(q_start, q_goal)
             if path is not None:
                 self.path = [np.asarray(p, float) for p in path]
                 self._follower = None        # the new path needs a new follower
-                self.plan_time_s = time.time() - t0
+                self.plan_time_s = time.monotonic() - t0
                 self.last_plan_status = "ok"
                 self.env._set_q(q_start)
                 self.env.q_ref = q_start.copy()
@@ -196,11 +222,11 @@ class SkillLayer:
                                    {"waypoints": len(self.path), "plan_s": round(self.plan_time_s, 2),
                                     "ik_error_m": round(_err, 5),
                                     "free_realisations": len(free),
-                                    "timed_out": bool(planner.timed_out)},
+                                    "timed_out": bool(timed_out or planner.timed_out)},
                                    seconds=self.plan_time_s)
         self.path = None
         self._follower = None
-        self.plan_time_s = time.time() - t0
+        self.plan_time_s = time.monotonic() - t0
         self.last_plan_status = "plan_failed"
         # the planner MOVED the arm while it searched (it checks configurations in place), so the
         # start pose has to be restored before the caller inherits it
@@ -209,12 +235,17 @@ class SkillLayer:
         return SkillResult("plan_motion", "plan_failed",
                            "no collision-free path was found within the planning budget",
                            {"plan_s": round(self.plan_time_s, 2), "free_realisations": len(free),
-                            "timed_out": bool(planner.timed_out)},
+                            "timed_out": bool(timed_out)},
                            seconds=self.plan_time_s)
 
     # ------------------------------------------------------------------ execution
     def execute_path(self, max_steps: int = 300, target=None,
-                     arrive_radius: float = 0.02) -> SkillResult:
+                     arrive_radius: float = 0.03) -> SkillResult:
+        """Follow the path until the arm is inside `arrive_radius` of the target.
+
+        The radius is the plant's doing: the follower stops at the last waypoint (0.03 rad away)
+        and the servo lags behind it, so the observed arrival error is 22-30 mm.
+        """
         """Follow the current path. The safety filter is active unless `use_filter` is False.
 
         The call succeeds when the arm is inside `arrive_radius` of the TARGET - not when it

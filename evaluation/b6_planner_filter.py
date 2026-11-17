@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -64,8 +65,15 @@ def dls_realise_goal(env, cartesian_goal: np.ndarray, q_start: np.ndarray,
     Returns a list of (ik_error_m, clearance_m, q) sorted by the IK error.
     """
     out: List[Tuple[float, float, np.ndarray]] = []
+    # The restarts come from the PLANNER'S sampling box (J1 in +-pi/2, J4/J6 in +-pi), not from
+    # the arm's full joint range: a goal realisation outside that box is a configuration the
+    # planner can never connect to, so the first version of this experiment measured a lower
+    # planning success than the planner actually achieves.
+    lo, hi = env.lo.copy(), env.hi.copy()
+    lo[[0, 3, 5]] = np.maximum(lo[[0, 3, 5]], [-math.pi / 2, -math.pi, -math.pi])
+    hi[[0, 3, 5]] = np.minimum(hi[[0, 3, 5]], [math.pi / 2, math.pi, math.pi])
     for i in range(tries):
-        q = np.array(q_start if i == 0 else rng.uniform(env.lo, env.hi), float)
+        q = np.array(q_start if i == 0 else rng.uniform(lo, hi), float)
         env._set_q(q)
         for _ in range(steps):
             e = cartesian_goal - env.tcp()
@@ -76,7 +84,9 @@ def dls_realise_goal(env, cartesian_goal: np.ndarray, q_start: np.ndarray,
                 dq = J.T @ np.linalg.solve(J @ J.T + 0.05 ** 2 * np.eye(3), e)
             except np.linalg.LinAlgError:
                 break
-            q = np.clip(q + dq, env.lo, env.hi)
+            # clipped to the planner's box, not only to the arm's limits: the descent can walk
+            # out of the box, and a realisation the planner cannot connect to is in vain.
+            q = np.clip(q + dq, lo, hi)
             env._set_q(q)
         err = float(np.linalg.norm(cartesian_goal - env.tcp()))
         env._set_q(q)
