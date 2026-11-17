@@ -469,9 +469,9 @@ worst case 16.0 s. The eight failures are reported as failures.
 | unfiltered policy | 38.7 % | 36.0 % | 38.7 % | 40.7 % | **0 %** |
 | bounded all-pair QP (4 cm) | 48.7 % | 45.3 % | **0 %** | **0 %** | **0 %** |
 | **execution-aware (1 cm)** | **56.7 %** | **54.0 %** | **0 %** | **0 %** | **0 %** |
-| planner + waypoint follower | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
-| planner + bounded QP | 80.0 % | 4.0 % | **0 %** | **0 %** | **0 %** |
-| planner + execution-aware | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + waypoint follower | **82.0 %** | 12.0 % | **0 %** | **0 %** | **0 %** |
+| planner + bounded QP | 76.0 % | 12.0 % | **0 %** | **0 %** | **0 %** |
+| planner + execution-aware | **82.0 %** | 12.0 % | **0 %** | **0 %** | **0 %** |
 
 **The harness is validated against §8.** The 6 s column is not a new measurement — it is the
 same measurement code on the same episodes, and it reproduces the confirmatory table cell for
@@ -479,13 +479,13 @@ cell: 36.0 %, 45.3 % and 54.0 % completion, and 38.7 % / 40.7 % envelope collisi
 unfiltered policy.
 
 * **The filter works across proposal sources, and it is redundant on a good one.** On the
-  planner it changes nothing (84.0 % → 84.0 % with the execution-aware filter, 80.0 % with the
+  planner it changes nothing (82.0 % → 82.0 % with the execution-aware filter, 76.0 % with the
   bounded QP — slightly worse, because the QP brakes a follower that was already safe). On the
   reactive policy the same filter turns 38.7 % into 56.7 % and 38.7 % envelope collisions into
   0 %. **The filter's value is not a property of the filter; it is a property of how bad the
   proposal is.**
 * **On this task the learned policy adds nothing on top of a planner** that is handed the same
-  information: 84.0 % against 56.7 %. That is a statement about this task (a policy trained on
+  information: 82.0 % against 56.7 %. That is a statement about this task (a policy trained on
   random walls, evaluated on taller and wider ones), not about learning in general.
 * **The planner is slow.** At 6 s it has completed 4 % of the episodes against the filtered
   policy's 54 %: the waypoint follower moves at most 0.6 rad/s. The 84 % figure is a 30 s
@@ -615,7 +615,47 @@ Per training seed (B4+ and the execution-aware filter):
 ---
 
 
-## 14. What is NOT in this document
+## 14. The agent line: the strong rule-based baseline
+
+Source: `data/reports/learning/agent_benchmark_{seen,unseen}.json` and
+`agent_episodes_{seen,unseen}.json`, script `evaluation/agent_benchmark.py`.
+
+The task: three Cartesian inspection points (the TCP positions of the episode's goal
+configuration with the base joint swept by ±15°), visited in order; at each one the arm **holds**
+within 3.5 cm for five control steps. The radius is set by the plant: the measured servo
+tracking error is 3–15 mm and the arm's observed error at the end of a followed path is
+22–30 mm. Four fault types are injected with stated rates; the **unseen** profile uses the same
+fault types at different rates.
+
+**A0, the hand-written state machine** (50 episodes per profile, the same seeds for every
+policy so the comparison is paired):
+
+| fault profile | task completed | inspections | **mesh contact** | **envelope contact** | tool calls | invalid calls | reward |
+|---|---|---|---|---|---|---|---|
+| seen | **52 %** | 1.88 / 3 | **0 %** | **0 %** | 27.7 | 15.7 | −15.23 |
+| unseen | **48 %** | 1.78 / 3 | **0 %** | **0 %** | 28.8 | 16.4 | −16.06 |
+
+* **The baseline is competent**, so it is a real bar: it completes the whole task in half of the
+  episodes, and the completed episodes take 16.4 tool calls. A learned agent has to beat 52 %
+  (48 % under unseen faults) *without* giving up the safety property.
+* **The safety layer holds in every episode**: zero mesh contacts and zero envelope contacts in
+  all 150 episodes under both profiles, minimum mesh clearance 71 mm. The agent's decisions are
+  about efficiency and recovery; the safety layer is what keeps the arm off the wall.
+* **The dominant failure is the TOOL, not the policy**: 681 of the failing calls in the seen
+  profile are `plan_failed` (741 in the unseen one) against 64 and 35 `stale`. The planner — the
+  agent's most important tool — cannot connect reliably.
+* **The unseen fault profile costs 4 points of completion** (52 % → 48 %) with the same zero
+  collisions.
+
+**Not yet done:** A1 (prompt-only LLM) needs a language model — the harness reads the key from
+the environment and never from the repository. A2 (SFT) and A4 (GRPO/RLVR) need a GPU; the
+dataset generator and the training loop are written and tested, but the training has not been run
+and no number from them appears in the paper.
+
+---
+
+
+## 15. What is NOT in this document
 
 * No hardware result. The CR10A was never connected or moved during these runs; the motion
   module stays disabled and the port allowlist is unchanged.

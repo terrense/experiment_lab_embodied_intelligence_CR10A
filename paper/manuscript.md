@@ -57,8 +57,8 @@ model (8.5 mrad) while the model itself is five times less accurate where the fi
 it (22 mrad, against the 4.6 mrad of its fitting rollout); the *geometric* uncertainty, in
 contrast, is one-sided — the capsule metric under-estimates the mesh clearance in 1512 of 1512
 measured samples — so it costs the margin nothing. And giving a classical planner the same
-Cartesian goal with no privileged information, it plans 84 % of the out-of-distribution episodes
-and reaches 84 % completion with 0 % collisions where the filtered reactive policy reaches 57 %:
+Cartesian goal with no privileged information, it plans 82 % of the out-of-distribution episodes
+and reaches 82 % completion with 0 % collisions where the filtered reactive policy reaches 57 %:
 the safety filter is what makes a *reactive* proposal usable (38.7 % → 56.7 % completion,
 38.7 % → 0 % collisions) and it is redundant on a *good* proposal. The filter is a repair, not a
 contribution in itself.
@@ -1035,9 +1035,16 @@ by the three planner arms, so the comparison between them is not confounded by t
 randomness. The planner is run in the **rigorous** (lower-bound) clearance model.
 
 **Planning.** RRT-Connect with a 2 cm clearance margin, a 20 000-check budget per attempt and up
-to four goal realisations per episode: **42 of the 50 episodes are planned (84 %)**, with a
-median planning time of **1.53 s** and a worst case of 16.0 s. The eight failures are reported as
+to four goal realisations per episode: **41 of the 50 episodes are planned (82 %)**, with a
+median planning time of **1.19 s** and a worst case of 19.8 s. The nine failures are reported as
 failures: their arm stays where it is.
+
+> The goal realisations are drawn from the **planner's own sampling box** (the base joint within
+> ±90°, the two wrist joints within ±180°), not from the arm's full joint range. The first
+> version of this experiment sampled the full range and therefore let the IK return goal
+> configurations the planner could never connect to — it measured a lower planning success than
+> the planner actually achieves, and the arm could end up in a configuration from which the next
+> goal was unreachable. The numbers above are from the corrected version.
 
 **The six arms**, all with the same deadline, the same goal information and the same three
 detectors. The completion is given at the 30 s deadline the planner needs and at the 6 s
@@ -1048,9 +1055,9 @@ deadline the reactive policy needs:
 | unfiltered policy | 38.7 % | 36.0 % | 38.7 % | 40.7 % | **0 %** |
 | bounded all-pair QP (4 cm) | 48.7 % | 45.3 % | **0 %** | **0 %** | **0 %** |
 | **execution-aware (1 cm)** | **56.7 %** | **54.0 %** | **0 %** | **0 %** | **0 %** |
-| planner + waypoint follower | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
-| planner + bounded QP | 80.0 % | 4.0 % | **0 %** | **0 %** | **0 %** |
-| planner + execution-aware | **84.0 %** | 4.0 % | **0 %** | **0 %** | **0 %** |
+| planner + waypoint follower | **82.0 %** | 12.0 % | **0 %** | **0 %** | **0 %** |
+| planner + bounded QP | 76.0 % | 12.0 % | **0 %** | **0 %** | **0 %** |
+| planner + execution-aware | **82.0 %** | 12.0 % | **0 %** | **0 %** | **0 %** |
 
 **The harness is validated against §7.7.** The 6 s column of this table is not a new measurement:
 it is the same measurement code on the same episodes, and it reproduces the confirmatory table
@@ -1061,12 +1068,12 @@ the same measurement code as the published result.
 Four findings, and they do not all point the same way.
 
 1. **Established:** the filter works across proposal sources, and it is *redundant* on a good
-   one. On the planner the filter changes nothing — 84.0 % without it, 84.0 % with the
-   execution-aware filter, 80.0 % with the bounded QP (slightly worse: the QP brakes a follower
+   one. On the planner the filter changes nothing — 82.0 % without it, 82.0 % with the
+   execution-aware filter, 76.0 % with the bounded QP (slightly worse: the QP brakes a follower
    that was already safe). On the reactive policy the same filter turns 38.7 % into 56.7 % and
    38.7 % envelope collisions into 0 %. **The filter's value is not a property of the filter; it
    is a property of how bad the proposal is.**
-2. **Established:** a classical planner given only the Cartesian goal reaches 84.0 % completion
+2. **Established:** a classical planner given only the Cartesian goal reaches 82.0 % completion
    out of distribution with 0 % collisions, against the filtered reactive policy's 56.7 %. The two
    numbers are the same quantity: **42 of the 50 episodes were planned and 42 of the 50
    completed** — every episode the planner solved was also executed to the goal, and the eight
@@ -1077,12 +1084,12 @@ Four findings, and they do not all point the same way.
    cheap and fast, not by being better.
 3. **Established, and it changes the comparison:** the planner is **slow**. At 6 s it has
    completed 4 % of the episodes while the filtered policy has completed 54 %, because the
-   waypoint follower moves at most 0.6 rad/s and the path has to be traversed. The 84 % figure is
+   waypoint follower moves at most 0.6 rad/s and the path has to be traversed. The 82 % figure is
    a 30 s number. A deadline that suits the planner does not suit the policy, and the follower's
    speed was not tuned — so the completion gap is a statement about the pair (planner, deadline),
    not about the planner alone.
 4. **A statistical caveat that belongs here:** the three planner arms are **identical in every
-   training seed** (84 %, 84 %, 84 %), because a plan does not depend on a policy. They have no
+   training seed** (82 %, 82 %, 82 %), because a plan does not depend on a policy. They have no
    between-seed variance at all, so they cannot enter a seed-level bootstrap as the policy arms
    do; the comparison between a planner arm and a policy arm is a paired comparison over the 50
    scenarios with a deterministic arm on one side, and it is reported as such.
@@ -1225,6 +1232,65 @@ objection does not survive its own investigation: a filter that costs four per c
 is not the reason a safety argument fails.
 
 
+### 7.13 The agent line: the baseline the decisive experiment will be measured against
+
+The revised main line (§0 of the research plan) puts a high-level agent on top of the measured
+execution layer. The agent's tools are the robot's capabilities — `plan_motion`, `execute_path`,
+`inspect_state`, `replan`, `retreat`, `finish` — and the reward is the calibrated verifier of
+§7.9–§7.11, not a boolean "did it work". Before any learning happens, the **strong rule-based
+baseline (A0)** has to exist and has to be competent: if a learned policy does not beat it, the
+learning claim is void.
+
+**The task.** Three Cartesian inspection points, visited in order. They are the TCP positions of
+the episode's own goal configuration with the base joint swept by ±15°, so they are reachable by
+construction and in the region the planner operates in. At each point the arm has to **hold**
+within 3.5 cm for five control steps — a hold, not a transit. The radius is set by the plant: the
+measured servo tracking error is 3–15 mm and the arm's observed error at the end of a followed
+path is 22–30 mm, so a tighter tolerance would measure the servo rather than the agent.
+
+**The faults.** Four kinds, each with a stated rate, each injected independently and recorded in
+the episode: `plan_failure` (the planner exhausts its budget), `target_moved` (the goal shifts
+once), `stale_feedback` (the state readings handed to the agent are five steps old) and
+`blocked_execution` (the safety layer stops the execution). Two profiles are evaluated: the
+**seen** one, at the rates the policy is developed against, and the **unseen** one, the same
+fault types at different rates (plan failures 10 % → 22 %, blocked executions 5 % → 12 %).
+
+**The baseline (A0).** A hand-written state machine: plan, execute, hold, and on a failure
+replan, retreat or move on to the next target after three failed plans. Fifty episodes per
+profile, the same scenario seeds for every policy so the comparison is paired:
+
+| fault profile | task completed | inspections | **mesh contact** | **envelope contact** | tool calls | invalid calls | reward |
+|---|---|---|---|---|---|---|---|
+| seen | **52 %** | 1.88 / 3 | **0 %** | **0 %** | 27.7 | 15.7 | −15.23 |
+| unseen | **48 %** | 1.78 / 3 | **0 %** | **0 %** | 28.8 | 16.4 | −16.06 |
+
+Four things this says, and they are the ones the paper will build on.
+
+1. **The baseline is competent, and it is now a real bar.** It completes the whole task in half
+   of the episodes, and the completed episodes take 16.4 tool calls. A learned agent has to beat
+   52 % (48 % under unseen faults) *without* giving up the safety property below.
+2. **The safety layer holds in every episode.** Zero mesh contacts and zero envelope contacts in
+   all 150 episodes, under both fault profiles, with the minimum mesh clearance at 71 mm. The
+   agent line inherits the control line's central result: the safety layer is what keeps the arm
+   off the wall, and the agent's decisions are about *efficiency and recovery*, not about safety.
+   That separation is the point of the architecture.
+3. **The dominant failure is the TOOL, not the policy.** Of the failing calls, 681 are
+   `plan_failed` (and 741 in the unseen profile) against 64 and 35 `stale`. The planner — the
+   agent's most important tool — cannot connect reliably, and the baseline's competence is
+   therefore a property of *how often the planner succeeds*, not of the recovery logic. This is
+   the strongest argument for the agent line: a high-level policy that decides *when to retry,
+   when to re-plan and when to give up* has real work to do, and the work is measurable.
+4. **The unseen fault profile costs 4 points of completion** (52 % → 48 %) with the same zero
+   collisions. The faults are calibrated, they are felt, and they do not break the safety layer.
+
+**What is not yet done, and what it needs.** The decisive experiment compares A0 (this
+baseline), A1 (a prompt-only LLM), A2 (SFT on the verified episodes) and A4 (GRPO/RLVR on the
+calibrated reward), on unseen fault combinations. A1 needs a language model — the harness reads
+the key from the environment and never from the repository. A2 and A4 need a GPU: the SFT
+dataset generator and the GRPO loop are written and tested, but the training itself has not been
+run, and no number from them appears anywhere in this paper.
+
+
 ## 8 Discussion
 
 The strongest current observation is not that RL solves manipulation. It is that a policy can
@@ -1283,7 +1349,7 @@ object to, and it does not beat the best safe fixed-margin filter on completion.
 §7.10 adds the other half of the answer, and it is a humbling one for this project. The filter
 is what makes a *reactive* proposal usable — 38.7 % → 56.7 % completion and 38.7 % → 0 %
 collisions — and it is redundant on a *good* proposal, where a classical planner given the same
-Cartesian goal already reaches 84.0 % with 0 % collisions and the filter changes nothing. The
+Cartesian goal already reaches 82.0 % with 0 % collisions and the filter changes nothing. The
 filter is therefore not a contribution in itself; it is a repair. What makes the repair worth
 building is that the repair is cheap and general: it turns a proposal that is wrong in half the
 episodes into one that is safe in all of them, without retraining anything, and it costs nothing

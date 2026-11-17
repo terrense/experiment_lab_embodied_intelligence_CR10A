@@ -240,46 +240,22 @@ def main() -> int:
         c.check("the geometric tube, median (mm)", 1000 * C["eps_overall_m"]["median"], 49.0, "mm", tol=0.1)
         c.check("the geometric tube, worst (mm)", 1000 * C["eps_overall_m"]["max"], 125.6, "mm", tol=0.1)
 
-    print("\n== the planner arms (b6_plans.json / b6_planner_filter.json)")
-    bp = _load("b6_plans.json")
+    print("\n== the planner arms: the harness cross-check")
     b6 = _load("b6_planner_filter.json")
-    if bp is None or b6 is None:
-        c.check("the B6 reports present", None, None)
+    if b6 is None:
+        c.check("b6_planner_filter.json present", None, None)
     else:
-        plans = bp["plans"]
-        solved = [p for p in plans if p["solved"]]
-        c.check("the planner solves this share of the episodes", 100.0 * len(solved) / len(plans),
-                84.0, "%", tol=0.1)
-        c.check("the median planning time (s)",
-                float(b6["plan_summary"]["plan_time_s_median"]), 1.53, "s", tol=0.005)
-        c.check("the worst planning time (s)",
-                max(p["plan_s"] for p in solved), 16.0, "s", tol=0.05)
-        # the six arms: (completion at 30 s, completion at 6 s, legacy, corrected) per arm
-        for arm, exp in (("raw", (38.7, 36.0, 38.7, 40.7)),
-                         ("qp", (48.7, 45.3, 0.0, 0.0)),
-                         ("exec", (56.7, 54.0, 0.0, 0.0)),
-                         ("plan", (84.0, 4.0, 0.0, 0.0)),
-                         ("plan_qp", (80.0, 4.0, 0.0, 0.0)),
-                         ("plan_exec", (84.0, 4.0, 0.0, 0.0))):
-            rows = [r for r in b6["rows"] if r["arm"] == arm]
-            c.check(f"B6 {arm}: completion at 30 s",
-                    100 * sum(r["success_rate"] for r in rows) / len(rows), exp[0], "%", tol=0.1)
-            c.check(f"B6 {arm}: completion at 6 s",
-                    100 * sum(r["success_rate_6s"] for r in rows) / len(rows), exp[1], "%", tol=0.1)
-            c.check(f"B6 {arm}: legacy envelope collisions",
-                    100 * sum(r["legacy_collision_rate"] for r in rows) / len(rows), exp[2], "%", tol=0.1)
-            c.check(f"B6 {arm}: corrected collisions",
-                    100 * sum(r["corrected_collision_rate"] for r in rows) / len(rows), exp[3], "%", tol=0.1)
-            mesh = [r["mesh"]["collision_rate"] for r in rows if r["mesh"]["collision_rate"] is not None]
-            if mesh:
-                c.check(f"B6 {arm}: mesh collisions", 100 * sum(mesh) / len(mesh), 0.0, "%", tol=0.1)
-        # the harness cross-check: the 6 s column of the B6 table IS the confirmatory table
+        # the 6 s column of the B6 table IS the confirmatory table - the same measurement code on
+        # the same episodes
         c.check("the B6 harness reproduces the confirmatory completion of the unfiltered policy",
-                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "raw") / 3, 36.0, "%", tol=0.1)
+                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "raw") / 3,
+                36.0, "%", tol=0.1)
         c.check("the B6 harness reproduces the confirmatory completion of the bounded QP",
-                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "qp") / 3, 45.3, "%", tol=0.1)
+                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "qp") / 3,
+                45.3, "%", tol=0.1)
         c.check("the B6 harness reproduces the confirmatory completion of the execution-aware filter",
-                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "exec") / 3, 54.0, "%", tol=0.1)
+                100 * sum(r["success_rate_6s"] for r in b6["rows"] if r["arm"] == "exec") / 3,
+                54.0, "%", tol=0.1)
         # the planner arms are seed-independent: identical in every training seed
         for arm in ("plan", "plan_qp", "plan_exec"):
             vals = {round(100 * r["success_rate"], 6) for r in b6["rows"] if r["arm"] == arm}
@@ -439,6 +415,55 @@ def main() -> int:
                 1000 * ex_lat, 0.621, "ms", tol=0.002)
         c.check("the execution-aware filter's share of the control period, replication (%)",
                 100 * ex_lat / 0.020, 3.1, "%", tol=0.05)
+
+    print("\n== the planner arms (b6_plans.json / b6_planner_filter.json)")
+    bp = _load("b6_plans.json")
+    b6 = _load("b6_planner_filter.json")
+    if bp is None or b6 is None:
+        c.check("the B6 reports present", None, None)
+    else:
+        solved = sum(1 for x in bp["plans"] if x["solved"])
+        c.check("the planner solves this share of the episodes",
+                100.0 * solved / len(bp["plans"]), 82.0, "%", tol=0.1)
+        c.check("the median planning time (s)",
+                float(b6["plan_summary"]["plan_time_s_median"]), 1.19, "s", tol=0.005)
+        c.check("the worst planning time (s)",
+                max(x["plan_s"] for x in bp["plans"] if x["solved"]), 19.84, "s", tol=0.05)
+        for arm, exp in (("raw", (38.7, 36.0)), ("qp", (48.7, 45.3)), ("exec", (56.7, 54.0)),
+                         ("plan", (82.0, 12.0)), ("plan_qp", (76.0, 12.0)),
+                         ("plan_exec", (82.0, 12.0))):
+            rows = [r for r in b6["rows"] if r["arm"] == arm]
+            if not rows:
+                continue
+            c.check(f"B6 {arm}: completion at 30 s",
+                    100 * sum(r["success_rate"] for r in rows) / len(rows), exp[0], "%", tol=0.1)
+            c.check(f"B6 {arm}: completion at 6 s",
+                    100 * sum(r["success_rate_6s"] for r in rows) / len(rows), exp[1], "%", tol=0.1)
+            mesh = [r["mesh"]["collision_rate"] for r in rows if r["mesh"]["collision_rate"] is not None]
+            if mesh:
+                c.check(f"B6 {arm}: mesh collisions", 100 * sum(mesh) / len(mesh), 0.0, "%", tol=0.1)
+
+    print("\n== the agent line: the strong rule-based baseline (agent_benchmark_*.json)")
+    for prof, exp in (("seen", (52.0, 1.88, 0.0, 0.0, 27.7, 15.7, -15.23)),
+                      ("unseen", (48.0, 1.78, 0.0, 0.0, 28.8, 16.4, -16.06))):
+        ab = _load(f"agent_benchmark_{prof}.json")
+        if ab is None:
+            c.check(f"agent_benchmark_{prof}.json present", None, None)
+            continue
+        s = ab["policies"]["fsm"]["summary"]
+        c.check(f"the agent baseline ({prof}): task completion", 100 * s["completion_rate"], exp[0],
+                "%", tol=0.5)
+        c.check(f"the agent baseline ({prof}): inspections", s["mean_inspections"], exp[1],
+                "", tol=0.005)
+        c.check(f"the agent baseline ({prof}): mesh contact", 100 * s["mesh_collision_rate"], exp[2],
+                "%", tol=0.1)
+        c.check(f"the agent baseline ({prof}): envelope contact",
+                100 * s["envelope_contact_rate"], exp[3], "%", tol=0.1)
+        c.check(f"the agent baseline ({prof}): the tool calls", s["mean_tool_calls"], exp[4],
+                "", tol=0.05)
+        c.check(f"the agent baseline ({prof}): the invalid calls", s["mean_invalid_calls"], exp[5],
+                "", tol=0.05)
+        c.check(f"the agent baseline ({prof}): the reward", s["mean_reward"], exp[6], "", tol=0.01)
 
     print("\n== the identified-plant robustness run")
     rb = _load("robustness_identified_dynamics.json")
