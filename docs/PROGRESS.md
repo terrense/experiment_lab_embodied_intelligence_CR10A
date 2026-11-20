@@ -768,3 +768,35 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
      search that takes seconds.
   The `target_moved` fault also now fires ONCE per target: it used to fire on every planning
   call, so every retry moved the goal again - a moving goalpost rather than a recovery problem.
+- **The hardware channel measurement is PREPARED and TESTED** (the paper's missing hardware
+  piece). The command channel - the premise of the whole "execution-aware" argument - has only
+  ever been measured on the simulator (14.9 mrad of coast at a 1 rad/s command; ω = 37.7 rad/s,
+  ζ = 0.90, v_gain = 0.80). Two new pieces:
+  * `ros2_ws/src/ex_dobot_motion/ex_dobot_motion/channel.py` - the on-site capture. A small
+    **wrist step** (J5, 4 deg by default) out and back, recorded from the read-only feedback at
+    ~125 Hz with the commanded target, the measured position and the measured velocity. It
+    inherits the excitation runner's safety properties unchanged: **dry run by default**,
+    `--execute --confirm I_AM_AT_THE_ROBOT_WITH_ESTOP`, the command whitelist, MovJ only,
+    v/a inside the caps, the plan validated against the safety envelope BEFORE anything is sent,
+    an abort (Stop + DisableRobot) on a controller error, a collision flag, an unexpected mode,
+    feedback loss or an envelope violation, and a per-packet check while the move runs. The
+    caps are NOT widened.
+  * `evaluation/measure_execution_hardware.py` - the offline analysis. It fits the SAME
+    second-order model on the SAME grids as the simulator's identification, measures the
+    **residual motion** (the hardware counterpart of the coast) and the **response delay**
+    directly, and writes the SAME JSON schema, so the two channels become two numbers in one
+    table. Without a capture it says so and exits; **it never invents a number.**
+  * `docs/HARDWARE_CHANNEL_SESSION.md` - the on-site procedure, including the one thing that can
+    waste the session: **the excitation has to be fast relative to the servo**. The servo settles
+    in 2ζ/ω = 48 ms, and the controller's own interpolation is slow, so a slow ramp lets many
+    parameter sets reproduce the response equally well and the fit reports the nearest grid
+    point instead of the model. The procedure says to use the highest permitted speed and the
+    smallest step above the feedback noise, and says what to do if the fit lands on a grid edge.
+  * 7 new tests (`learning/tests/test_hardware_channel.py`): the plan's bounds and its envelope
+    validation, the analysis on a SYNTHETIC capture generated from the simulator's own model
+    (a fitting that cannot recover a known model would not be trusted with the real arm), the
+    residual-motion and delay measurements, and the honest path - no capture, no report.
+- Two findings came out of writing the analysis, and both are about the EXPERIMENT, not the code:
+  the identification is only as good as the excitation (a slow ramp hides the parameters), and
+  the tracking lag has to be measured DIRECTLY as well as fitted, because a direct measurement does
+  not inherit the model's identifiability problem.
