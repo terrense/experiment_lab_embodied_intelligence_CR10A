@@ -4,19 +4,24 @@
 that it lives in git next to the code and the data that produced it, and so that every claim in it
 can be checked against a committed artefact.
 
-## Why Markdown and not PDF
+## The PDF
 
-Neither `pandoc` nor a LaTeX toolchain is installed in this environment (`pandoc`, `pdflatex`,
-`xelatex` and `tectonic` were all checked and none is present), so a PDF cannot be generated
-here. When a toolchain becomes available:
+`manuscript.pdf` is **built from `manuscript.md`**, which stays the source of truth. There is no
+LaTeX toolchain in this environment, so the build goes through HTML:
 
 ```bash
-pandoc paper/manuscript.md -o paper/manuscript.pdf            # plain pandoc
-pandoc paper/manuscript.md -o paper/manuscript.pdf --citeproc --bibliography refs.bib
+bash paper/build_pdf.sh              # -> paper/manuscript.pdf (24 pages, A4)
+bash paper/build_pdf.sh --html-only  # -> paper/manuscript.html, for inspection
 ```
 
-With a LaTeX toolchain and `main.tex` as the master file, `latexmk -pdf paper/main.tex` is the
-alternative. The Markdown is the source of truth either way: the PDF is a build artefact.
+The script runs `pandoc` (from the Ubuntu archive: `apt-get install pandoc`) to turn the
+Markdown into a self-contained HTML - the figures are inlined as data URIs, so the PDF does not
+depend on the repository layout - and then prints that HTML with Edge in headless mode, which is
+the only HTML-to-PDF engine on this machine. `paper/paper.css` is the print stylesheet.
+
+**A PDF that nobody can rebuild is not an artefact.** After any edit to the Markdown, re-run the
+script; the committed PDF is regenerated from the committed Markdown, and the claim checker
+(`evaluation/verify_claims.py`) is what keeps the two honest with the data.
 
 ## Structure
 
@@ -61,6 +66,7 @@ Figures are generated from the committed JSON reports, never hand-drawn:
 | The execution gap (Fig. 6) | `evaluation/plot_execution_gap.py` | `assets/learning/execution_gap.png` |
 | The stopping tail (Fig. 7) | `evaluation/plot_stopping_tail.py` | `assets/learning/stopping_tail.png` |
 | Per-stage plots | `evaluation/plot_*.py` | `assets/learning/*.png` |
+| The PDF | `paper/build_pdf.sh` | `paper/manuscript.pdf` |
 
 Regenerating a figure after a re-run is a two-line command; the numbers in the caption are read
 from the same JSON that produced the picture.

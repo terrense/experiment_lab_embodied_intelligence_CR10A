@@ -1,0 +1,130 @@
+/* The paper's print stylesheet. Used by paper/build_pdf.sh (pandoc -> HTML -> Edge -> PDF).
+   It is deliberately plain: a readable two-column-free academic layout that prints well. */
+
+@page {
+  size: A4;
+  margin: 20mm 18mm 18mm 18mm;
+}
+
+html {
+  font-size: 10.5pt;
+  color: #1f2328;
+  background: #fff;
+}
+
+body {
+  max-width: 46em;
+  margin: 0 auto;
+  line-height: 1.5;
+  font-family: "Source Serif 4", "Charter", "Georgia", "Times New Roman", serif;
+  text-align: justify;
+  hyphens: auto;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #0d1117;
+  text-align: left;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+  page-break-after: avoid;
+}
+
+h1 { font-size: 1.7em; margin-top: 0; }
+h2 { font-size: 1.3em; border-bottom: 1px solid #d8dee4; padding-bottom: 0.2em; }
+h3 { font-size: 1.08em; }
+h4 { font-size: 1em; color: #3a424a; }
+
+p { margin: 0.55em 0; orphans: 2; widows: 2; }
+
+a { color: #0b5cad; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: 650; }
+em { font-style: italic; }
+
+code {
+  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  font-size: 0.88em;
+  background: #f4f6f8;
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+
+pre {
+  background: #f4f6f8;
+  border-left: 3px solid #c9d1d9;
+  padding: 0.6em 0.8em;
+  overflow-x: auto;
+  font-size: 0.82em;
+  line-height: 1.4;
+  border-radius: 0 4px 4px 0;
+}
+pre code { background: none; padding: 0; }
+
+/* the tables are the paper's main instrument: keep them together and readable */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.9em 0;
+  font-size: 0.84em;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  page-break-inside: avoid;
+}
+th, td {
+  border-bottom: 1px solid #d8dee4;
+  padding: 0.32em 0.5em;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  border-bottom: 2px solid #8c959f;
+  font-weight: 600;
+  color: #0d1117;
+}
+tbody tr:nth-child(even) { background: #fafbfc; }
+
+img {
+  max-width: 100%;
+  margin: 0.7em 0;
+  page-break-inside: avoid;
+}
+
+blockquote {
+  margin: 0.9em 0;
+  padding: 0.5em 0.9em;
+  border-left: 3px solid #b6bec7;
+  background: #f7f9fa;
+  color: #3a424a;
+  font-size: 0.95em;
+}
+blockquote p { margin: 0.35em 0; }
+
+ul, ol { margin: 0.5em 0 0.7em 1.4em; padding: 0; }
+li { margin: 0.2em 0; }
+
+hr {
+  border: 0;
+  border-top: 1px solid #d8dee4;
+  margin: 1.6em 0;
+}
+
+#TOC {
+  background: #f7f9fa;
+  border: 1px solid #e2e6ea;
+  border-radius: 6px;
+  padding: 0.8em 1em;
+  margin-bottom: 1.6em;
+  font-size: 0.9em;
+}
+#TOC ul { margin: 0.2em 0; }
+#TOC > ul > li { font-weight: 600; margin-top: 0.35em; }
+
+.title, .author { text-align: center; }
+.title { font-size: 1.6em; font-weight: 650; margin-bottom: 0.3em; }
+.author { color: #59636e; font-size: 0.95em; margin-bottom: 1.4em; }
+
+/* The Markdown's own H1 and the author line duplicate the title block that pandoc builds from
+   the metadata, so the document's first heading and the line after it are hidden. */
+h1[id] { display: none; }
+h1[id] + p { display: none; }

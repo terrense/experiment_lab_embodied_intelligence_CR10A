@@ -28,3 +28,7 @@ scripts/remote/remote_config.local.sh
 # the language model key for the agent line (the harness reads it from the ENVIRONMENT at run
 # time; this file only makes it convenient, and it must never be committed)
 scripts/agent/*.local.sh
+
+# the paper's HTML is an intermediate of the PDF build (paper/build_pdf.sh); the PDF itself is
+# committed, the HTML is not
+paper/manuscript.html

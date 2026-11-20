@@ -800,3 +800,10 @@ powershell -File scripts/capture_rviz_window.ps1 -Out assets/screenshots/...
   the identification is only as good as the excitation (a slow ramp hides the parameters), and
   the tracking lag has to be measured DIRECTLY as well as fitted, because a direct measurement does
   not inherit the model's identifiability problem.
+- **The paper's PDF is BUILT from the committed Markdown.** There is no LaTeX here, so the build
+  goes through HTML: `pandoc` (installed from the Ubuntu archive) makes a self-contained HTML -
+  the figures are inlined as data URIs - and Edge in headless mode prints it to
+  `paper/manuscript.pdf` (**24 pages, A4**). `paper/build_pdf.sh` does it in one command and
+  `paper/paper.css` is the print stylesheet. The Markdown stays the source of truth; the PDF is
+  a build artefact, and re-running the script after an edit is the whole point - a PDF nobody can
+  rebuild is not an artefact. The README and `paper/README.md` now say how.

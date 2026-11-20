@@ -124,7 +124,11 @@ collisions into 0 %. The filter's value is not a property of the filter; it is a
 bad the proposal is. The 6 s column is a cross-check: the same measurement code reproduces §7.7's
 confirmatory table cell for cell (36.0 %, 45.3 %, 54.0 %).
 
-The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
+The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md), with the
+built **PDF** at [`paper/manuscript.pdf`](paper/manuscript.pdf) (`bash paper/build_pdf.sh`
+regenerates it from the Markdown). Every number in it has a committed JSON behind it, listed in
+[`docs/RESULTS.md`](docs/RESULTS.md), and the claim checker
+(`evaluation/verify_claims.py`) re-derives them and fails loudly when they drift.
 
 ## An explored direction that is not part of this paper
 
