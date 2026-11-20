@@ -1232,65 +1232,6 @@ objection does not survive its own investigation: a filter that costs four per c
 is not the reason a safety argument fails.
 
 
-### 7.13 The agent line: the baseline the decisive experiment will be measured against
-
-The revised main line (§0 of the research plan) puts a high-level agent on top of the measured
-execution layer. The agent's tools are the robot's capabilities — `plan_motion`, `execute_path`,
-`inspect_state`, `replan`, `retreat`, `finish` — and the reward is the calibrated verifier of
-§7.9–§7.11, not a boolean "did it work". Before any learning happens, the **strong rule-based
-baseline (A0)** has to exist and has to be competent: if a learned policy does not beat it, the
-learning claim is void.
-
-**The task.** Three Cartesian inspection points, visited in order. They are the TCP positions of
-the episode's own goal configuration with the base joint swept by ±15°, so they are reachable by
-construction and in the region the planner operates in. At each point the arm has to **hold**
-within 3.5 cm for five control steps — a hold, not a transit. The radius is set by the plant: the
-measured servo tracking error is 3–15 mm and the arm's observed error at the end of a followed
-path is 22–30 mm, so a tighter tolerance would measure the servo rather than the agent.
-
-**The faults.** Four kinds, each with a stated rate, each injected independently and recorded in
-the episode: `plan_failure` (the planner exhausts its budget), `target_moved` (the goal shifts
-once), `stale_feedback` (the state readings handed to the agent are five steps old) and
-`blocked_execution` (the safety layer stops the execution). Two profiles are evaluated: the
-**seen** one, at the rates the policy is developed against, and the **unseen** one, the same
-fault types at different rates (plan failures 10 % → 22 %, blocked executions 5 % → 12 %).
-
-**The baseline (A0).** A hand-written state machine: plan, execute, hold, and on a failure
-replan, retreat or move on to the next target after three failed plans. Fifty episodes per
-profile, the same scenario seeds for every policy so the comparison is paired:
-
-| fault profile | task completed | inspections | **mesh contact** | **envelope contact** | tool calls | invalid calls | reward |
-|---|---|---|---|---|---|---|---|
-| seen | **52 %** | 1.88 / 3 | **0 %** | **0 %** | 27.7 | 15.7 | −15.23 |
-| unseen | **48 %** | 1.78 / 3 | **0 %** | **0 %** | 28.8 | 16.4 | −16.06 |
-
-Four things this says, and they are the ones the paper will build on.
-
-1. **The baseline is competent, and it is now a real bar.** It completes the whole task in half
-   of the episodes, and the completed episodes take 16.4 tool calls. A learned agent has to beat
-   52 % (48 % under unseen faults) *without* giving up the safety property below.
-2. **The safety layer holds in every episode.** Zero mesh contacts and zero envelope contacts in
-   all 150 episodes, under both fault profiles, with the minimum mesh clearance at 71 mm. The
-   agent line inherits the control line's central result: the safety layer is what keeps the arm
-   off the wall, and the agent's decisions are about *efficiency and recovery*, not about safety.
-   That separation is the point of the architecture.
-3. **The dominant failure is the TOOL, not the policy.** Of the failing calls, 681 are
-   `plan_failed` (and 741 in the unseen profile) against 64 and 35 `stale`. The planner — the
-   agent's most important tool — cannot connect reliably, and the baseline's competence is
-   therefore a property of *how often the planner succeeds*, not of the recovery logic. This is
-   the strongest argument for the agent line: a high-level policy that decides *when to retry,
-   when to re-plan and when to give up* has real work to do, and the work is measurable.
-4. **The unseen fault profile costs 4 points of completion** (52 % → 48 %) with the same zero
-   collisions. The faults are calibrated, they are felt, and they do not break the safety layer.
-
-**What is not yet done, and what it needs.** The decisive experiment compares A0 (this
-baseline), A1 (a prompt-only LLM), A2 (SFT on the verified episodes) and A4 (GRPO/RLVR on the
-calibrated reward), on unseen fault combinations. A1 needs a language model — the harness reads
-the key from the environment and never from the repository. A2 and A4 need a GPU: the SFT
-dataset generator and the GRPO loop are written and tested, but the training itself has not been
-run, and no number from them appears anywhere in this paper.
-
-
 ## 8 Discussion
 
 The strongest current observation is not that RL solves manipulation. It is that a policy can

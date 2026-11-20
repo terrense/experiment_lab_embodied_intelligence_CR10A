@@ -199,24 +199,36 @@ def parse_tool_call(text: str) -> Optional[Dict]:
     return {"skill": name, "target_index": int(idx.group(1)) if idx else None}
 
 
+class LLMCallError(RuntimeError):
+    """The language model could not be reached, or did not answer in time."""
+
+
 class LanguageModel:
     """A thin wrapper over a chat completion API.
 
     The key is read from the environment at run time (`EX_LEARNING_LLM_API_KEY`) and is NEVER
     committed. The base URL and the model name can be overridden, so the same harness runs
     against a local model served on the compute server.
+
+    The call is retried with a backoff, because a research run that dies on one slow API
+    response is not a research run. A model that keeps failing is a PROPERTY OF THE MEASURED
+    POLICY and is counted, not hidden: `failures` is reported next to the other numbers.
     """
 
     def __init__(self, model: Optional[str] = None, base_url: Optional[str] = None,
                  api_key: Optional[str] = None, temperature: float = 0.0,
-                 max_tokens: int = 64) -> None:
+                 max_tokens: int = 256, timeout_s: float = 120.0,
+                 retries: int = 3) -> None:
         self.model = model or os.environ.get("EX_LEARNING_LLM_MODEL", "gpt-4o-mini")
         self.base_url = base_url or os.environ.get("EX_LEARNING_LLM_BASE_URL") or None
         self.api_key = api_key or os.environ.get("EX_LEARNING_LLM_API_KEY")
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.timeout_s = timeout_s
+        self.retries = retries
         self.calls = 0
         self.total_tokens = 0
+        self.failures = 0
 
     @property
     def available(self) -> bool:
@@ -224,21 +236,32 @@ class LanguageModel:
 
     def chat(self, prompt: str, system: str = "") -> str:
         if not self.api_key:
-            raise RuntimeError("no language model configured: set EX_LEARNING_LLM_API_KEY")
+            raise LLMCallError("no language model configured: set EX_LEARNING_LLM_API_KEY")
+        import time
+        import urllib.error
         import urllib.request
         url = (self.base_url or "https://api.openai.com/v1") + "/chat/completions"
         body = {"model": self.model, "temperature": self.temperature,
                 "max_tokens": self.max_tokens,
                 "messages": ([{"role": "system", "content": system}] if system else [])
                            + [{"role": "user", "content": prompt}]}
-        req = urllib.request.Request(url, data=json.dumps(body).encode(),
-                                     headers={"Content-Type": "application/json",
-                                              "Authorization": f"Bearer {self.api_key}"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            data = json.loads(r.read())
-        self.calls += 1
-        self.total_tokens += data.get("usage", {}).get("total_tokens", 0)
-        return data["choices"][0]["message"]["content"]
+        last = None
+        for attempt in range(self.retries):
+            req = urllib.request.Request(url, data=json.dumps(body).encode(),
+                                         headers={"Content-Type": "application/json",
+                                                  "Authorization": f"Bearer {self.api_key}"})
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout_s) as r:
+                    data = json.loads(r.read())
+                self.calls += 1
+                self.total_tokens += data.get("usage", {}).get("total_tokens", 0)
+                return data["choices"][0]["message"]["content"]
+            except Exception as e:            # noqa: BLE001 - any transport error is retried
+                last = e
+                if attempt + 1 < self.retries:
+                    time.sleep(2.0 * (attempt + 1))
+        self.failures += 1
+        raise LLMCallError(f"the model did not answer after {self.retries} attempts: {last}")
 
 
 class PromptAgent(AgentPolicy):
@@ -254,7 +277,14 @@ class PromptAgent(AgentPolicy):
         pass
 
     def act(self, obs: Dict) -> Dict:
-        text = self.llm.chat(render_prompt(obs), self.system)
+        try:
+            text = self.llm.chat(render_prompt(obs), self.system)
+        except LLMCallError:
+            # A model that cannot be reached is a property of the MEASURED POLICY, not of the
+            # harness: the call is wasted and the failure is counted, so the number appears in
+            # the report instead of the run dying.
+            return {"skill": "inspect_state", "target_index": obs.get("target_index", 0),
+                    "unparsed": True, "llm_failure": True}
         call = parse_tool_call(text)
         if call is None:
             # an unparseable answer is a wasted tool call, not a free pass: the harness counts it

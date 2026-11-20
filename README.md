@@ -20,7 +20,6 @@ Every stage ships working code, tests, measured results and an honest failure an
 | **M5.7** Does the filter work across proposal sources? (sim) | A classical planner given only the **Cartesian** goal plans 41/50 OOD episodes (82 %, median 1.2 s) and reaches **82.0 %** completion with 0 % collisions, against the filtered policy's 56.7 %. The filter is **redundant on a good proposal** (82.0 % → 82.0 %) and decisive on a bad one (38.7 % → 56.7 %, collisions 38.7 % → 0 %) | [RESULTS](docs/RESULTS.md#11-planner-guidance-does-the-filter-work-across-proposal-sources) |
 | **M5.8** The censoring of the safety evaluation (sim) | The episode **ends** when the conservative envelope touches the obstacle — so the arm never gets the chance to touch for real. Measured directly: the unfiltered policy's mesh-contact rate is **0 % censored** and **22 % uncensored**. "No real contact" was an artefact of the termination, not a property of the policy — and the filters, which never reach the envelope, are the only arms with 0 % contact either way | [RESULTS](docs/RESULTS.md#12-the-censoring-of-the-safety-evaluation) |
 | **M5.9** The cheap strong alternative, and the latency (sim) | A **speed-dependent stopping-distance margin** — the thing a reviewer asks for — reaches the tuned fixed margin's completion (46.0 % vs 45.3 %) and no more, and pays **8.7 % corrected collisions** for it where the look-ahead filter pays none. **The whole comparison replicates on the second untouched range** (51.3 % / 6.0 % against the filter's 56.7 % / 0 %). And the **latency objection is withdrawn**: with the statistic fixed, the execution-aware filter costs **1.18×** the kinematic QP at the median (0.89 ms vs 0.76 ms, 4.5 % of the 20 ms control period), not the 8× a defective statistic had produced | [RESULTS](docs/RESULTS.md#13-the-cheap-strong-alternative-and-the-latency) |
-| **M6** The next line: a **verifier-calibrated robot agent** | The control line becomes the **substrate**: a measured risk model of the execution layer (how often the safety claim fails, what stopping costs, how biased the collision metric is) is exactly what a high-level agent needs as a *reward*. Built and measured: the skill layer (plan / execute / inspect / replan / retreat), the calibrated verifier, four injected fault types, two fault profiles, and the **strong rule-based baseline** — it completes a three-waypoint inspection in **52 %** of the episodes (48 % under unseen faults) with **0 % mesh and 0 % envelope contacts in all 150**, and its dominant failure is the *tool* (681 failed plans), not the policy. A learned agent (prompt / SFT / GRPO) has to beat that | [PLAN §0](docs/RESEARCH_PLAN.md#0-revised-main-line-2026-11-09--read-this-first) · [RESULTS §14](docs/RESULTS.md#14-the-agent-line-the-strong-rule-based-baseline) |
 
 ---
 
@@ -127,42 +126,25 @@ confirmatory table cell for cell (36.0 %, 45.3 %, 54.0 %).
 
 The **manuscript is in the repository** as [`paper/manuscript.md`](paper/manuscript.md); every number in it has a committed JSON behind it, listed in [`docs/RESULTS.md`](docs/RESULTS.md).
 
-## M6: where this project is going — a verifier-calibrated robot agent
+## An explored direction that is not part of this paper
 
-The work above is the **control line**: it measured something real (a safety layer's own claim is a
-statement about the command, and the command is not the motion) and it built the assets a
-high-level agent needs. It is now the **substrate** rather than the contribution, and the next
-line moves one level up.
+This repository also contains an **agent layer** (`learning/ex_learning/agent/`): the robot's
+capabilities as callable tools (`plan_motion`, `execute_path`, `inspect_state`, `replan`,
+`retreat`, `finish`), a multi-waypoint inspection task with injected faults, and a
+*calibrated* verifier that scores an episode from the physics rather than from a boolean.
+It was built while the safety-filter line was being finished, on the hypothesis that the
+filter's measured risk model is the reward a high-level agent needs.
 
-**The new question.** When the safety layer's own guarantee is known to be imperfect — and its
-imperfection is *measured* — how should a high-level agent decide when to keep going, when to
-slow down, when to retreat, and when to give up? That is a sequence-decision problem, not a
-control problem.
+**It is not part of this paper and is not on the critical path.** The hypothesis was not
+tested - no learned policy was trained, so there is no result from it and none is claimed
+anywhere. What IS measured and committed is the rule-based baseline it would have to beat:
+it completes the task in 52 % of the episodes (48 % under a harder fault profile) with
+**0 % mesh and 0 % envelope contacts in all 150 episodes**, and its dominant failure is the
+*tool* - the planner fails to connect - rather than the policy.
 
-**Why this platform and not a generic simulator.** A generic "LLM calls verified robot skills"
-paper has been done (IROSA, RA-L 2026; RecoveryChaining, IROS 2025; MAGMA-GEN, CoRL 2026).
-Assembling those pieces is not a contribution. What this repository has that those papers do not
-is a **calibrated risk model of its own execution layer**:
-
-| what the control line measured | what it becomes for the agent |
-|---|---|
-| the safety claim fails in 9 % of the steps at a 2 cm margin, median error 12 mm | how much the agent's "the arm is safe" reward can be trusted |
-| stopping costs up to **87 mm** of clearance, and 35 % of states get closer | the price of "stop safely" — a **non-binary** trade-off, not a boolean |
-| the geometric metric is **one-sided** (1512/1512 samples), by 49 mm | the verifier's bias is known, conservative and quantified |
-| the envelope metric **stops the arm**: uncensored, the unfiltered policy makes **real mesh contact in 22 %** of the episodes | the reward must be computed on trajectories that were not truncated |
-
-**The contribution is therefore not "an agent that calls robot skills". It is "an agent whose
-reward is a *calibrated* risk signal, and a study of what post-training buys on top of it".**
-
-The decisive experiment compares, on **unseen fault combinations** and with the same task, tools
-and budget: a hand-written state machine (**A0** — the strong baseline, and if it matches the
-learned agent the learning claim is void), a prompt-only LLM agent (**A1**), SFT (**A2**) and
-GRPO/RLVR on the calibrated reward (**A4**), plus failure-node-focused sampling (**A5**) as the
-mechanism contribution.
-
-**The plan is in [`docs/RESEARCH_PLAN.md` §0](docs/RESEARCH_PLAN.md#0-revised-main-line-2026-11-09--read-this-first)**,
-together with the five repairs the control line has to make first — because a wrong verifier
-optimises toward a wrong target, and the agent's reward *is* the verifier.
+It is kept because the measurements are real and the code is tested, and because a portfolio
+should show what was tried. It is parked: the resources go to the obstacle-avoidance line
+and the hardware. See `docs/AGENT_EXPLORATION.md`.
 
 ## Every result, and where it comes from
 

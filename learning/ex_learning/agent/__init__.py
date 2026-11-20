@@ -1,7 +1,12 @@
 """The agent layer: skills, task, verifier, harness and policies (SIMULATION ONLY).
 
-This package is the new main line of the project (docs/RESEARCH_PLAN.md section 0). It turns the
-platform's measured execution layer into the substrate of a high-level agent:
+**PARKED EXPLORATION - NOT PART OF THE PAPER.** On 2026-11-20 the owner set this direction
+aside: the obstacle-avoidance line and the hardware get all the resources. The package is kept
+because the measurements are real, the code is tested, and a portfolio should show what was
+tried; the hypothesis it was built for was never tested, because no learned policy was trained.
+See `docs/AGENT_EXPLORATION.md`.
+
+It turns the platform's measured execution layer into the substrate of a high-level agent:
 
     skills.py     the robot's capabilities as callable, verifiable tools
     task.py       the multi-waypoint inspection task, with calibrated fault injection

@@ -24,3 +24,7 @@ logs/
 
 # the owner's remote compute infrastructure (SSH target, remote paths) - never committed
 scripts/remote/remote_config.local.sh
+
+# the language model key for the agent line (the harness reads it from the ENVIRONMENT at run
+# time; this file only makes it convenient, and it must never be committed)
+scripts/agent/*.local.sh

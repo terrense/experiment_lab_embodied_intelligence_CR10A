@@ -1,4 +1,8 @@
-"""The agent benchmark: the DECISIVE experiment of the new main line (SIMULATION ONLY).
+"""The agent benchmark (SIMULATION ONLY).
+
+**PARKED EXPLORATION - NOT PART OF THE PAPER.** See `docs/AGENT_EXPLORATION.md`. Only the
+rule-based baseline was measured; no learned policy was trained, so no arm of the decisive
+experiment has a number.
 
 What this script does
 ---------------------

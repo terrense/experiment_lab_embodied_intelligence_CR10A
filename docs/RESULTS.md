@@ -615,17 +615,19 @@ Per training seed (B4+ and the execution-aware filter):
 ---
 
 
-## 14. The agent line: the strong rule-based baseline
+## 14. The agent line (PARKED — not part of the paper)
 
-Source: `data/reports/learning/agent_benchmark_{seen,unseen}.json` and
-`agent_episodes_{seen,unseen}.json`, script `evaluation/agent_benchmark.py`.
+**This direction was explored and then set aside on 2026-11-20**: the obstacle-avoidance line
+and the hardware get all the resources. The section below records the one thing that was
+measured, for the record; **no claim anywhere in the manuscript rests on it**, and the reader of
+the paper will not encounter it.
 
-The task: three Cartesian inspection points (the TCP positions of the episode's goal
-configuration with the base joint swept by ±15°), visited in order; at each one the arm **holds**
-within 3.5 cm for five control steps. The radius is set by the plant: the measured servo
-tracking error is 3–15 mm and the arm's observed error at the end of a followed path is
-22–30 mm. Four fault types are injected with stated rates; the **unseen** profile uses the same
-fault types at different rates.
+Source: `data/reports/learning/agent_benchmark_{seen,unseen}.json`, script
+`evaluation/agent_benchmark.py`. Full account: `docs/AGENT_EXPLORATION.md`.
+
+The task: three Cartesian inspection points, visited in order; at each one the arm **holds**
+within 3.5 cm for five control steps. Four fault types with stated rates; the **unseen** profile
+uses the same fault types at different rates.
 
 **A0, the hand-written state machine** (50 episodes per profile, the same seeds for every
 policy so the comparison is paired):
@@ -635,25 +637,16 @@ policy so the comparison is paired):
 | seen | **52 %** | 1.88 / 3 | **0 %** | **0 %** | 27.7 | 15.7 | −15.23 |
 | unseen | **48 %** | 1.78 / 3 | **0 %** | **0 %** | 28.8 | 16.4 | −16.06 |
 
-* **The baseline is competent**, so it is a real bar: it completes the whole task in half of the
-  episodes, and the completed episodes take 16.4 tool calls. A learned agent has to beat 52 %
-  (48 % under unseen faults) *without* giving up the safety property.
-* **The safety layer holds in every episode**: zero mesh contacts and zero envelope contacts in
-  all 150 episodes under both profiles, minimum mesh clearance 71 mm. The agent's decisions are
-  about efficiency and recovery; the safety layer is what keeps the arm off the wall.
-* **The dominant failure is the TOOL, not the policy**: 681 of the failing calls in the seen
-  profile are `plan_failed` (741 in the unseen one) against 64 and 35 `stale`. The planner — the
-  agent's most important tool — cannot connect reliably.
-* **The unseen fault profile costs 4 points of completion** (52 % → 48 %) with the same zero
-  collisions.
+* **The safety layer holds in every episode**: zero mesh contacts and zero envelope contacts in all
+  150 episodes under both profiles, the minimum mesh clearance 71 mm.
+* **The dominant failure is the tool, not the policy**: 681 of the failing calls in the seen
+  profile are `plan_failed` (741 in the unseen one) against 64 and 35 `stale`.
+* **The unseen fault profile costs 4 points of completion** with the same zero collisions.
 
-**Not yet done:** A1 (prompt-only LLM) needs a language model — the harness reads the key from
-the environment and never from the repository. A2 (SFT) and A4 (GRPO/RLVR) need a GPU; the
-dataset generator and the training loop are written and tested, but the training has not been run
-and no number from them appears in the paper.
+**Not tested:** no learned policy of any kind (no SFT, no DPO, no GRPO), and therefore no claim
+about whether learning helps.
 
 ---
-
 
 ## 15. What is NOT in this document
 
